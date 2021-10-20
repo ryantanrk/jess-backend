@@ -6,5 +6,13 @@
 
     //database config
     $database = 'jess'; //database name
-    $personTable = 'person' //person table name
+    
+    //table names
+    $documentTable = 'document';
+    $metadataTable = 'documentmetadata';
+    $personTable = 'person';
+    $reviewTable = 'review';
+    $reviewerTable = 'reviewer';
+    $reviewerTopicTable = 'reviewertopic';
+    $topicTable = 'topic';
 ?>

@@ -5,9 +5,10 @@
             $type = 1;
 
             //create personID
-            
-            
-            return new Author();
+            $personobj = new Person();
+            $personID = $personobj->getLastID;
+
+            return new Author($personID, $username, $password, $email, $dob);
         }
     }
 ?>

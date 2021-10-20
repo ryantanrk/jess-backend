@@ -1,8 +1,14 @@
 <?php
     class ReviewerFactory extends PersonFactory {
-        public function createNewUser(): Person
+        public function createNewUser($username, $password, $email, $dob): Person
         {
-            return new Reviewer();
+            $type = 2;
+
+            //create personID
+            $personobj = new Person();
+            $personID = $personobj->getLastID;
+
+            return new Reviewer($personID, $username, $password, $email, $dob);
         }
     }
 ?>
