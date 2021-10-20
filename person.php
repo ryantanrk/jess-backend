@@ -13,8 +13,8 @@
     $return_arr = array();
 
     while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-        $row_arr['id'] = $row['id'];
-        $row_arr['name'] = $row['name'];
+        $row_arr['personID'] = $row['personID'];
+        $row_arr['username'] = $row['username'];
         $row_arr['email'] = $row['email'];
 
         array_push($return_arr, $row_arr);

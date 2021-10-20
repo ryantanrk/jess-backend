@@ -30,7 +30,7 @@ class Document
 {
 	private $documentState;
 
-	private $documentMetaData=array("documentID"=>"",
+	public $documentMetaData=array("documentID"=>"",
 							"title"=>"",
 							"topic"=>"",
 							"pages"=>"",
@@ -38,22 +38,19 @@ class Document
 							"status"=>"",
 							"mainAuthors"=>"",
 							"authorRemarks"=>"",
-							"editorRemarks"=>"",
-							//Journal specific
-							"printDate"=>"",
-							"journalIssue"=>""
+							"editorRemarks"=>""
 						);
 
-	private $documentContent = array("fileContent"=>"",
+	public $documentContent = array("fileContent"=>"",
 							"pdfFile"=>""
 						);
 
-	private $documentReview = array("tenPointRating"=>"",
+	public $documentReview = array("tenPointRating"=>"",
 							"reviewerComments"=>"",
 							"reviewerID"=>""
 						);
 
-	private $peopleInvolved = array();
+	public $peopleInvolved = array();
 
 	//------------------------------------------------------------------ Functions
 	//State functions
@@ -104,6 +101,11 @@ class Document
 		$this->documentState->getDocumentReview();
 	}
 
+	public function getDocumentState() : string
+	{
+		return get_class($this->documentState);
+	}
+
 	//Observer function
 	public function subscribe()
 	{
@@ -128,6 +130,17 @@ abstract class DocumentState
 	public function stateSetDocument(Document $documentContext)
 	{
 		$this->documentContext = $documentContext;
+
+		if($this->documentContext->getDocumentState() == "JournalState")
+		{
+			echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
+
+			$this->documentContext->documentMetaData["printDate"] = "";
+			$this->documentContext->documentMetaData["journalIssue"] = "";
+
+			print_r(array_keys($this->documentContext->documentMetaData));
+			echo "<br><br>";
+		}
 	}
 
 	abstract public function concreteTransform(): void;
@@ -181,8 +194,6 @@ class ManuscriptState extends DocumentState
 	}
 }
 
-//$arr += ['version' => 8];
-
 ////JournalState class
 class JournalState extends DocumentState
 {
@@ -229,8 +240,12 @@ $context = new Document(new ManuscriptState());
 echo "Dah <br><br>";
 
 $context->concreteTransform();
+$context->setDocumentReview();
+$context->getDocumentReview();
 echo "Dah <br><br>";
 
 $context->concreteTransform();
+$context->setDocumentReview();
+$context->getDocumentReview();
 echo "Dah <br><br>";
 ?>

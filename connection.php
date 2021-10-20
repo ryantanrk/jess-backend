@@ -4,7 +4,7 @@
 
     //if user is logged in but account got locked, sign out (update the active values too)
     //attempt to connect to database
-	$connection = mysqli_connect($server, $connectUser, $connectPass);
+	$connection = new mysqli($server, $connectUser, $connectPass);
 	if (!$connection)
 	{
 		die("Database connection failed: " . mysqli_error($connection));
