@@ -1,14 +1,12 @@
 <?php
+    require_once 'class\person.php';
     class ReviewerFactory extends PersonFactory {
-        public function createNewUser($username, $password, $email, $dob): Person
+        public function createNewUser($personID, $username, $password, $email, $dob): Person
         {
-            $type = 2;
-
             //create personID
-            $personobj = new Person();
-            $personID = $personobj->getLastID;
+            $personobj = new Reviewer($personID, $username, $password, $email, $dob);
 
-            return new Reviewer($personID, $username, $password, $email, $dob);
+            return $personobj;
         }
     }
 ?>

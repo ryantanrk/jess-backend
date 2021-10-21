@@ -1,4 +1,8 @@
 <?php
+    require_once 'editor.php';
+    require_once 'author.php';
+    require_once 'reviewer.php';
+    
     abstract class Person {
         public $personID;
         public $username;
