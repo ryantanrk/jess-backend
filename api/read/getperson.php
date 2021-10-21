@@ -2,6 +2,7 @@
 //url - localhost:80/api/read/getperson.php?api_key=
     require_once '../../connection.php';
     require_once '../../class/person.php';
+    require_once '../../factory/personfactory.php';
 
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
@@ -36,6 +37,7 @@
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             if ($row['type'] == 0) {
                 $editorobj = new Editor($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+
                 array_push($personarray, $editorobj);
             }
             else if ($row['type'] == 1) {
