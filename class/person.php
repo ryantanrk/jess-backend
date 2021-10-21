@@ -1,19 +1,18 @@
 <?php
     abstract class Person {
-        protected $personID;
-        protected $type;
-        protected $username;
-        protected $password;
-        protected $email;
-        protected $dob;
+        public $personID;
+        public $username;
+        public $password;
+        public $email;
+        public $dob;
 
         public function __construct($personID, $username, $password, $email, $dob) {
             //constructor
-            $this->$personID = $personID;
-            $this->$username = $username;
-            $this->$password = $password;
-            $this->$email = $email;
-            $this->$dob = $dob;
+            $this->personID = $personID;
+            $this->username = $username;
+            $this->password = $password;
+            $this->email = $email;
+            $this->dob = $dob;
         }
 
         abstract public function getManuscript();

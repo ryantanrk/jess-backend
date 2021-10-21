@@ -2,6 +2,8 @@
 //url - localhost:80/ajax/read/getperson.php
     require_once '../../connection.php';
     require_once '../../class/editor.php';
+    require_once '../../class/author.php';
+    require_once '../../class/reviewer.php';
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
 
@@ -14,7 +16,6 @@
     while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
         if ($row['type'] == 0) {
             $editorobj = new Editor($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-            echo json_encode($editorobj, JSON_PRETTY_PRINT);
             array_push($personarray, $editorobj);
         }
         else if ($row['type'] == 1) {
@@ -27,5 +28,5 @@
         }
     }
 
-    echo json_encode($personarray);
+    echo json_encode($personarray, JSON_PRETTY_PRINT);
 ?>
