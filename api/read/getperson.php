@@ -36,16 +36,22 @@
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             if ($row['type'] == 0) {
-                $editorobj = new Editor($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                $factoryobj = new EditorFactory;
+                $editorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                //$editorobj = new Editor($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
 
                 array_push($personarray, $editorobj);
             }
             else if ($row['type'] == 1) {
-                $authorobj = new Author($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                $factoryobj = new AuthorFactory;
+                $authorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                //$authorobj = new Author($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $authorobj);
             }
             else if ($row['type'] == 2) {
-                $reviewerobj = new Reviewer($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                $factoryobj = new ReviewerFactory;
+                $reviewerobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                //$reviewerobj = new Reviewer($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $reviewerobj);
             }
         }
