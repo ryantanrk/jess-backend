@@ -20,14 +20,14 @@
     $id = "";
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $conditions[] = " WHERE personID = `$id` ";
+        $conditions[] = " WHERE personID = '$id' ";
     }
 
     //get from person type
     $type = "";
     if (isset($_GET['type'])) {
         $type = $_GET['type'];
-        $conditions[] = " WHERE type = `$type` ";
+        $conditions[] = " WHERE type = '$type' ";
     }
 
     //get list of api keys
@@ -53,8 +53,6 @@
         if (!empty($conditions)) {
             $query .= implode(' AND ', $conditions);
         }
-
-        echo "<script>console.log(" . $query . ")</script>"; //test
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
