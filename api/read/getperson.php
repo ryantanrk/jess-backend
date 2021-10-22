@@ -1,5 +1,5 @@
 <?php
-//url - localhost:80/api/read/getperson.php?api_key=
+//url - localhost:80/api/read/getperson.php?api_key=&id=&type=
     require_once '../../connection.php';
     require_once '../../class/person.php';
     require_once '../../factory/personfactory.php';
@@ -11,6 +11,23 @@
     //get api key from url
     if (isset($_GET['api_key'])) {
         $api_key = $_GET['api_key'];
+    }
+
+    //sql conditions array
+    $conditions = [];
+
+    //get single id
+    $id = "";
+    if (isset($_GET['id'])) {
+        $id = $_GET['id'];
+        $conditions[] = " WHERE personID = `$id` ";
+    }
+
+    //get from person type
+    $type = "";
+    if (isset($_GET['type'])) {
+        $type = $_GET['type'];
+        $conditions[] = " WHERE type = `$type` ";
     }
 
     //get list of api keys
@@ -32,6 +49,13 @@
     if ($access == 1) {
         //if access granted
         $query = "SELECT * FROM `$personTable`"; //query
+
+        if (!empty($conditions)) {
+            $query .= implode(' AND ', $conditions);
+        }
+
+        echo "<script>console.log(" . $query . ")</script>"; //test
+
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
