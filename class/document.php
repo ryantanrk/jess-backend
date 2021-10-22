@@ -1,19 +1,15 @@
 <?php
-/*
----------
-Person
-----------
-Username
-Password
-Email
-Age
+require_once 'person.php';
 
-//Reviewers only get 1 area of expertise 
-
-*/
+abstract class AbstractDocument 
+{
+	abstract function subscribe(Person $subscriber);
+	abstract function unsubscribe(Person $subscriber);
+	abstract function notify();
+}
 
 //Document class
-class Document
+class Document extends AbstractDocument 
 {
 	private $documentState;
 
@@ -34,10 +30,10 @@ class Document
 
 	public $DocumentReviews = array();
 
-	public $peopleInvolved = array();
+	private $subscribers = array();
 
 	//------------------------------------------------------------------ Functions
-	//State functions
+	//------------------------------------------------------------------ State functions
 	public function __construct(DocumentState $documentState)
 	{
 		$this->transitionTo($documentState);
@@ -90,19 +86,29 @@ class Document
 		return get_class($this->documentState);
 	}
 
-	//Observer function
-	public function subscribe()
+	//------------------------------------------------------------------ Observer functions
+	function subscribe(Person $subscriber) 
 	{
-
+		array_push($this->subscribers, $subscriber);
+		// print_r($this->subscribers);
 	}
 
-	public function unSubscribe()
+	function unsubscribe(Person $subscriber) 
 	{
-		
+		//$key = array_search($observer_in, $this->subscribers);
+		foreach($this->subscribers as $okey => $oval) 
+		{
+			if ($oval == $observer_in)  
+			unset($this->subscribers[$okey]);
+		}
 	}
-	public function notifySubscribers()
+
+	function notify() 
 	{
-		
+		foreach($this->subscribers as $obs) 
+		{
+			$obs->update($this);
+		}
 	}
 }
 
@@ -147,6 +153,8 @@ abstract class DocumentState
 	abstract public function setDocumentReviews($drArray);
 	abstract public function getDocumentReviews();	
 }
+
+//-------------------------------------------------------------------------------------------------------- "Concrete" documents
 
 //ManuscriptState class
 class ManuscriptState extends DocumentState
@@ -296,6 +304,5 @@ class JournalState extends DocumentState
 		}
 	}
 }
-
 
 ?>

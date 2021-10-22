@@ -3,6 +3,14 @@
 
     abstract class PersonFactory {
         abstract public function createNewUser($personID, $username, $password, $email, $dob) : Person;
+
+        public function operation($personID, $username, $password, $email, $dob) {
+            $person = $this->createNewUser($personID, $username, $password, $email, $dob);
+
+            $str = "The person type is " + $person->type;
+
+            return $str;
+        }
     }
 
     class EditorFactory extends PersonFactory {
@@ -10,7 +18,7 @@
         {
             //create personID
             $personobj = new Editor($personID, $username, $password, $email, $dob);
-            
+            //echo "Editor created";
             return $personobj;
         }
     }
@@ -20,6 +28,7 @@
         {
             //create personID
             $personobj = new Author($personID, $username, $password, $email, $dob);
+            //echo "Author created";
 
             return $personobj;
         }
@@ -30,6 +39,7 @@
         {
             //create personID
             $personobj = new Reviewer($personID, $username, $password, $email, $dob);
+            //echo "Reviewer created";
 
             return $personobj;
         }

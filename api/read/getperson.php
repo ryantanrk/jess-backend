@@ -60,20 +60,16 @@
             if ($row['type'] == 0) {
                 $factoryobj = new EditorFactory;
                 $editorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-                //$editorobj = new Editor($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-
                 array_push($personarray, $editorobj);
             }
             else if ($row['type'] == 1) {
                 $factoryobj = new AuthorFactory;
                 $authorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-                //$authorobj = new Author($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $authorobj);
             }
             else if ($row['type'] == 2) {
                 $factoryobj = new ReviewerFactory;
                 $reviewerobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-                //$reviewerobj = new Reviewer($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $reviewerobj);
             }
         }
