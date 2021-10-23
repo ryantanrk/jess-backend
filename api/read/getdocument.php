@@ -1,4 +1,7 @@
 <?php
+//url - localhost:80/api/read/getdocument.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
+//mandatory attribute: ?api_key
+//optional: id, type, search
     require_once '../../connection.php';
     require_once '../../class/document.php';
 
@@ -30,7 +33,31 @@
         $query = "SELECT * FROM `$documentTable`";
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+            //get metadata first
+            $documentID = $row['documentID'];
+            $queryM = "SELECT * FROM `$metadataTable` WHERE documentID = '$documentID'";
+            $resultM = mysqli_query($connection, $query) or die(mysqli_error($connection));
             
+            $arrayM = "";
+            while ($rowM = mysqli_fetch_array($resultM, MYSQLI_ASSOC)) {
+                //get array
+                $arrayM = array(
+                    "documentID"=>"",
+                    "title"=>"",
+                    "topic"=>"",
+                    "pages"=>"",
+                    "dateOfSubmission"=>"",
+                    "status"=>"",
+                    "mainAuthor"=>"",
+                    "authorRemarks"=>"",
+                    "editorRemarks"=>""
+                );
+            }
         }
     }
+    else {
+        array_push($docarray, "Access denied.");
+    }
+
+    echo json_encode($docarray, JSON_PRETTY_PRINT);
 ?>
