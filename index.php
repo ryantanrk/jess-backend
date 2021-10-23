@@ -4,6 +4,6 @@
 		<title>lol</title>
 	</head>
 	<body>
-		yo
+		<img src="img/qiqifallen.png" alt="yo"/>
 	</body>
 </html>
