@@ -1,6 +1,6 @@
 <?php
 //url - localhost:80/api/read/getperson.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
-//mandatory attribute: ?api_key
+//mandatory: ?api_key
 //optional: id, type, search
     require_once '../../connection.php';
     require_once '../../class/person.php';

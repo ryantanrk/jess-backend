@@ -42,17 +42,19 @@
             while ($rowM = mysqli_fetch_array($resultM, MYSQLI_ASSOC)) {
                 //get array
                 $arrayM = array(
-                    "documentID"=>"",
-                    "title"=>"",
-                    "topic"=>"",
+                    "documentID"=>$documentID,
+                    "title"=>$row['title'],
+                    "topic"=>$rowM['topicID'],
                     "pages"=>"",
-                    "dateOfSubmission"=>"",
-                    "status"=>"",
-                    "mainAuthor"=>"",
-                    "authorRemarks"=>"",
-                    "editorRemarks"=>""
+                    "dateOfSubmission"=>$rowM['dateOfSubmission'],
+                    "status"=>$rowM['status'],
+                    "mainAuthor"=>$rowM['authorID'],
+                    "authorRemarks"=>$rowM['remarks'],
+                    "editorRemarks"=>$rowM['remarks']
                 );
             }
+
+            //get reviews
         }
     }
     else {
