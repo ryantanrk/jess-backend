@@ -1,5 +1,7 @@
 <?php
-//url - localhost:80/api/read/getperson.php?api_key=&id=&type=
+//url - localhost:80/api/read/getperson.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
+//mandatory attribute: ?api_key
+//optional: id, type, search
     require_once '../../connection.php';
     require_once '../../class/person.php';
     require_once '../../factory/personfactory.php';
@@ -20,14 +22,23 @@
     $id = "";
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $conditions[] = " WHERE personID = '$id' ";
+        $conditions[] = " personID = '$id' ";
     }
 
     //get from person type
     $type = "";
     if (isset($_GET['type'])) {
         $type = $_GET['type'];
-        $conditions[] = " WHERE type = '$type' ";
+        $conditions[] = " type = '$type' ";
+    }
+
+    //get from search term
+    $search = "";
+    if (isset($_GET['search'])) {
+        $search = $_GET['search'];
+        $conditions[] = " (personID LIKE '%$search%'
+        OR username LIKE '%$search%' 
+        OR email LIKE '%$search%') ";
     }
 
     //get list of api keys
@@ -51,6 +62,7 @@
         $query = "SELECT * FROM `$personTable`"; //query
 
         if (!empty($conditions)) {
+            $query .= ' WHERE ';
             $query .= implode(' AND ', $conditions);
         }
 
