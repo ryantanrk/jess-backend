@@ -1,8 +1,6 @@
 <?php
-    //get received input
-    $json = file_get_contents('php://input');
-    //decode into array
-    $body = json_decode($json, true);
+    //get received input and returns an associative array
+    $body = json_decode(file_get_contents('php://input'), true);
 
-    echo $json;
+    echo json_encode($body, JSON_PRETTY_PRINT);
 ?>
