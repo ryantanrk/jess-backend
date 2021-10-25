@@ -33,28 +33,53 @@
         $query = "SELECT * FROM `$documentTable`";
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            //get metadata first
+            //get data
             $documentID = $row['documentID'];
-            $queryM = "SELECT * FROM `$metadataTable` WHERE documentID = '$documentID'";
-            $resultM = mysqli_query($connection, $query) or die(mysqli_error($connection));
-            
-            $arrayM = "";
-            while ($rowM = mysqli_fetch_array($resultM, MYSQLI_ASSOC)) {
-                //get array
-                $arrayM = array(
-                    "documentID"=>$documentID,
-                    "title"=>$row['title'],
-                    "topic"=>$rowM['topicID'],
-                    "pages"=>"",
-                    "dateOfSubmission"=>$rowM['dateOfSubmission'],
-                    "status"=>$rowM['status'],
-                    "mainAuthor"=>$rowM['authorID'],
-                    "authorRemarks"=>$rowM['remarks'],
-                    "editorRemarks"=>$rowM['remarks']
-                );
-            }
+            $type = $row['type'];
+            //metadata
+            $authorID = $row['authorID'];
+            $title = $row['title'];
+            $topicID = $row['topicID'];
+            $pages = $row['pages'];
+            $dateOfSubmission = $row['dateOfSubmission'];
+            $status = $row['status'];
+            $authorRemarks = $row['authorRemarks'];
+            $editorRemarks = $row['editorRemarks'];
 
-            //get reviews
+            //metadata array
+            $metadata = array(
+                "documentID" => $documentID,
+                "title" => $title,
+                "topic" => $topicID,
+                "pages" => $pages,
+                "dateOfSubmission" => $dateOfSubmission,
+                "status" => $status,
+                "mainAuthorID" => $authorID,
+                "authorRemarks" => $authorRemarks,
+                "editorRemarks" => $editorRemarks
+            );
+
+            //content
+            $file = $row['file'];
+
+            //content array
+            $content = array(
+                "fileContent" => "",
+                "pdfFile" => $file
+            );
+
+            $documentobj = "";
+
+            //check type
+            if ($type == 0) {
+                $documentobj = new Document(new ManuscriptState);
+            }
+            else if ($type == 1) {
+                $documentobj = new Document(new JournalState);
+            }
+            
+            $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
+            $contentres = $documentobj->documentState->setDocumentContent($content); //set content
         }
     }
     else {

@@ -11,7 +11,7 @@ abstract class AbstractDocument
 //Document class
 class Document extends AbstractDocument 
 {
-	private $documentState;
+	public $documentState;
 
 	public $documentMetaData=array("documentID"=>"",
 							"title"=>"",
