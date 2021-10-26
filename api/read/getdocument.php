@@ -80,6 +80,9 @@
             
             $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
             $contentres = $documentobj->documentState->setDocumentContent($content); //set content
+
+            array_push($docarray, $metares);
+            array_push($docarray, $contentres);
         }
     }
     else {
