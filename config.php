@@ -9,10 +9,8 @@
     
     //table names
     $documentTable = 'document';
-    $metadataTable = 'documentmetadata';
     $personTable = 'person';
     $reviewTable = 'review';
     $reviewerTable = 'reviewer';
-    $reviewerTopicTable = 'reviewertopic';
     $topicTable = 'topic';
 ?>

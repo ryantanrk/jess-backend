@@ -6,16 +6,14 @@
     {
         public $type = 1;
 
-        public function getManuscript() {
-
+        public function getManuscript(AbstractDocument $documentObj) 
+        {
+            $documentObj->getDocumentContent();
         }
 
-        public function setManuscript() {
-
-        }
-
-        public function updatePersonData() {
-            
+        public function setManuscript(AbstractDocument $documentObj, $dcArray) 
+        {
+            $documentObj->setDocumentContent($dcArray);
         }
 
         public function makePayment() {
@@ -23,10 +21,9 @@
         }
         
         //--------------------------------------------------------------------- Observer method
-        public function update(AbstractDocument $documentObj) 
+        public function notify(AbstractDocument $documentObj) 
         {
             echo "Author notified<br>";
-            $documentObj->getDocumentContent();
         }           
     }
 

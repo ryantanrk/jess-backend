@@ -20,10 +20,23 @@
             $this->dob = $dob;
         }
 
-        abstract public function getManuscript();
-        abstract public function setManuscript();
-        abstract public function updatePersonData();
-        abstract function update(AbstractDocument $documentObj);
+        abstract public function getManuscript(AbstractDocument $documentObj);
+        abstract public function setManuscript(AbstractDocument $documentObj, $someArray);
+        abstract function notify(AbstractDocument $documentObj);
+        
+        public function updatePersonData($newID, $newUserName, $newPassword, $newEmail, $newDob) 
+        {
+            $this->personID = $newID;
+            $this->username = $newUserName;
+            $this->password = $newPassword;
+            $this->email = $newEmail;
+            $this->dob = $newDob;
+        }
+
+        public function getPersonData()
+        {
+            return array($this->personID, $this->username, $this->password, $this->email, $this->dob);
+        }              
     }
 
     // //------------------------------------------------------------------------------------------------ Testing zone

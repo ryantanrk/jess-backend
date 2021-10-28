@@ -64,7 +64,6 @@
 
             //content array
             $content = array(
-                "fileContent" => "",
                 "pdfFile" => $file
             );
 

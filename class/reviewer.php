@@ -5,23 +5,22 @@
     class Reviewer extends Person {
         public $type = 2;
 
-        public function getManuscript() {
-
+        public function getManuscript(AbstractDocument $documentObj) 
+        {
+            $documentObj->getDocumentMetaData();
+            $documentObj->getDocumentContent();
+            $documentObj->getDocumentReviews();
         }
 
-        public function setManuscript() {
-
-        }
-
-        public function updatePersonData() {
+        public function setManuscript(AbstractDocument $documentObj, $drArray) {
 
         }
 
         //--------------------------------------------------------------------- Observer method
-        public function update(AbstractDocument $documentObj) 
+        public function notify(AbstractDocument $documentObj) 
         {
             echo "Reviewer notified<br>";
-            $documentObj->getDocumentReviews();
-        }           
+        }
+
     }
 ?>

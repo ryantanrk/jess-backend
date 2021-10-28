@@ -1,5 +1,5 @@
 <?php
-	require_once 'document.php';
+	require_once '../document.php';
 
 	// ------------------------------------------------------------------------------------------------ The client code.
 
@@ -16,7 +16,9 @@
 		"status" => "docStatus1", 
 		"mainAuthor" => "docMainAuthor1", 
 		"authorRemarks" => "docAuthorRemarks1", 
-		"editorRemarks" => "docEditorRemarks1");
+		"editorRemarks" => "docEditorRemarks1",
+		"editorRemarks" => "docEditorRemarks1"
+	);
 
 	$DocumentObject->setDocumentMetaData($dmd);
 	echo "Document object meta data set <br><br>";

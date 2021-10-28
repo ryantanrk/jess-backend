@@ -5,23 +5,22 @@
     class Editor extends Person {
         public $type = 0;
 
-        public function getManuscript() {
-
+        public function getManuscript(AbstractDocument $documentObj) 
+        {
+            $documentObj->getDocumentMetaData();
+            $documentObj->getDocumentContent();
+            $documentObj->getDocumentReviews();
         }
 
-        public function setManuscript() {
-
-        }
-
-        public function updatePersonData() {
-            
+        public function setManuscript(AbstractDocument $documentObj, $dmdArray) 
+        {
+            $documentObj->setDocumentMetaData($dmdArray);
         }
 
         //--------------------------------------------------------------------- Observer method
-        public function update(AbstractDocument $documentObj) 
+        public function notify(AbstractDocument $documentObj) 
         {
           echo "Editor notified<br>";
-          $documentObj->getDocumentMetaData();
         }           
     }
 ?>

@@ -13,23 +13,23 @@ class Document extends AbstractDocument
 {
 	public $documentState;
 
-	public $documentMetaData=array("documentID"=>"",
-							"title"=>"",
-							"topic"=>"",
-							"pages"=>"",
-							"dateOfSubmission"=>"",
-							"status"=>"",
-							"mainAuthor"=>"",
-							"authorRemarks"=>"",
-							"editorRemarks"=>""
-						);
-
-	public $documentContent = array("fileContent"=>"",
-							"pdfFile"=>""
-						);
-
+	public $documentMetaData = array(
+		"documentID" => "", 
+		"topicID" => "", 
+		"authorID" => "", 
+		"title" => "", 
+		"type" => "", 
+		"dateOfSubmission" => "",
+		"pages" => "", 
+		"topic" => "", 
+		"authorRemarks" => "", 
+		"editorRemarks" => "",
+		"status" => ""
+	);
+	public $documentContent = array("fileContent"=>"");
 	public $DocumentReviews = array();
 
+	//Observer variable
 	private $subscribers = array();
 
 	//------------------------------------------------------------------ Functions
@@ -63,7 +63,7 @@ class Document extends AbstractDocument
 
 	public function setDocumentContent($dcArray)
 	{
-		$this->documentState->setDocumentContent();
+		$this->documentState->setDocumentContent($dcArray);
 	}
 	
 	public function getDocumentContent()
@@ -76,9 +76,9 @@ class Document extends AbstractDocument
 		$this->documentState->setDocumentReviews($drArray);
 	}
 
-	public function getDocumentReviews()
+	public function getDocumentReviews($reviewerIDArray)
 	{
-		$this->documentState->getDocumentReviews();
+		$this->documentState->getDocumentReviews($reviewerIDArray);
 	}
 
 	public function getDocumentState() : string
@@ -143,7 +143,7 @@ abstract class DocumentState
 		}
 	}
 
-	abstract public function concreteTransform(): void;
+	// abstract public function concreteTransform(): void;
 	abstract public function setDocumentMetaData($dmdArray);
 	abstract public function getDocumentMetaData();
 
@@ -151,7 +151,7 @@ abstract class DocumentState
 	abstract public function getDocumentContent();
 
 	abstract public function setDocumentReviews($drArray);
-	abstract public function getDocumentReviews();	
+	abstract public function getDocumentReviews($reviewerIDArray);	
 }
 
 //-------------------------------------------------------------------------------------------------------- "Concrete" documents
@@ -189,11 +189,12 @@ class ManuscriptState extends DocumentState
 
 	public function setDocumentContent($dcArray)
 	{
-		echo "ManuscriptState setDocumentContent(). <br>";
+		echo "ManuscriptState setDocumentContent(). <br>";		
 
 		foreach($dcArray as $key => $value)
 		{
-			$this->documentContext->documentContext[$key] = $value;		
+			$this->documentContext->documentContent[$key] = $value;		
+			echo $key . " : ". $value . "<br>";
 		}	
 	}
 	
@@ -229,16 +230,28 @@ class ManuscriptState extends DocumentState
 		}
 	}
 
-	public function getDocumentReviews()
+	public function getDocumentReviews($reviewerIDArray)
 	{
 		echo "ManuscriptState getDocumentReviews(). <br>";
 
-		foreach($this->documentContext->DocumentReviews as $key => $value)
+		foreach($reviewerIDArray as $targetReviewer)
 		{
-			echo "Reviewer : " . $value["reviewer"] . "<br>"; 
-			echo "rating : " . $value["rating"] . "<br>"; 
-			echo "comments : " . $value["comments"] . "<br><br>"; 
+			foreach($this->documentContext->DocumentReviews as $key => $value)
+			{
+				if($targetReviewer == $value["reviewer"])
+				{
+					echo "Reviewer : " . $value["reviewer"] . "<br>"; 
+					echo "rating : " . $value["rating"] . "<br>"; 
+					echo "comments : " . $value["comments"] . "<br><br>"; 
+					break;
+				}
+				else
+				{
+					echo "Dodging : " . $value["reviewer"] . "<br><br>";	
+				}
+			}
 		}
+
 	}
 }
 
@@ -256,8 +269,12 @@ class JournalState extends DocumentState
 		//It's a journal, the Non journal metadata should have been finalized
 		echo "JournalState setDocumentMetaData(). <br>";
 
-
-
+		//if the dmdArray's keys are not JournalIssue/printDate/Demote...chao from the scene
+		print_r(array_keys($dmdArray));
+		// foreach($dmdArray as $key => $value)
+		// {
+		// 	if()
+		// }
 	}
 
 	public function getDocumentMetaData()
@@ -292,7 +309,7 @@ class JournalState extends DocumentState
 		echo "JournalState setDocumentReviews(). <br>";
 	}
 
-	public function getDocumentReviews()
+	public function getDocumentReviews($reviewerIDArray)
 	{
 		echo "JournalState getDocumentReviews(). <br>";	
 		
