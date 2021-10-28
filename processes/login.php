@@ -26,11 +26,11 @@ function login($email, $p)
 				
 
 				//Navigate to appropriate page based on user type
+				//Pass the users data to these pages
 				if($user["type"] == "0")			
 				{
 					writeLine("Editor");
 					header("Location: editorSection.php");
-
 				}
 				else if($user["type"] == "1")		
 				{

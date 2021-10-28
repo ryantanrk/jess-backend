@@ -12,5 +12,4 @@
     $personTable = 'person';
     $reviewTable = 'review';
     $reviewerTable = 'reviewer';
-    $topicTable = 'topic';
 ?>

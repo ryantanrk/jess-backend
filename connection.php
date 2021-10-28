@@ -1,7 +1,7 @@
 <?php
     require_once 'config.php';
     //document is only called when user is logged in
-    $GLOBALS['conn'] = mysqli_connect($server, $username, $password, $database);
+    $GLOBALS['conn'] = mysqli_connect($server, $connectUser, $connectPass, $database);
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
     //if user is logged in but account got locked, sign out (update the active values too)
@@ -53,11 +53,13 @@
 
     function writeLine($input)
     {
+
         echo $input . "<br>";
     }
 
 	//function to get a new ID (for any table)
-    function getNewID($type) : string {
+    function getNewID($type) : string 
+    {
         require_once 'connection.php';
 
 		//get prefix & query

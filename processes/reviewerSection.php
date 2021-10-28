@@ -1,12 +1,12 @@
 <?php
 //require_once 'the session key';
 require_once '../connection.php';
-require_once '../document.php';
-require_once '../person.php';
+require_once '../class/document.php';
+require_once '../class/person.php';
 
+//-----------------------------------------------------------------------------------------------
 //Abstract retrieve function initiated. Array of commands unpackaged from JSON object in to $request
-
-//Example of $request
+//Examples of $request
 //mainPage
 // $request = ["request" => "mainPage"]; 
 
@@ -24,7 +24,8 @@ require_once '../person.php';
 // $request = ["request" => "getContent", "reviewerID" => "R1", "documentID" => D1"];	
 
 //rate
-$request = ["request" => "getContent", "reviewerID" => "R1", "documentID" => "D1"];
+$request = ["request" => "rate", "reviewerID" => "R1", "documentID" => "D1", "rating" => "9", "comment" => "NEIN NEIN NEIN"];
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //Reviewer object created
 $result = sqlProcesses("SELECT * FROM `person` WHERE `personID` = ?", "s", array($request["reviewerID"]));
@@ -111,12 +112,12 @@ if($request["request"] == "mainPage")
 // }
 else if($request["request"] == "rate")
 {
-	$request = ["request" => "getContent", "reviewerID" => "R1", "documentID" => "D1"];
-
-	//Rating
-	//Comment
-	//DocumentID
-	//ReviewerID
+	writeLine("oi");
+	$reviewerInvolvedDocumentsWithoutContent[0]->setDocumentReviews(["reviewerID" => "R1", "rating" => "9", "comment" => "NEIN NEIN NEIN"]);
+	$reviewerInvolvedDocumentsWithoutContent[0]->setDocumentReviews(["reviewerID" => "R2", "rating" => "8", "comment" => "EIGHT EIGHT EIGHT"]);
+	$reviewerInvolvedDocumentsWithoutContent[0]->setDocumentReviews(["reviewerID" => "R3", "rating" => "7", "comment" => "CHAT CHAT CHAT"]);
+	writeLine("");
+	$reviewerInvolvedDocumentsWithoutContent[0]->getDocumentReviews([$request["reviewerID"]]);
+	$reviewerInvolvedDocumentsWithoutContent[0]->getDocumentReviews([$request["reviewerID"], "R2", "R3"]);
 }
-//Continuing tmr
 ?>

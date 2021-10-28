@@ -214,41 +214,53 @@ class ManuscriptState extends DocumentState
 
 		$similarReviewers = false;
 
-		foreach($this->documentContext->DocumentReviews as $key => $value)
+		if(sizeof($this->documentContext->DocumentReviews) > 0)
 		{
-			if($value["reviewer"] == $drArray["reviewer"])
+			foreach($this->documentContext->DocumentReviews as $key => $value)
 			{
-				// echo $value["reviewer"] . " = " . $drArray["reviewer"] . "<br>";
-				$similarReviewers = true;
-				break;
+				if($value["reviewerID"] == $drArray["reviewerID"])
+				{
+					$similarReviewers = true;
+					$this->documentContext->DocumentReviews[$key]["rating"]  = $drArray["rating"];
+					$this->documentContext->DocumentReviews[$key]["comment"] = $drArray["comment"];
+
+					break;
+				}
+			}
+
+			if($similarReviewers == false)
+			{
+				array_push($this->documentContext->DocumentReviews, $drArray);
 			}
 		}
-
-		if($similarReviewers == false)
+		else
 		{
 			array_push($this->documentContext->DocumentReviews, $drArray);
+			print_r($this->documentContext->DocumentReviews);
 		}
 	}
 
 	public function getDocumentReviews($reviewerIDArray)
 	{
 		echo "ManuscriptState getDocumentReviews(). <br>";
+		// print_r($this->documentContext->DocumentReviews);
 
 		foreach($reviewerIDArray as $targetReviewer)
 		{
+
 			foreach($this->documentContext->DocumentReviews as $key => $value)
 			{
-				if($targetReviewer == $value["reviewer"])
+				if($targetReviewer == $value["reviewerID"])
 				{
-					echo "Reviewer : " . $value["reviewer"] . "<br>"; 
+					echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
 					echo "rating : " . $value["rating"] . "<br>"; 
-					echo "comments : " . $value["comments"] . "<br><br>"; 
+					echo "comment : " . $value["comment"] . "<br><br>"; 
 					break;
 				}
-				else
-				{
-					echo "Dodging : " . $value["reviewer"] . "<br><br>";	
-				}
+				// else
+				// {
+				// 	echo "Dodging : " . $value["reviewerID"] . "<br><br>";	
+				// }
 			}
 		}
 
@@ -315,7 +327,7 @@ class JournalState extends DocumentState
 		
 		foreach($this->documentContext->DocumentReviews as $key => $value)
 		{
-			echo "Reviewer : " . $value["reviewer"] . "<br>"; 
+			echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
 			echo "rating : " . $value["rating"] . "<br>"; 
 			echo "comments : " . $value["comments"] . "<br><br>"; 
 		}

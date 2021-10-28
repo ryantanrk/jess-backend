@@ -39,7 +39,7 @@
             //metadata
             $authorID = $row['authorID'];
             $title = $row['title'];
-            $topicID = $row['topicID'];
+            $topic = $row['topic'];
             $pages = $row['pages'];
             $dateOfSubmission = $row['dateOfSubmission'];
             $status = $row['status'];
@@ -50,7 +50,7 @@
             $metadata = array(
                 "documentID" => $documentID,
                 "title" => $title,
-                "topic" => $topicID,
+                "topic" => $topic,
                 "pages" => $pages,
                 "dateOfSubmission" => $dateOfSubmission,
                 "status" => $status,

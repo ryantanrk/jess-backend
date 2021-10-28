@@ -1,28 +1,6 @@
 <?php
 require_once '../connection.php';
 
-function sqlProcesses($sqlStatement, $paramString, $paramVariablesArray)
-{
-	$paramVariablesArrayProcessed = array();
-
-	$paramVariablesArrayProcessed[] = & $paramString;
-
-	for($i = 0; $i < strlen($paramString); $i++)
-		$paramVariablesArrayProcessed[] = & $paramVariablesArray[$i];
-
-	/* Prepare statement */
-	$stmt = $GLOBALS['conn']->prepare($sqlStatement);
-	if($stmt === false)
-		trigger_error('Wrong SQL: ' . $sql . ' Error: ' . $conn->errno . ' ' . $conn->error, E_USER_ERROR);
-
-	call_user_func_array(array($stmt, 'bind_param'), $paramVariablesArrayProcessed);
-	$stmt->execute();
-
-	$result = $stmt->get_result();
-
-	return $result;
-}
-
 function signUp($userName, $password, $emailAddress, $role, $dob)
 {
 	$paramVariablesArray = [$userName, $emailAddress];
@@ -50,14 +28,24 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 						 VALUES (?, ?, ?, ?, ?, ?)";
 		
 		$personID = 'P' . ($totalUsers + 1);
-		$paramVariablesArray = [$personID, $role, $userName, $password, $emailAddress, $dob];
+
+		$paramVariablesArray = [$personID, $role[0], $userName, $password, $emailAddress, $dob];
 
 		sqlProcesses($sqlStatement, "ssssss", $paramVariablesArray);
 
 		echo "Sign up succeeded<br>";
+
+		if($role[0] == "2")
+		{
+			writeLine("we have a reviewer");
+			echo substr($role,2);
+
+			$paramVariablesArray = [$personID, substr($role,2), "available"];
+			sqlProcesses("INSERT INTO `reviewer`(`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
+		}
 	}
 }
 
-signUp("reviewer4", "password", "editor3@x.com", "2", "0/0/0");
+signUp("reviewer4", "password", "reviewer4@x.com", "2-Science", "0/0/0");
 
 ?>
