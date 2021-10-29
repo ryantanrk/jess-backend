@@ -35,28 +35,28 @@
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //get data
             $documentID = $row['documentID'];
-            $type = $row['type'];
-            //metadata
             $authorID = $row['authorID'];
             $title = $row['title'];
             $topic = $row['topic'];
             $pages = $row['pages'];
             $dateOfSubmission = $row['dateOfSubmission'];
-            $status = $row['status'];
             $authorRemarks = $row['authorRemarks'];
             $editorRemarks = $row['editorRemarks'];
+            $status = $row['status'];
+
+            $type = $row['type'];
 
             //metadata array
             $metadata = array(
                 "documentID" => $documentID,
+                "authorID" => $authorID, 
                 "title" => $title,
                 "topic" => $topic,
                 "pages" => $pages,
                 "dateOfSubmission" => $dateOfSubmission,
-                "status" => $status,
-                "mainAuthorID" => $authorID,
                 "authorRemarks" => $authorRemarks,
-                "editorRemarks" => $editorRemarks
+                "editorRemarks" => $editorRemarks,
+                "status" => $status
             );
 
             //content
@@ -80,8 +80,7 @@
             $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
             $contentres = $documentobj->documentState->setDocumentContent($content); //set content
 
-            array_push($docarray, $metares);
-            array_push($docarray, $contentres);
+            array_push($docarray, $documentobj);
         }
     }
     else {

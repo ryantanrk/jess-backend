@@ -1,13 +1,13 @@
 <?php
 require_once '../connection.php';
 
-function signUp($userName, $password, $emailAddress, $role, $dob)
+function signUp($personID, $userName, $password, $emailAddress, $role, $dob)
 {
 	$paramVariablesArray = [$userName, $emailAddress];
 
 	$result = sqlProcesses("SELECT * FROM `person` WHERE `username` = ? AND `email` = ?", "ss", $paramVariablesArray);
 
-	if(mysqli_num_rows($result) > 0)
+	if(mysqli_num_rows($result) > 1)
 	{
 		while($user = mysqli_fetch_assoc($result))
 		{
@@ -26,10 +26,8 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 		$totalUsers = $value['COUNT(?)'];
 		$sqlStatement = "INSERT INTO `person`(`personID`, `type`, `username`, `password`, `email`, `dob`)
 						 VALUES (?, ?, ?, ?, ?, ?)";
-		
-		$personID = 'P' . ($totalUsers + 1);
 
-		$paramVariablesArray = [$personID, $role[0], $userName, $password, $emailAddress, $dob];
+		$paramVariablesArray = [$personID, $role[0], $userName, md5($password), $emailAddress, $dob];
 
 		sqlProcesses($sqlStatement, "ssssss", $paramVariablesArray);
 
@@ -46,6 +44,15 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 	}
 }
 
-signUp("reviewer4", "password", "reviewer4@x.com", "2-Science", "0/0/0");
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	$personID = getNewID($type);
+	$username = $_POST['username'];
+	$password = $_POST['password'];
+	$email = $_POST['email'];
+	$role = $_POST['type'];
+	$dob = $_POST['dob'];
 
+	//sign up
+	signUp($personID, $username, $password, $email, $role, $dob);
+}
 ?>

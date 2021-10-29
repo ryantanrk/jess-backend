@@ -15,13 +15,11 @@ class Document extends AbstractDocument
 
 	public $documentMetaData = array(
 		"documentID" => "", 
-		"topicID" => "", 
-		"authorID" => "", 
+		"authorID" => "", 		
 		"title" => "", 
-		"type" => "", 
+		"topic" => "", 
 		"dateOfSubmission" => "",
 		"pages" => "", 
-		"topic" => "", 
 		"authorRemarks" => "", 
 		"editorRemarks" => "",
 		"status" => ""

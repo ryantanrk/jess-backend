@@ -51,12 +51,11 @@ if(mysqli_num_rows($result) > 0)
 		//documentMetaData prepared
 		$dmdArray = array(
 		  "documentID" => $reviewerInvolvements["documentID"], 
-		  "topicID" => $reviewerInvolvements["topicID"], 
 		  "authorID" => $reviewerInvolvements["authorID"], 
 		  "title" => $reviewerInvolvements["title"], 
+		  "topic" => $reviewerInvolvements["topic"], 
 		  "dateOfSubmission" => $reviewerInvolvements["dateOfSubmission"], 
 		  "pages" => $reviewerInvolvements["pages"], 
-		  "topic" => $reviewerInvolvements["topic"], 
 		  "authorRemarks" => $reviewerInvolvements["authorRemarks"], 
 		  "editorRemarks" => $reviewerInvolvements["editorRemarks"],
 		  "status" => $reviewerInvolvements["status"]
