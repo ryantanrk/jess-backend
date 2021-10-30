@@ -69,20 +69,36 @@
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+            $personID = $row['personID'];
             if ($row['type'] == 0) {
                 $factoryobj = new EditorFactory;
-                $editorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                $editorobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $editorobj);
             }
             else if ($row['type'] == 1) {
                 $factoryobj = new AuthorFactory;
-                $authorobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
+                $authorobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
                 array_push($personarray, $authorobj);
             }
             else if ($row['type'] == 2) {
                 $factoryobj = new ReviewerFactory;
-                $reviewerobj = $factoryobj->createNewUser($row['personID'], $row['username'], $row['password'], $row['email'], $row['dob']);
-                array_push($personarray, $reviewerobj);
+                $reviewerobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
+
+                // array_push($personarray, $reviewerobj);
+                $rquery = "SELECT * FROM `$reviewerTable` WHERE `personID` = '$personID'";
+                $resultr = mysqli_query($connection, $rquery) or die(mysqli_error($connection));
+                while ($rowr = mysqli_fetch_array($resultr, MYSQLI_ASSOC)) {
+                    $areaOfExpertise = $rowr['areaOfExpertise'];
+                    $status = $rowr['status'];
+
+                    $reviewerarr = [
+                        "areaOfExpertise" => $areaOfExpertise,
+                        "status" => $status
+                    ];
+
+                    $reviewerarr = array_merge((array) $reviewerobj, $reviewerarr);
+                    array_push($personarray, $reviewerarr);
+                }
             }
         }
     }

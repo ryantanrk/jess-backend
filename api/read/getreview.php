@@ -1,5 +1,5 @@
 <?php
-//url - localhost:80/api/read/getreview.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
+//url - localhost:80/api/read/getreview.php?api_key=(api_key)&id=(id)&docID=(type)&reviewerID=(search)
 //mandatory: ?api_key
 //optional: id, docID, reviewerID
     require_once '../../connection.php';
