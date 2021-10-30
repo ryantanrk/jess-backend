@@ -43,11 +43,9 @@
 
             $result = sqlProcesses($rquery, "s", [$personID]);
 
-            if(mysqli_num_rows($result) == 1) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $personobj->areaOfExpertise = $row['areaOfExpertise'];
-                    $personobj->status = $row['status'];
-                }
+            while ($row = mysqli_fetch_assoc($result)) {
+                $personobj->areaOfExpertise = $row['areaOfExpertise'];
+                $personobj->status = $row['status'];
             }
 
             return $personobj;

@@ -16,12 +16,14 @@
 
     //sql conditions array
     $conditions = [];
+    $paramArray = [];
 
     //get single id
     $id = "";
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
         $conditions[] = " reviewID = '$id' ";
+        $paramArray[] = $id;
     }
 
     //get from documentID
@@ -29,6 +31,7 @@
     if (isset($_GET['docID'])) {
         $docID = $_GET['docID'];
         $conditions[] = " documentID = '$docID' ";
+        $paramArray[] = $docID;
     }
 
     //get from reviewerID
@@ -36,6 +39,7 @@
     if (isset($_GET['reviewerID'])) {
         $reviewerID = $_GET['reviewerID'];
         $conditions[] = " reviewerID = '$reviewerID' ";
+        $paramArray[] = $reviewerID;
     }
 
     //get list of api keys
@@ -66,7 +70,10 @@
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            //get row, make document review struct and push the struct to the review array
+            //review object
+            $reviewobj = new Review($row['reviewerID'], $row['documentID'], $row['rating'], $row['comment']);
+
+            array_push($reviewarray, $reviewobj);
         }
     }
     else {
@@ -74,5 +81,5 @@
         array_push($reviewarray, "Access denied.");
     }
 
-    echo json_encode($reviewarray);
+    echo json_encode($reviewarray, JSON_PRETTY_PRINT);
 ?>
