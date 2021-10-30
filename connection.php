@@ -53,51 +53,50 @@
 
     function writeLine($input)
     {
-
         echo $input . "<br>";
     }
 
 	//function to get a new ID (for any table)
     function getNewID($type) : string 
     {
-        require_once 'connection.php';
-
+        global $personTable, $documentTable, $connection;
 		//get prefix & query
         $prefix = "";
         $query = "";
         switch ($type) {
             case 0: //editor
                 $prefix = "E";
-                $query = "SELECT 'personID' FROM `$personTable` WHERE 'type' = 0";
+                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '0'";
                 break;
             case 1: //author
                 $prefix = "A";
-                $query = "SELECT 'personID' FROM `$personTable` WHERE 'type' = 1";
+                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '1'";
                 break;
             case 2: //reviewer
                 $prefix = "R";
-                $query = "SELECT 'personID' FROM `$personTable` WHERE 'type' = 2";
+                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '2'";
                 break;
             case 3: //document
                 $prefix = "D";
-                $query = "SELECT 'documentID' FROM `$documentTable`";
+                $query = "SELECT `personID` FROM `$documentTable`";
                 break;
         }
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         
         $chosenID = $prefix . "1";
-        if ($row->count()) {
-            $maxID = 1;
-            //if exists
+        $maxNum = 1;
+
+        if (mysqli_num_rows($result) != 0) {
             while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                $id = substr($row['personID'], 1);
-                if ($id > $maxID) {
-                    $maxID = $id;
+                $personID = $row['personID'];
+                $id = substr($personID, 1);
+
+                if ($id > $maxNum) {
+                    $maxNum = $id;
                 }
             }
-            //form new chosenid
-            $chosenID = $prefix . $id;
+            $chosenID = $prefix . ($maxNum + 1);
         }
 
         return $chosenID;
