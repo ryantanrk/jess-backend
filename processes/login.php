@@ -1,6 +1,10 @@
 <?php
 
 require_once '../connection.php';
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+
+$randomArray = ["oi" => "oi"];
 
 function login($email, $p)
 {
@@ -16,12 +20,11 @@ function login($email, $p)
 		while($user = mysqli_fetch_assoc($result))
 		{
 			///get the correct password to compare input with
-			print_r($user);
-			echo "<br><br>";
+			// print_r($user);
 	
 			if($pword == $user["password"])
 			{
-				echo "User authenticated - " . $user["email"] . ":" . $user["password"]. "<br>";
+				// echo "User authenticated - " . $user["email"] . ":" . $user["password"]. "<br>";
 				$_SESSION["currentUser"] = $user["personID"];	///info to be held on to throughout session is declared here
 				
 
@@ -29,30 +32,35 @@ function login($email, $p)
 				//Pass the users data to these pages
 				if($user["type"] == "0")			
 				{
-					writeLine("Editor");
-					header("Location: editorSection.php");
+					echo json_encode(["Editor"]);
+					// writeLine("Editor");
 				}
 				else if($user["type"] == "1")		
 				{
-					writeLine("Author");
-					header("Location: authorSection.php");
+					echo json_encode(["Author"]);
+					// writeLine("Author");
 				}
 				else if($user["type"] == "2")				
 				{
-					writeLine("Reviewer");
-					header("Location: reviewerSection.php");
-				}								
+					echo json_encode(["Reviewer"]);
+					// writeLine("Reviewer");
+				}	
+		
 			}
 			else
 				//Echo JSON object back to user
-				echo "wrong password";
+				echo json_encode(["wrong password"]);
+				// echo "wrong password";
 		}
 
 	}
 	else
-		echo "no such user email";
+		echo json_encode(["no such user email"]);
+		// echo "no such user email";
 }
+// echo json_encode($randomArray);
 
-login("reviewer1@x.com", "password");
+login("author1@x.com", "password");
 
+// print_r($randomArray);
 ?>

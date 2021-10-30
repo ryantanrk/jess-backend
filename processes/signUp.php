@@ -1,7 +1,11 @@
 <?php
 require_once '../connection.php';
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
 
-function signUp($personID, $userName, $password, $emailAddress, $role, $dob)
+$arr = [1 => "Send a POST request to this url!"];
+
+function signUp($userName, $password, $emailAddress, $role, $dob)
 {
 	$paramVariablesArray = [$userName, $emailAddress];
 
@@ -13,46 +17,49 @@ function signUp($personID, $userName, $password, $emailAddress, $role, $dob)
 		{
 			///get the correct password to compare input with
 			print_r($user);
-			echo "<br><br>";
 		}
-		echo "Sign up failed. User already exists<br>";
+		array_push($arr, [
+			"error" => "User already exists."
+		]);
 	}
 	else
 	{
+		$personID = getNewID($role);
 		$paramVariablesArray = ["*"];
-		$result = sqlProcesses("SELECT COUNT(?) FROM `person`", "s", $paramVariablesArray);		
-		$value = mysqli_fetch_assoc($result);
+		// $result = sqlProcesses("SELECT COUNT(?) FROM `person`", "s", $paramVariablesArray);		
+		// $value = mysqli_fetch_assoc($result);
 
-		$totalUsers = $value['COUNT(?)'];
+		// $totalUsers = $value['COUNT(?)'];
 		$sqlStatement = "INSERT INTO `person`(`personID`, `type`, `username`, `password`, `email`, `dob`)
-						 VALUES (?, ?, ?, ?, ?, ?)";
+						 VALUES (?,?,?,?,?,?)";
 
 		$paramVariablesArray = [$personID, $role[0], $userName, md5($password), $emailAddress, $dob];
 
 		sqlProcesses($sqlStatement, "ssssss", $paramVariablesArray);
-
-		echo "Sign up succeeded<br>";
+		$message = "Account username " . $userName . " successfully created.";
 
 		if($role[0] == "2")
 		{
-			writeLine("we have a reviewer");
-			echo substr($role,2);
-
-			$paramVariablesArray = [$personID, substr($role,2), "available"];
+			$paramVariablesArray = [$personID, substr($role, 2), "pending approval"];
 			sqlProcesses("INSERT INTO `reviewer`(`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
+			$message = "Reviewer account username " . $userName . " successfully created.";
 		}
+		array_push($arr, [
+			"success" => $message
+		]);
 	}
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	$personID = getNewID($type);
 	$username = $_POST['username'];
 	$password = $_POST['password'];
 	$email = $_POST['email'];
-	$role = $_POST['type'];
+	$role = $_POST['type']; //contains area of expertise (if reviewer)
 	$dob = $_POST['dob'];
 
 	//sign up
-	signUp($personID, $username, $password, $email, $role, $dob);
+	signUp($username, $password, $email, $role, $dob);
 }
+
+echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
