@@ -85,20 +85,21 @@
                 $reviewerobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
 
                 // array_push($personarray, $reviewerobj);
-                $rquery = "SELECT * FROM `$reviewerTable` WHERE `personID` = '$personID'";
-                $resultr = mysqli_query($connection, $rquery) or die(mysqli_error($connection));
-                while ($rowr = mysqli_fetch_array($resultr, MYSQLI_ASSOC)) {
-                    $areaOfExpertise = $rowr['areaOfExpertise'];
-                    $status = $rowr['status'];
+                // $rquery = "SELECT * FROM `$reviewerTable` WHERE `personID` = '$personID'";
+                // $resultr = mysqli_query($connection, $rquery) or die(mysqli_error($connection));
+                // while ($rowr = mysqli_fetch_array($resultr, MYSQLI_ASSOC)) {
+                //     $areaOfExpertise = $rowr['areaOfExpertise'];
+                //     $status = $rowr['status'];
 
-                    $reviewerarr = [
-                        "areaOfExpertise" => $areaOfExpertise,
-                        "status" => $status
-                    ];
+                //     $reviewerarr = [
+                //         "areaOfExpertise" => $areaOfExpertise,
+                //         "status" => $status
+                //     ];
 
-                    $reviewerarr = array_merge((array) $reviewerobj, $reviewerarr);
-                    array_push($personarray, $reviewerarr);
-                }
+                //     $reviewerarr = array_merge((array) $reviewerobj, $reviewerarr);
+                    
+                // }
+                array_push($personarray, $reviewerobj);
             }
         }
     }

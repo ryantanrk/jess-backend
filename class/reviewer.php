@@ -4,6 +4,8 @@
 
     class Reviewer extends Person {
         public $type = 2;
+        public $areaOfExpertise;
+        public $status;
 
         public function getManuscript(AbstractDocument $documentObj) 
         {

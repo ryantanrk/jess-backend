@@ -1,6 +1,5 @@
 <?php
     //require_once '../class/person.php';
-
     abstract class PersonFactory {
         abstract public function createNewUser($personID, $username, $password, $email, $dob) : Person;
 
@@ -18,7 +17,7 @@
         {
             //create personID
             $personobj = new Editor($personID, $username, $password, $email, $dob);
-            //echo "Editor created";
+
             return $personobj;
         }
     }
@@ -28,7 +27,6 @@
         {
             //create personID
             $personobj = new Author($personID, $username, $password, $email, $dob);
-            //echo "Author created";
 
             return $personobj;
         }
@@ -39,7 +37,18 @@
         {
             //create personID
             $personobj = new Reviewer($personID, $username, $password, $email, $dob);
-            //echo "Reviewer created";
+
+
+            $rquery = "SELECT * FROM `reviewer` WHERE `personID` = ?";
+
+            $result = sqlProcesses($rquery, "s", [$personID]);
+
+            if(mysqli_num_rows($result) == 1) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $personobj->areaOfExpertise = $row['areaOfExpertise'];
+                    $personobj->status = $row['status'];
+                }
+            }
 
             return $personobj;
         }
