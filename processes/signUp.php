@@ -12,18 +12,26 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 	global $arr;
 	$paramVariablesArray = [$userName, $emailAddress];
 
-	$result = sqlProcesses("SELECT * FROM `person` WHERE `username` = ? AND `email` = ?", "ss", $paramVariablesArray);
+	//check for existing username/email
+	$result = sqlProcesses("SELECT * FROM `person` WHERE `username` = ? OR `email` = ?", "ss", $paramVariablesArray);
 
-	if(mysqli_num_rows($result) > 1)
+	if(mysqli_num_rows($result) == 1)
 	{
 		while($user = mysqli_fetch_assoc($result))
 		{
-			///get the correct password to compare input with
-			print_r($user);
+			$un = $user['username'];
+			$em = $user['email'];
+			$arr = [
+				"error" => "User already exists."
+			];
+
+			if ($un == $userName) {
+				$arr['username'] = "match";
+			}
+			if ($em == $emailAddress) {
+				$arr['email'] = "match";
+			}
 		}
-		$arr = [
-			"error" => "User already exists."
-		];
 	}
 	else
 	{
