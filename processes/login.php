@@ -35,7 +35,7 @@ function login($email, $p)
 				//Pass the users data to these pages
 				if($user["type"] == "0")			
 				{
-					$message += "Editor";
+					$message . "Editor";
 					// writeLine("Editor");
 				}
 				else if($user["type"] == "1")		
@@ -78,15 +78,15 @@ function login($email, $p)
 		$message . "No such user email";
 }
 
-// if ($_SERVER["REQUEST_METHOD"] == "POST") {
-// 	$email = $_POST['email'];
-// 	$password = $_POST['password'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	$email = $_POST['email'];
+	$password = $_POST['password'];
 
-// 	login($email, md5($password));
-// }
+	login($email, md5($password));
 
-login("author1@x.com", md5("password"));
+	echo json_encode($arr, JSON_PRETTY_PRINT);
+}
 
-echo json_encode($arr, JSON_PRETTY_PRINT);
-
+// login("author1@x.com", md5("password"));
+// echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
