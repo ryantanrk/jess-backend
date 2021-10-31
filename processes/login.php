@@ -1,13 +1,18 @@
 <?php
-
 require_once '../connection.php';
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: *");
+header("Content-Type: application/json");
 
-$randomArray = ["oi" => "oi"];
+$arr = [1 => "Send a POST request to this url!"];
+$message = "";
 
 function login($email, $p)
 {
+	global $arr;
+	global $message;
+
 	$email = $email;
 	$pword = $p;
 
@@ -20,47 +25,68 @@ function login($email, $p)
 		while($user = mysqli_fetch_assoc($result))
 		{
 			///get the correct password to compare input with
-			// print_r($user);
-	
+
 			if($pword == $user["password"])
 			{
-				// echo "User authenticated - " . $user["email"] . ":" . $user["password"]. "<br>";
-				$_SESSION["currentUser"] = $user["personID"];	///info to be held on to throughout session is declared here
-				
+				///info to be held on to throughout session is declared here
+				$_SESSION["currentUser"] = $user["personID"];	
 
 				//Navigate to appropriate page based on user type
 				//Pass the users data to these pages
 				if($user["type"] == "0")			
 				{
-					echo json_encode(["Editor"]);
+					$message += "Editor";
 					// writeLine("Editor");
 				}
 				else if($user["type"] == "1")		
 				{
-					echo json_encode(["Author"]);
-					// writeLine("Author");
+					// $message += "Author";
+					$result = sqlProcesses("SELECT * FROM `document` WHERE `authorID` = ?", "s", [$user["personID"]]);
+
+					if(mysqli_num_rows($result) > 0)
+					{
+						$arr = [];
+						while($document = mysqli_fetch_assoc($result))
+						{
+							
+							array_push($arr, ["documentID" => $document["documentID"], 
+									"authorID" => $document["authorID"], 
+									"title" => $document["title"],
+									"topic" => $document["topic"],
+									"dateOfSubmission" => $document["dateOfSubmission"],
+									"printDate" => $document["printDate"],
+									"pages" => $document["pages"],
+									"authorRemarks" => $document["authorRemarks"],
+									"editorRemarks" => $document["editorRemarks"],
+									"status" => $document["status"]
+								]);
+						}
+					}
+
 				}
 				else if($user["type"] == "2")				
 				{
-					echo json_encode(["Reviewer"]);
-					// writeLine("Reviewer");
+					$message . "Reviewer";
 				}	
 		
 			}
 			else
-				//Echo JSON object back to user
-				echo json_encode(["wrong password"]);
-				// echo "wrong password";
+				$message . "Wrong password";
 		}
-
 	}
 	else
-		echo json_encode(["no such user email"]);
-		// echo "no such user email";
+		$message . "No such user email";
 }
-// echo json_encode($randomArray);
 
-login("author1@x.com", "password");
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// 	$email = $_POST['email'];
+// 	$password = $_POST['password'];
 
-// print_r($randomArray);
+// 	login($email, md5($password));
+// }
+
+login("author1@x.com", md5("password"));
+
+echo json_encode($arr, JSON_PRETTY_PRINT);
+
 ?>
