@@ -1,12 +1,15 @@
 <?php
 require_once '../connection.php';
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: *");
+header("Content-Type: application/json");
 
 $arr = [1 => "Send a POST request to this url!"];
 
 function signUp($userName, $password, $emailAddress, $role, $dob)
 {
+	global $arr;
 	$paramVariablesArray = [$userName, $emailAddress];
 
 	$result = sqlProcesses("SELECT * FROM `person` WHERE `username` = ? AND `email` = ?", "ss", $paramVariablesArray);
@@ -18,9 +21,9 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 			///get the correct password to compare input with
 			print_r($user);
 		}
-		array_push($arr, [
+		$arr = [
 			"error" => "User already exists."
-		]);
+		];
 	}
 	else
 	{
@@ -44,9 +47,10 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 			sqlProcesses("INSERT INTO `reviewer`(`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
 			$message = "Reviewer account username " . $userName . " successfully created.";
 		}
-		array_push($arr, [
-			"success" => $message
-		]);
+		$arr = [
+			"success" => $message,
+			"type" => $role[0]
+		];
 	}
 }
 
