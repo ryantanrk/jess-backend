@@ -35,7 +35,7 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 	}
 	else
 	{
-		$personID = getNewID($role);
+		$personID = getNewID($role[0]);
 		$paramVariablesArray = ["*"];
 		// $result = sqlProcesses("SELECT COUNT(?) FROM `person`", "s", $paramVariablesArray);		
 		// $value = mysqli_fetch_assoc($result);

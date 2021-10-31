@@ -5,10 +5,17 @@ class Review {
     public $rating;
     public $comment;
 
-    public function __construct($reviewerID, $documentID, $rating, $comment)
+    public function __construct($reviewerID, $documentID)
     {
+        //create
         $this->reviewerID = $reviewerID;
         $this->documentID = $documentID;
+        $this->rating = 0;
+        $this->comment = "";
+    }
+
+    public function setReview($rating, $comment)
+    {
         $this->rating = $rating;
         $this->comment = $comment;
     }
