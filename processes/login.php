@@ -25,9 +25,6 @@ function login($email, $p)
 		while($user = mysqli_fetch_assoc($result))
 		{
 			///get the correct password to compare input with
-			var_dump($pword);
-			var_dump($user["password"]);
-
 			if($pword === $user["password"])
 			{
 				///info to be held on to throughout session is declared here
