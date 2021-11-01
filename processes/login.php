@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
 
-$arr = [1 => "Send a POST request to this url!"];
+$arr = [];
 $message = "";
 
 function login($email, $p)
@@ -33,8 +33,15 @@ function login($email, $p)
 				///info to be held on to throughout session is declared here
 				$_SESSION["currentUser"] = $user["personID"];	
 
-				//Navigate to appropriate page based on user type
-				//Pass the users data to these pages
+				//1st in line, person data
+				array_push($arr, ["personID" => $user["personID"], 
+								  "type" => $user["type"], 
+								  "username" => $user["username"],
+								  "email" => $user["email"],
+								  "dob" => $user["dob"]
+								]);
+
+				//Next in line to be delivered, user specific data
 				if($user["type"] == "0")			
 				{
 					$message . "Editor";
@@ -47,7 +54,6 @@ function login($email, $p)
 
 					if(mysqli_num_rows($result) > 0)
 					{
-						$arr = [];
 						while($document = mysqli_fetch_assoc($result))
 						{
 							
@@ -64,20 +70,48 @@ function login($email, $p)
 								]);
 						}
 					}
-
 				}
 				else if($user["type"] == "2")				
 				{
-					$message . "Reviewer";
+					// $message . "Reviewer";
+					$result = sqlProcesses("SELECT * 
+											FROM `review` JOIN `document` on document.documentID = review.documentID
+											WHERE review.reviewerID = ?", "s", [$user["personID"]]);
+
+					if(mysqli_num_rows($result) > 0)
+					{
+						while($document = mysqli_fetch_assoc($result))
+						{
+							
+							array_push($arr, [
+									"documentID" => $document["documentID"], 
+									"rating" => $document["rating"],
+									"comment" => $document["comment"],
+									"reviewStatus" => $document["reviewStatus"],
+									"dateOfReviewCompletion " => $document["dateOfReviewCompletion"],
+									"authorID" => $document["authorID"], 
+									"title" => $document["title"],
+									"topic" => $document["topic"],
+									"dateOfSubmission" => $document["dateOfSubmission"],
+									"printDate" => $document["printDate"],
+									"pages" => $document["pages"],
+									"authorRemarks" => $document["authorRemarks"],
+									"editorRemarks" => $document["editorRemarks"],
+									"reviewDueDate" => $document["reviewDueDate"],
+									"editDueDate" => $document["editDueDate"],
+									"documentStatus" => $document["documentStatus"]
+								]);
+						}
+					}			
 				}	
 		
 			}
 			else
-				$message . "Wrong password";
+				array_push($arr, "Wrong password");
 		}
 	}
 	else
-		$message . "No such user email";
+		array_push($arr, "No such user email");
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -89,6 +123,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	echo json_encode($arr, JSON_PRETTY_PRINT);
 }
 
-// login("author1@x.com", md5("password"));
+// login("REVIEWER1@X.COM", md5("password"));
 // echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
