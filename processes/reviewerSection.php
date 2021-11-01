@@ -83,32 +83,32 @@ if($request["request"] == "mainPage")
 {
 	//echo back the json object of $reviewerInvolvedDocumentsWithoutContent
 }
-// else if($request["request"] == "updateReviewerData")
-// {
-// 	$reviewerObject->updatePersonData($request["reviewerID"], $request["newUserName"], $request["newPassword"], $request["newEmail"], $request["newDob"]);
-// 	print_r($reviewerObject->getPersonData());
+else if($request["request"] == "updateReviewerData")
+{
+	$reviewerObject->updatePersonData($request["reviewerID"], $request["newUserName"], $request["newPassword"], $request["newEmail"], $request["newDob"]);
+	print_r($reviewerObject->getPersonData());
 
-// 	$paramVariablesArray = [$request["newUserName"], $request["newPassword"], $request["newEmail"], $request["newDob"], $request["reviewerID"]];
-// 	$sqlQuery = "UPDATE `person` SET `username`=?,`password`=?,`email`=?,`dob`=? WHERE `personID`=?";
-// 	sqlProcesses($sqlQuery, "sssss", $paramVariablesArray);
-// }
-// else if($request["request"] == "signOut")
-// {
-// 	//terminate session
-// }
-// else if($request["request"] == "getContent")
-// {
-// 	writeLine($request["documentID"]);
-// 	writeLine("");
-// 	writeLine("");
+	$paramVariablesArray = [$request["newUserName"], $request["newPassword"], $request["newEmail"], $request["newDob"], $request["reviewerID"]];
+	$sqlQuery = "UPDATE `person` SET `username`=?,`password`=?,`email`=?,`dob`=? WHERE `personID`=?";
+	sqlProcesses($sqlQuery, "sssss", $paramVariablesArray);
+}
+else if($request["request"] == "signOut")
+{
+	//terminate session
+}
+else if($request["request"] == "getContent")
+{
+	writeLine($request["documentID"]);
+	writeLine("");
+	writeLine("");
 
-// 	$result = sqlProcesses("SELECT `file` FROM `document` WHERE `documentID` = ?", "s", array($request["documentID"]));
-// 	$value = mysqli_fetch_assoc($result);
-// 	$fileContent = $value['file'];	
+	$result = sqlProcesses("SELECT `file` FROM `document` WHERE `documentID` = ?", "s", array($request["documentID"]));
+	$value = mysqli_fetch_assoc($result);
+	$fileContent = $value['file'];	
 
-// 	$documentAndPersonalReviewObject->setDocumentContent(array("fileContent"=>$fileContent));
-// 	//echo back the json object of $reviewerInvolvedDocumentsWithoutContent
-// }
+	$documentAndPersonalReviewObject->setDocumentContent(array("fileContent"=>$fileContent));
+	//echo back the json object of $reviewerInvolvedDocumentsWithoutContent
+}
 else if($request["request"] == "rate")
 {
 	writeLine("oi");
