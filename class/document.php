@@ -39,7 +39,7 @@ class Document extends AbstractDocument
 
 	public function transitionTo(DocumentState $documentState): void
 	{
-		echo "Document: Transition to " . get_class($documentState) . "<br>";
+		// echo "Document: Transition to " . get_class($documentState) . "<br>";
 		$this->documentState = $documentState;
 		$this->documentState->stateSetDocument($this);
 	}
@@ -121,17 +121,17 @@ abstract class DocumentState
 
 		if($this->documentContext->getDocumentState() == "JournalState")
 		{
-			echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
+			// echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
 
 			$this->documentContext->documentMetaData["printDate"] = "";
 			$this->documentContext->documentMetaData["journalIssue"] = "";
 
 			print_r(array_keys($this->documentContext->documentMetaData));
-			echo "<br><br>";
+			// echo "<br><br>";
 		}
 		else if($this->documentContext->getDocumentState() == "ManuscriptState")
 		{
-			echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
+			// echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
 
 			unset($this->documentContext->documentMetaData["printDate"]);
 			unset($this->documentContext->documentMetaData["journalIssue"]);
@@ -159,14 +159,11 @@ class ManuscriptState extends DocumentState
 {
 	public function concreteTransform(): void
 	{
-		echo "ManuscriptState transform to JournalState via the state's document object's transition function. <br>";
 		$this->documentContext->transitionTo(new JournalState());
 	}
 
 	public function setDocumentMetaData($dmdArray)
 	{
-		echo "ManuscriptState setDocumentMetaData(). <br>";
-
 		// print_r($dmdArray);
 		foreach($dmdArray as $key => $value)
 		{
@@ -177,39 +174,31 @@ class ManuscriptState extends DocumentState
 
 	public function getDocumentMetaData()
 	{
-		echo "ManuscriptState getDocumentMetaData(). <br>";
-
 		foreach($this->documentContext->documentMetaData as $key => $value)
 		{
-			echo $key . " : ". $value . "<br>";	
+			// echo $key . " : ". $value . "<br>";	
 		}		
 	}
 
 	public function setDocumentContent($dcArray)
 	{
-		echo "ManuscriptState setDocumentContent(). <br>";		
-
 		foreach($dcArray as $key => $value)
 		{
 			$this->documentContext->documentContent[$key] = $value;		
-			echo $key . " : ". $value . "<br>";
+			// echo $key . " : ". $value . "<br>";
 		}	
 	}
 	
 	public function getDocumentContent()
 	{
-		echo "ManuscriptState getDocumentContent(). <br>";
-
 		foreach($this->documentContext->documentContent as $key => $value)
 		{
-			echo $key . " : ". $value . "<br>";	
+			// echo $key . " : ". $value . "<br>";	
 		}	
 	}
 
 	public function setDocumentReviews($drArray)
 	{
-		echo "ManuscriptState setDocumentReviews(). <br>";
-
 		$similarReviewers = false;
 
 		if(sizeof($this->documentContext->DocumentReviews) > 0)
@@ -240,7 +229,6 @@ class ManuscriptState extends DocumentState
 
 	public function getDocumentReviews($reviewerIDArray)
 	{
-		echo "ManuscriptState getDocumentReviews(). <br>";
 		// print_r($this->documentContext->DocumentReviews);
 
 		foreach($reviewerIDArray as $targetReviewer)
@@ -250,9 +238,9 @@ class ManuscriptState extends DocumentState
 			{
 				if($targetReviewer == $value["reviewerID"])
 				{
-					echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
-					echo "rating : " . $value["rating"] . "<br>"; 
-					echo "comment : " . $value["comment"] . "<br><br>"; 
+					// echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
+					// echo "rating : " . $value["rating"] . "<br>"; 
+					// echo "comment : " . $value["comment"] . "<br><br>"; 
 					break;
 				}
 				// else
@@ -270,15 +258,12 @@ class JournalState extends DocumentState
 {
 	public function concreteTransform(): void
 	{
-		echo "JournalState transform to Manuscript via the state's document object's transition function. <br>";
 		$this->documentContext->transitionTo(new ManuscriptState());
 	}
 
 	public function setDocumentMetaData($dmdArray)
 	{
 		//It's a journal, the Non journal metadata should have been finalized
-		echo "JournalState setDocumentMetaData(). <br>";
-
 		//if the dmdArray's keys are not JournalIssue/printDate/Demote...chao from the scene
 		print_r(array_keys($dmdArray));
 		// foreach($dmdArray as $key => $value)
@@ -289,45 +274,32 @@ class JournalState extends DocumentState
 
 	public function getDocumentMetaData()
 	{
-		echo "JournalState getDocumentMetaData(). <br>";
-
 		foreach($this->documentContext->documentMetaData as $key => $value)
 		{
-			echo $key . " : " . $value . "<br>";
 		}
 	}
 
 	public function setDocumentContent($dcArray)
 	{
 		//It's a journal, the Content should have been finalized
-		echo "JournalState setDocumentContent(). <br>";
 	}
 	
 	public function getDocumentContent()
 	{
-		echo "JournalState getDocumentContent(). <br>";
-
 		foreach($this->documentContext->documentContent as $key => $value)
 		{
-			echo $key . " : ". $value . "<br>";	
 		}		
 	}
 
 	public function setDocumentReviews($drArray)
 	{
 		//It's a journal, the Reviews should have been finalized
-		echo "JournalState setDocumentReviews(). <br>";
 	}
 
 	public function getDocumentReviews($reviewerIDArray)
-	{
-		echo "JournalState getDocumentReviews(). <br>";	
-		
+	{		
 		foreach($this->documentContext->DocumentReviews as $key => $value)
 		{
-			echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
-			echo "rating : " . $value["rating"] . "<br>"; 
-			echo "comments : " . $value["comments"] . "<br><br>"; 
 		}
 	}
 }
