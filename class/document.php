@@ -122,12 +122,9 @@ abstract class DocumentState
 		if($this->documentContext->getDocumentState() == "JournalState")
 		{
 			// echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
-
+			
 			$this->documentContext->documentMetaData["printDate"] = "";
 			$this->documentContext->documentMetaData["journalIssue"] = "";
-
-			print_r(array_keys($this->documentContext->documentMetaData));
-			// echo "<br><br>";
 		}
 		else if($this->documentContext->getDocumentState() == "ManuscriptState")
 		{
@@ -135,9 +132,6 @@ abstract class DocumentState
 
 			unset($this->documentContext->documentMetaData["printDate"]);
 			unset($this->documentContext->documentMetaData["journalIssue"]);
-
-			print_r(array_keys($this->documentContext->documentMetaData));
-			echo "<br><br>";
 		}
 	}
 

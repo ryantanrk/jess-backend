@@ -44,10 +44,8 @@
             $editorRemarks = $row['editorRemarks'];
             $status = $row['status'];
 
-            $type = $row['type'];
-
             //metadata array
-            $metadata = array(
+            $metadata = [
                 "documentID" => $documentID,
                 "authorID" => $authorID, 
                 "title" => $title,
@@ -57,28 +55,28 @@
                 "authorRemarks" => $authorRemarks,
                 "editorRemarks" => $editorRemarks,
                 "status" => $status
-            );
+            ];
 
             //content
-            $file = $row['file'];
+            // $file = $row['file'];
 
-            //content array
-            $content = array(
-                "pdfFile" => $file
-            );
+            // //content array
+            // $content = array(
+            //     "pdfFile" => $file
+            // );
 
             $documentobj = "";
 
             //check type
-            if ($type == 0) {
+            if ($status != "Published") {
                 $documentobj = new Document(new ManuscriptState);
             }
-            else if ($type == 1) {
+            else {
                 $documentobj = new Document(new JournalState);
             }
             
             $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
-            $contentres = $documentobj->documentState->setDocumentContent($content); //set content
+            //$contentres = $documentobj->documentState->setDocumentContent($content); //set content
 
             array_push($docarray, $documentobj);
         }

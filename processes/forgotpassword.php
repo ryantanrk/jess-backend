@@ -24,6 +24,12 @@
                 "condition" => "success"
             ];
         }
+        else {
+            //if email is not valid
+            $arr = [
+                "condition" => "failed"
+            ];
+        }
     }
     echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
