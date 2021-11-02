@@ -1,7 +1,7 @@
 <?php
-//url - localhost:80/api/read/getdocument.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
+//url - api/read/getdocument.php?api_key=(api_key)&id=(id)&status=(status)
 //mandatory attribute: ?api_key
-//optional: id, type, search
+//optional: status
     require_once '../../connection.php';
     require_once '../../class/document.php';
     require_once '../../class/review.php';
@@ -13,6 +13,15 @@
     //get api key from url
     if (isset($_GET['api_key'])) {
         $api_key = $_GET['api_key'];
+    }
+
+    //conditions
+    $conditions = [];
+
+    $status = "";
+    if (isset($_GET['status'])) {
+        $status = $_GET['status'];
+        $conditions[] = " status = '$status' ";
     }
 
     //get list of api keys
@@ -32,6 +41,12 @@
     $docarray = [];
     if ($access == 1) {
         $query = "SELECT * FROM `$documentTable`";
+
+        if (!empty($conditions)) {
+            $query .= ' WHERE ';
+            $query .= implode(' AND ', $conditions);
+        }
+
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //get data
@@ -45,10 +60,20 @@
             $editorRemarks = $row['editorRemarks'];
             $status = $row['status'];
 
+            //get author username
+            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
+            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
+
+            $authorUsername = "";
+            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
+                $authorUsername = $rowUser['username'];
+            }
+
             //metadata array
             $metadata = [
                 "documentID" => $documentID,
-                "authorID" => $authorID, 
+                "authorID" => $authorID,
+                "username" => $authorUsername,
                 "title" => $title,
                 "topic" => $topic,
                 "pages" => $pages,
@@ -77,7 +102,7 @@
             }
             
             $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
-            $contentres = $documentobj->documentState->setDocumentContent($content); //set content
+            //$contentres = $documentobj->documentState->setDocumentContent($content); //set content
             //set reviews
             $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
             $paramVariablesArray = [$documentID];
