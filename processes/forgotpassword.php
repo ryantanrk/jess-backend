@@ -10,7 +10,7 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //get email
-        $email = "author1@x.com";
+        $email = $_POST['email'];
         $paramVariablesArray = [$email];
 
         //check email for existing account
