@@ -1,5 +1,5 @@
 <?php
-//url - api/read/getdocument.php?api_key=(api_key)&id=(id)&status=(status)
+//url - api/read/getdocument.php?api_key=(api_key)&id=(id)&status=(status)&authorID=(authorID)
 //mandatory attribute: ?api_key
 //optional: status
     require_once '../../connection.php';
@@ -22,6 +22,12 @@
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
         $conditions[] = " status = '$status' ";
+    }
+
+    $author_ID = "";
+    if (isset($_GET['authorID'])) {
+        $author_ID = $_GET['authorID'];
+        $conditions[] = " authorID = '$author_ID' ";
     }
 
     //get list of api keys
