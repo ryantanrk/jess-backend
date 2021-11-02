@@ -4,13 +4,15 @@ class Review {
     public $documentID;
     public $rating;
     public $comment;
+    public $status;
+    public $dueDate;
 
     public function __construct($reviewerID, $documentID)
     {
         //create
         $this->reviewerID = $reviewerID;
         $this->documentID = $documentID;
-        $this->rating = 0;
+        $this->rating = -1;
         $this->comment = "";
     }
 

@@ -71,29 +71,7 @@
                 "editorRemarks" => $editorRemarks,
                 "status" => $status
             );
-
-            // //content
-            // $file = $row['file'];
-
-            // //content array
-            // $content = array(
-            //     "pdfFile" => $file
-            // );
-
-            // $documentobj = "";
-
-            // //check type
-            // if ($type == 0) {
-            //     $documentobj = new Document(new ManuscriptState);
-            // }
-            // else if ($type == 1) {
-            //     $documentobj = new Document(new JournalState);
-            // }
             
-            // $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
-            // $contentres = $documentobj->documentState->setDocumentContent($content); //set content
-
-            // array_push($docarray, $documentobj);
             array_push($docarray, $metadata);
         }
     }

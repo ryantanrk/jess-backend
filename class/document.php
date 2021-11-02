@@ -24,8 +24,8 @@ class Document extends AbstractDocument
 		"editorRemarks" => "",
 		"status" => ""
 	);
-	public $documentContent = array("fileContent"=>"");
-	public $DocumentReviews = array();
+	public $documentContent;
+	public $DocumentReviews = [];
 
 	//Observer variable
 	private $subscribers = array();
@@ -111,7 +111,7 @@ class Document extends AbstractDocument
 }
 
 //DocumentState class
-abstract class DocumentState 
+abstract class DocumentState implements JsonSerializable
 {
 	protected $documentContext;
 
@@ -135,6 +135,11 @@ abstract class DocumentState
 		}
 	}
 
+	public function jsonSerialize()
+	{
+		return get_class($this);
+	}
+
 	// abstract public function concreteTransform(): void;
 	abstract public function setDocumentMetaData($dmdArray);
 	abstract public function getDocumentMetaData();
@@ -142,7 +147,7 @@ abstract class DocumentState
 	abstract public function setDocumentContent($dcArray);
 	abstract public function getDocumentContent();
 
-	abstract public function setDocumentReviews($drArray);
+	abstract public function setDocumentReviews(Review $drArray);
 	abstract public function getDocumentReviews($reviewerIDArray);	
 }
 
@@ -191,7 +196,8 @@ class ManuscriptState extends DocumentState
 		}	
 	}
 
-	public function setDocumentReviews($drArray)
+	//allow this function to take a reviewer object instead
+	public function setDocumentReviews(Review $drArray)
 	{
 		$similarReviewers = false;
 
@@ -199,12 +205,11 @@ class ManuscriptState extends DocumentState
 		{
 			foreach($this->documentContext->DocumentReviews as $key => $value)
 			{
-				if($value["reviewerID"] == $drArray["reviewerID"])
+				if($value->reviewerID == $drArray->reviewerID)
 				{
 					$similarReviewers = true;
-					$this->documentContext->DocumentReviews[$key]["rating"]  = $drArray["rating"];
-					$this->documentContext->DocumentReviews[$key]["comment"] = $drArray["comment"];
-
+					$this->documentContext->DocumentReviews[$key]["rating"]  = $drArray->rating;
+					$this->documentContext->DocumentReviews[$key]["comment"]  = $drArray->comment;
 					break;
 				}
 			}
@@ -217,14 +222,11 @@ class ManuscriptState extends DocumentState
 		else
 		{
 			array_push($this->documentContext->DocumentReviews, $drArray);
-			print_r($this->documentContext->DocumentReviews);
 		}
 	}
 
 	public function getDocumentReviews($reviewerIDArray)
 	{
-		// print_r($this->documentContext->DocumentReviews);
-
 		foreach($reviewerIDArray as $targetReviewer)
 		{
 
@@ -285,7 +287,7 @@ class JournalState extends DocumentState
 		}		
 	}
 
-	public function setDocumentReviews($drArray)
+	public function setDocumentReviews(Review $drArray)
 	{
 		//It's a journal, the Reviews should have been finalized
 	}

@@ -4,9 +4,10 @@
 //optional: id, type, search
     require_once '../../connection.php';
     require_once '../../class/document.php';
+    require_once '../../class/review.php';
 
     header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json; charset=UTF-8");
+    header("Content-Type: application/json");
 
     $api_key = "";
     //get api key from url
@@ -58,12 +59,12 @@
             ];
 
             //content
-            // $file = $row['file'];
+            $file = $row['file'];
 
-            // //content array
-            // $content = array(
-            //     "pdfFile" => $file
-            // );
+            //content array
+            $content = array(
+                "pdfFile" => $file
+            );
 
             $documentobj = "";
 
@@ -76,7 +77,20 @@
             }
             
             $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
-            //$contentres = $documentobj->documentState->setDocumentContent($content); //set content
+            $contentres = $documentobj->documentState->setDocumentContent($content); //set content
+            //set reviews
+            $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
+            $paramVariablesArray = [$documentID];
+            $resultR = sqlProcesses($query, "s", $paramVariablesArray);
+
+            while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
+                //get review object
+                $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
+                $reviewobj->setReview($rowR['rating'], $rowR['comment']);
+                $reviewobj->status = $rowR['status'];
+                $reviewobj->dueDate = $rowR['dueDate'];
+                $documentobj->setDocumentReviews($reviewobj);
+            }
 
             array_push($docarray, $documentobj);
         }
