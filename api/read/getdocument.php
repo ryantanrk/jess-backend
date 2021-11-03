@@ -1,7 +1,8 @@
 <?php
-//url - api/read/getdocument.php?api_key=(api_key)&id=(id)&status=(status)&authorID=(authorID)
+//url - api/read/getdocument.php?api_key=(api_key)&authorID=(authorID)&docStatus=(docStatus)
+//&docID=(docID)&reviewerID=(reviewerID)&reviewStatus=(reviewStatus)
 //mandatory attribute: ?api_key
-//optional: status
+//optional: authorID, docStatus, docID, reviewerID, reviewStatus
     require_once '../../connection.php';
     require_once '../../class/document.php';
     require_once '../../class/review.php';
@@ -17,17 +18,35 @@
 
     //conditions
     $conditions = [];
-
-    $status = "";
-    if (isset($_GET['status'])) {
-        $status = $_GET['status'];
-        $conditions[] = " status = '$status' ";
-    }
-
+    
     $author_ID = "";
     if (isset($_GET['authorID'])) {
         $author_ID = $_GET['authorID'];
         $conditions[] = " authorID = '$author_ID' ";
+    }
+
+    $docStatus = "";
+    if (isset($_GET['docStatus'])) {
+        $docStatus = $_GET['docStatus'];
+        $conditions[] = " D.status = '$docStatus' ";
+    }
+
+    $docID = "";
+    if (isset($_GET['docID'])) {
+        $docID = $_GET['docID'];
+        $conditions[] = " R.documentID = '$docID' ";
+    }
+
+    $reviewerID = "";
+    if (isset($_GET['reviewerID'])) {
+        $reviewerID = $_GET['reviewerID'];
+        $conditions[] = " R.reviewerID = '$reviewerID' ";
+    }
+
+    $reviewStatus = "";
+    if (isset($_GET['reviewStatus'])) {
+        $reviewStatus = $_GET['reviewStatus'];
+        $conditions[] = " R.status = '$reviewStatus' ";
     }
 
     //get list of api keys
@@ -46,12 +65,15 @@
 
     $docarray = [];
     if ($access == 1) {
-        $query = "SELECT * FROM `$documentTable`";
+        $query = "SELECT * FROM `$documentTable` AS D
+                LEFT OUTER JOIN `$reviewTable` AS R ON D.documentID = R.documentID ";
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';
             $query .= implode(' AND ', $conditions);
         }
+
+        $query .= " GROUP BY D.documentID ";
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
@@ -65,6 +87,7 @@
             $authorRemarks = $row['authorRemarks'];
             $editorRemarks = $row['editorRemarks'];
             $status = $row['status'];
+            $price = $row['price'];
 
             //get author username
             $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
@@ -86,7 +109,8 @@
                 "dateOfSubmission" => $dateOfSubmission,
                 "authorRemarks" => $authorRemarks,
                 "editorRemarks" => $editorRemarks,
-                "status" => $status
+                "status" => $status,
+                "price" => $price
             ];
 
             //content

@@ -1,7 +1,8 @@
 <?php
-//url - localhost:80/api/read/getperson.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)
+//url - api/read/getperson.php?api_key=(api_key)&id=(id)&type=(type)&search=(search)&status=(status)
+//&expertise=(expertise)
 //mandatory: ?api_key
-//optional: id, type, search
+//optional: id, type, search, status, expertise
     require_once '../../connection.php';
     require_once '../../class/person.php';
     require_once '../../factory/personfactory.php';
@@ -22,23 +23,37 @@
     $id = "";
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $conditions[] = " personID = '$id' ";
+        $conditions[] = " P.personID = '$id' ";
     }
 
     //get from person type
     $type = "";
     if (isset($_GET['type'])) {
         $type = $_GET['type'];
-        $conditions[] = " type = '$type' ";
+        $conditions[] = " P.type = '$type' ";
     }
 
-    //get from search term
+    //get from reviewer status
+    $status = "";
+    if (isset($_GET['status'])) {
+        $status = $_GET['status'];
+        $conditions[] = " R.status = '$status' ";
+    }
+
+    //get from reviewer area of expertise
+    $expertise = "";
+    if (isset($_GET['expertise'])) {
+        $expertise = $_GET['expertise'];
+        $conditions[] = " R.areaOfExpertise = '$expertise' ";
+    }
+
+    //get from search term (personID, username, or email)
     $search = "";
     if (isset($_GET['search'])) {
         $search = $_GET['search'];
-        $conditions[] = " (personID LIKE '%$search%'
-        OR username LIKE '%$search%' 
-        OR email LIKE '%$search%') ";
+        $conditions[] = " (P.personID LIKE '%$search%'
+        OR P.username LIKE '%$search%' 
+        OR P.email LIKE '%$search%') ";
     }
 
     //get list of api keys
@@ -59,7 +74,9 @@
 
     if ($access == 1) {
         //if access granted
-        $query = "SELECT * FROM `$personTable`"; //query
+        //query
+        $query = "SELECT * FROM `$personTable` AS P
+        LEFT OUTER JOIN `$reviewerTable` AS R ON P.personID = R.personID ";
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';
