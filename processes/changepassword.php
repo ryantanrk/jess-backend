@@ -12,8 +12,7 @@
         //get email
         $email = $_POST['emailAddress'];
         //get new password
-        $newPassword = $_POST['newPassword'];
-        //$paramVariablesArray = [$email, md5($newPassword)];
+        $newPassword = md5($_POST['newPassword']);
 
         //check email for existing account
         $query = "UPDATE `$personTable` SET `password` = '$newPassword' WHERE `email` = '$email'";
