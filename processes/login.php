@@ -10,7 +10,6 @@ $arr = ["1" => "Send a POST request to this url!"];
 function login($email, $p)
 {
 	global $arr;
-	global $message;
 
 	$email = $email;
 	$pword = $p;
@@ -30,20 +29,24 @@ function login($email, $p)
 				$_SESSION["currentUser"] = $user["personID"];	
 
 				//1st in line, person data
-				array_push($arr, ["personID" => $user["personID"], 
-								  "type" => $user["type"], 
-								  "username" => $user["username"],
-								  "email" => $user["email"],
-								  "dob" => $user["dob"]
-								]);	
+				$arr = 
+				[
+					"personID" => $user["personID"], 
+					"type" => $user["type"], 
+					"username" => $user["username"],
+					"email" => $user["email"],
+					"dob" => $user["dob"]
+				];	
 			}
 			else
-				array_push($arr, "Wrong password");
+				$arr = ["error" => "Wrong password"];
 		}
 	}
 	else
-		array_push($arr, "No such user email");
+		$arr = ["error" => "No such user email"];
 }
+
+login("reviewer3@x.com", md5("password"));
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$email = $_POST['email'];
