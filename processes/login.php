@@ -46,8 +46,6 @@ function login($email, $p)
 		$arr = ["error" => "No such user email"];
 }
 
-login("reviewer3@x.com", md5("password"));
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$email = $_POST['email'];
 	$password = $_POST['password'];
