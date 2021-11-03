@@ -16,10 +16,12 @@ class Review {
         $this->comment = "";
     }
 
-    public function setReview($rating, $comment)
+    public function setReview($rating, $comment, $status, $dueDate)
     {
         $this->rating = $rating;
         $this->comment = $comment;
+        $this->status = $status;
+        $this->dueDate = $dueDate;
     }
 }
 ?>

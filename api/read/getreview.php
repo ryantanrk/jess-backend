@@ -1,7 +1,7 @@
 <?php
-//url - api/read/getreview.php?api_key=(api_key)&id=(id)&docID=(type)&reviewerID=(search)
+//url - api/read/getreview.php?api_key=(api_key)&docID=(type)&reviewerID=(search)
 //mandatory: ?api_key
-//optional: id, docID, reviewerID
+//optional: docID, reviewerID
     require_once '../../connection.php';
     require_once '../../class/review.php';
 
@@ -16,22 +16,12 @@
 
     //sql conditions array
     $conditions = [];
-    $paramArray = [];
-
-    //get single id
-    $id = "";
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
-        $conditions[] = " reviewID = '$id' ";
-        $paramArray[] = $id;
-    }
 
     //get from documentID
     $docID = "";
     if (isset($_GET['docID'])) {
         $docID = $_GET['docID'];
         $conditions[] = " documentID = '$docID' ";
-        $paramArray[] = $docID;
     }
 
     //get from reviewerID
@@ -39,7 +29,6 @@
     if (isset($_GET['reviewerID'])) {
         $reviewerID = $_GET['reviewerID'];
         $conditions[] = " reviewerID = '$reviewerID' ";
-        $paramArray[] = $reviewerID;
     }
 
     //get list of api keys
@@ -71,7 +60,11 @@
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //review object
-            $reviewobj = new Review($row['reviewerID'], $row['documentID'], $row['rating'], $row['comment']);
+            $reviewobj = new Review($row['reviewerID'], $row['documentID']);
+
+            if ($row['rating'] != -1 && $row['comment'] != NULL) {
+                $reviewobj->setReview($row['rating'], $row['comment'], $row['dueDate'], $row['status']);
+            }
 
             array_push($reviewarray, $reviewobj);
         }
