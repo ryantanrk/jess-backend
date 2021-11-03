@@ -51,8 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$password = $_POST['password'];
 
 	login($email, md5($password));
-
-	echo json_encode($arr, JSON_PRETTY_PRINT);
 }
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
