@@ -5,8 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
 
-$arr = [];
-$message = "";
+$arr = ["1" => "Send a POST request to this url!"];
 
 function login($email, $p)
 {
@@ -25,7 +24,7 @@ function login($email, $p)
 		while($user = mysqli_fetch_assoc($result))
 		{
 			///get the correct password to compare input with
-			if($pword === $user["password"])
+			if($pword === $user['password'])
 			{
 				///info to be held on to throughout session is declared here
 				$_SESSION["currentUser"] = $user["personID"];	
@@ -36,72 +35,7 @@ function login($email, $p)
 								  "username" => $user["username"],
 								  "email" => $user["email"],
 								  "dob" => $user["dob"]
-								]);
-
-				//Next in line to be delivered, user specific data
-				if($user["type"] == "0")			
-				{
-					$message . "Editor";
-					// writeLine("Editor");
-				}
-				else if($user["type"] == "1")		
-				{
-					// $message += "Author";
-					$result = sqlProcesses("SELECT * FROM `document` WHERE `authorID` = ?", "s", [$user["personID"]]);
-
-					if(mysqli_num_rows($result) > 0)
-					{
-						while($document = mysqli_fetch_assoc($result))
-						{
-							
-							array_push($arr, ["documentID" => $document["documentID"], 
-									"authorID" => $document["authorID"], 
-									"title" => $document["title"],
-									"topic" => $document["topic"],
-									"dateOfSubmission" => $document["dateOfSubmission"],
-									"printDate" => $document["printDate"],
-									"pages" => $document["pages"],
-									"authorRemarks" => $document["authorRemarks"],
-									"editorRemarks" => $document["editorRemarks"],
-									"status" => $document["status"]
-								]);
-						}
-					}
-				}
-				else if($user["type"] == "2")				
-				{
-					// $message . "Reviewer";
-					$result = sqlProcesses("SELECT * 
-											FROM `review` JOIN `document` on document.documentID = review.documentID
-											WHERE review.reviewerID = ?", "s", [$user["personID"]]);
-
-					if(mysqli_num_rows($result) > 0)
-					{
-						while($document = mysqli_fetch_assoc($result))
-						{
-							
-							array_push($arr, [
-									"documentID" => $document["documentID"], 
-									"rating" => $document["rating"],
-									"comment" => $document["comment"],
-									"reviewStatus" => $document["reviewStatus"],
-									"dateOfReviewCompletion " => $document["dateOfReviewCompletion"],
-									"authorID" => $document["authorID"], 
-									"title" => $document["title"],
-									"topic" => $document["topic"],
-									"dateOfSubmission" => $document["dateOfSubmission"],
-									"printDate" => $document["printDate"],
-									"pages" => $document["pages"],
-									"authorRemarks" => $document["authorRemarks"],
-									"editorRemarks" => $document["editorRemarks"],
-									"reviewDueDate" => $document["reviewDueDate"],
-									"editDueDate" => $document["editDueDate"],
-									"documentStatus" => $document["documentStatus"]
-								]);
-						}
-					}			
-				}	
-		
+								]);	
 			}
 			else
 				array_push($arr, "Wrong password");
@@ -120,6 +54,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	echo json_encode($arr, JSON_PRETTY_PRINT);
 }
 
-// login("REVIEWER1@X.COM", md5("password"));
-// echo json_encode($arr, JSON_PRETTY_PRINT);
+echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
