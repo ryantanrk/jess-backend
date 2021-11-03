@@ -37,7 +37,21 @@
     $status = "";
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
-        $conditions[] = " R.status = '$status' ";
+        $statusq_array = explode(",", $status);
+
+        $status_condition = "";
+        if (count($statusq_array) == 1) {
+            //if only 1 status
+            $status_condition = " status = '$status' ";
+        }
+        else {
+            $status_condition = " status = '$statusq_array[0]' ";
+            for ($i = 1; $i < count($statusq_array); $i++) {
+                $status_condition .= " OR status = '$statusq_array[$i]' ";
+            }
+        }
+
+        $conditions[] = $status_condition;
     }
 
     //get from reviewer area of expertise

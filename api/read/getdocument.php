@@ -1,8 +1,8 @@
 <?php
-//url - api/read/getdocument.php?api_key=(api_key)&authorID=(authorID)&docStatus=(docStatus)
-//&docID=(docID)&reviewerID=(reviewerID)&reviewStatus=(reviewStatus)
+//url - api/read/getdocument.php?api_key=(api_key)&authorID=(authorID)&docStatus=(docStatus)&docID=(docID)
 //mandatory attribute: ?api_key
-//optional: authorID, docStatus, docID, reviewerID, reviewStatus
+//optional: authorID, docStatus, docID
+//docstatus can be split using (status1),(status2)
     require_once '../../connection.php';
     require_once '../../class/document.php';
     require_once '../../class/review.php';
@@ -28,25 +28,27 @@
     $docStatus = "";
     if (isset($_GET['docStatus'])) {
         $docStatus = $_GET['docStatus'];
-        $conditions[] = " D.status = '$docStatus' ";
+        $statusq_array = explode(",", $docStatus);
+
+        $status_condition = "";
+        if (count($statusq_array) == 1) {
+            //if only 1 status
+            $status_condition = " status = '$docStatus' ";
+        }
+        else {
+            $status_condition = " status = '$statusq_array[0]' ";
+            for ($i = 1; $i < count($statusq_array); $i++) {
+                $status_condition .= " OR status = '$statusq_array[$i]' ";
+            }
+        }
+
+        $conditions[] = $status_condition;
     }
 
     $docID = "";
     if (isset($_GET['docID'])) {
         $docID = $_GET['docID'];
-        $conditions[] = " R.documentID = '$docID' ";
-    }
-
-    $reviewerID = "";
-    if (isset($_GET['reviewerID'])) {
-        $reviewerID = $_GET['reviewerID'];
-        $conditions[] = " R.reviewerID = '$reviewerID' ";
-    }
-
-    $reviewStatus = "";
-    if (isset($_GET['reviewStatus'])) {
-        $reviewStatus = $_GET['reviewStatus'];
-        $conditions[] = " R.status = '$reviewStatus' ";
+        $conditions[] = " documentID = '$docID' ";
     }
 
     //get list of api keys
@@ -65,15 +67,12 @@
 
     $docarray = [];
     if ($access == 1) {
-        $query = "SELECT * FROM `$documentTable` AS D
-                LEFT OUTER JOIN `$reviewTable` AS R ON D.documentID = R.documentID ";
+        $query = "SELECT * FROM `$documentTable` ";
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';
             $query .= implode(' AND ', $conditions);
         }
-
-        $query .= " GROUP BY D.documentID ";
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
@@ -141,7 +140,7 @@
             while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
                 //get review object
                 $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
-                $reviewobj->setReview($rowR['rating'], $rowR['comment']);
+                $reviewobj->setReview($rowR['rating'], $rowR['comment'], $rowR['status'], $rowR['dueDate']);
                 $reviewobj->status = $rowR['status'];
                 $reviewobj->dueDate = $rowR['dueDate'];
                 $documentobj->setDocumentReviews($reviewobj);
