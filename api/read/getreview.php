@@ -63,7 +63,7 @@
             $reviewobj = new Review($row['reviewerID'], $row['documentID']);
 
             if ($row['rating'] != -1 && $row['comment'] != NULL) {
-                $reviewobj->setReview($row['rating'], $row['comment'], $row['dueDate'], $row['status']);
+                $reviewobj->setReview($row['rating'], $row['comment'], $row['status'], $row['dueDate']);
             }
 
             array_push($reviewarray, $reviewobj);
