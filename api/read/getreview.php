@@ -1,7 +1,7 @@
 <?php
-//url - api/read/getreview.php?api_key=(api_key)&docID=(type)&reviewerID=(search)
+//url - api/read/getreview.php?api_key=(api_key)&docID=(type)&reviewerID=(search)&status=(status)
 //mandatory: ?api_key
-//optional: docID, reviewerID
+//optional: docID, reviewerID, status
     require_once '../../connection.php';
     require_once '../../class/review.php';
 
@@ -29,6 +29,13 @@
     if (isset($_GET['reviewerID'])) {
         $reviewerID = $_GET['reviewerID'];
         $conditions[] = " reviewerID = '$reviewerID' ";
+    }
+
+    //get from status
+    $status = "";
+    if (isset($_GET['status'])) {
+        $status = $_GET['status'];
+        $conditions[] = " status = '$status' ";
     }
 
     //get list of api keys
