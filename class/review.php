@@ -5,7 +5,7 @@ class Review {
     public $rating;
     public $comment;
     public $status;
-    public $dueDate;
+    public $completionDate;
 
     public function __construct($reviewerID, $documentID)
     {
@@ -16,12 +16,12 @@ class Review {
         $this->comment = "";
     }
 
-    public function setReview($rating, $comment, $status, $dueDate)
+    public function setReview($rating, $comment, $status)
     {
         $this->rating = $rating;
         $this->comment = $comment;
         $this->status = $status;
-        $this->dueDate = $dueDate;
+        $this->completionDate = date('Y-m-d');
     }
 }
 ?>

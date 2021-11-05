@@ -89,7 +89,7 @@
     if ($access == 1) {
         //if access granted
         //query
-        $query = "SELECT * FROM `$personTable` AS P
+        $query = "SELECT P.personID, type FROM `$personTable` AS P
         LEFT OUTER JOIN `$reviewerTable` AS R ON P.personID = R.personID ";
 
         if (!empty($conditions)) {
@@ -103,18 +103,21 @@
             $personID = $row['personID'];
             if ($row['type'] == 0) {
                 $factoryobj = new EditorFactory;
-                $editorobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
+                $editorobj = $factoryobj->getNewUser($personID);
                 array_push($personarray, $editorobj);
+                $_SESSION['person'] = $editorobj;
             }
             else if ($row['type'] == 1) {
                 $factoryobj = new AuthorFactory;
-                $authorobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
+                $authorobj = $factoryobj->getNewUser($personID);
                 array_push($personarray, $authorobj);
+                $_SESSION['person'] = $authorobj;
             }
             else if ($row['type'] == 2) {
                 $factoryobj = new ReviewerFactory;
-                $reviewerobj = $factoryobj->createNewUser($personID, $row['username'], $row['password'], $row['email'], $row['dob']);
+                $reviewerobj = $factoryobj->getNewUser($personID);
                 array_push($personarray, $reviewerobj);
+                $_SESSION['person'] = $reviewerobj;
             }
         }
     }

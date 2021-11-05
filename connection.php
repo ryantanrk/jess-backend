@@ -66,19 +66,19 @@
         switch ($type) {
             case 0: //editor
                 $prefix = "E";
-                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '0'";
+                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '0'";
                 break;
             case 1: //author
                 $prefix = "A";
-                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '1'";
+                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '1'";
                 break;
             case 2: //reviewer
                 $prefix = "R";
-                $query = "SELECT `personID` FROM `$personTable` WHERE `type` = '2'";
+                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '2'";
                 break;
             case 3: //document
                 $prefix = "D";
-                $query = "SELECT `personID` FROM `$documentTable`";
+                $query = "SELECT COUNT(*) AS total FROM `$documentTable`";
                 break;
         }
 
@@ -88,15 +88,8 @@
         $maxNum = 1;
 
         if (mysqli_num_rows($result) != 0) {
-            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                $personID = $row['personID'];
-                $id = substr($personID, 1);
-
-                if ($id > $maxNum) {
-                    $maxNum = $id;
-                }
-            }
-            $chosenID = $prefix . ($maxNum + 1);
+            $total = mysqli_fetch_assoc($result);
+            $chosenID = $prefix . ($total['total'] + 1);
         }
 
         return $chosenID;

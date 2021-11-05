@@ -1,5 +1,6 @@
 <?php
 require_once 'person.php';
+require_once 'documentmetadata.php';
 
 abstract class AbstractDocument 
 {
@@ -13,17 +14,7 @@ class Document extends AbstractDocument
 {
 	public $documentState;
 
-	public $documentMetaData = array(
-		"documentID" => "", 
-		"authorID" => "", 		
-		"title" => "", 
-		"topic" => "", 
-		"dateOfSubmission" => "",
-		"pages" => "", 
-		"authorRemarks" => "", 
-		"editorRemarks" => "",
-		"status" => ""
-	);
+	public $documentMetaData;
 	public $documentContent;
 	public $DocumentReviews = [];
 
@@ -49,9 +40,9 @@ class Document extends AbstractDocument
 		$this->documentState->concreteTransform();
 	}
 
-	public function setDocumentMetaData($dmdArray)
+	public function setDocumentMetaData($metadata)
 	{
-		$this->documentState->setDocumentMetaData($dmdArray);
+		$this->documentState->setDocumentMetaData($metadata);
 	}
 
 	public function getDocumentMetaData()
@@ -69,9 +60,9 @@ class Document extends AbstractDocument
 		$this->documentState->getDocumentContent();
 	}
 
-	public function setDocumentReviews($drArray)
+	public function setDocumentReviews(Review $review)
 	{
-		$this->documentState->setDocumentReviews($drArray);
+		$this->documentState->setDocumentReviews($review);
 	}
 
 	public function getDocumentReviews($reviewerIDArray)
@@ -141,7 +132,7 @@ abstract class DocumentState implements JsonSerializable
 	}
 
 	// abstract public function concreteTransform(): void;
-	abstract public function setDocumentMetaData($dmdArray);
+	abstract public function setDocumentMetaData(DocumentMetadata $metadata);
 	abstract public function getDocumentMetaData();
 
 	abstract public function setDocumentContent($dcArray);
@@ -261,7 +252,7 @@ class JournalState extends DocumentState
 	{
 		//It's a journal, the Non journal metadata should have been finalized
 		//if the dmdArray's keys are not JournalIssue/printDate/Demote...chao from the scene
-		print_r(array_keys($dmdArray));
+		//print_r(array_keys($dmdArray));
 		// foreach($dmdArray as $key => $value)
 		// {
 		// 	if()

@@ -4,6 +4,21 @@
 
     class Author extends Person 
     {
+        // //------------------------------------------------------------------------------------ Singleton stuff above
+        // private static $instances = [];
+        // protected function __construct() { }
+        // protected function __clone() { }
+    
+        // public static function getInstance(): Author
+        // {
+        //     $cls = static::class;
+        //     if (!isset(self::$instances[$cls])) 
+        //         self::$instances[$cls] = new static();
+    
+        //     return self::$instances[$cls];
+        // }
+        // //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Singleton stuff above
+        
         public $type = 1;
 
         public function getManuscript(AbstractDocument $documentObj) 
@@ -24,7 +39,33 @@
         public function notify(AbstractDocument $documentObj) 
         {
             echo "Author notified<br>";
-        }           
+        }
+
+        public function uploadNewDocument($doc) {
+            $authorID = $doc['personID'];
+            $title = $doc['title']; 
+            $topicOption = $doc['topicOption']; 
+
+            $documentToUpload = $doc['documentToUpload']["tmp_name"];
+            $fileToUpload = file_get_contents($documentToUpload);        
+            $authorRemarks = $doc['authorRemarks'];
+            $documentID = getNewID(3);
+            $dateOfSubmission = date("Y-m-d");
+
+            $documentStatus = 'New';    
+        
+            $sql = "INSERT INTO `document`(
+              `documentID`, `authorID`, `title`, `topic`, 
+              `dateOfSubmission`, `file`, `authorRemarks`, `documentStatus`) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $paramVariablesArray = array(
+                $documentID, $authorID, $title, $topicOption, 
+                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus
+            );
+
+            sqlProcesses($sql, "ssssssss", $paramVariablesArray);
+        }
     }
 
 ?>

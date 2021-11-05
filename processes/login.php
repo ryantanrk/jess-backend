@@ -1,11 +1,15 @@
 <?php
 require_once '../connection.php';
+require_once '../class/person.php';
+require_once '../factory/personfactory.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
 
 $arr = ["1" => "Send a POST request to this url!"];
+
+session_start();
 
 function login($email, $p)
 {
@@ -36,7 +40,23 @@ function login($email, $p)
 					"username" => $user["username"],
 					"email" => $user["email"],
 					"dob" => $user["dob"]
-				];	
+				];
+
+				$personobj = "";
+				if ($arr['type'] == 0) {
+					$factoryobj = new EditorFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+				else if ($arr['type'] == 1) {
+					$factoryobj = new AuthorFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+				else if ($arr['type'] == 2) {
+					$factoryobj = new ReviewerFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+
+				$arr = $personobj;
 			}
 			else
 				$arr = ["error" => "Wrong password"];
