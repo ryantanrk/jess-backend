@@ -149,7 +149,7 @@
 
         public function uploadNewDocument($doc)
         {
-            $authorID = $doc['personID'];
+            $authorID = $this->personID;
             $title = $doc['title']; 
             $topic = $doc['topic']; 
 
