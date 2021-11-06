@@ -13,16 +13,18 @@ $arr = [1 => "Send a POST request to this url!"];
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
     $authorID = $_POST['personID'];
+    $documentID = $_POST['documentID'];
     //create author object
     $authorfactory = new AuthorFactory;
     $author = $authorfactory->getNewUser($authorID);
 
     $title = $_POST['title'];
     $topicOption = $_POST['topic'];
-    $documentToUpload = $_POST['document']; //file
+    $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
     $authorRemarks = $_POST['authorRemarks'];
 
-    $document = [
+    $doc = [
+        "documentID" => $documentID,
         "title" => $title,
         "topic" => $topicOption,
         "documentToUpload" => $documentToUpload,
@@ -32,23 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $documentMetaData = $author->editDocument($doc);
     $arr = ["message" => "edit"];
 }
-//testing code
-// $myfile = fopen("timetable.pdf", "r") or die("unable to open file");
-// $fcontent = fread($myfile, filesize("timetable.pdf"));
-// fclose($myfile);
-
-// $doc_arr = [
-//     "documentID" => "D13",
-//     "title" => "testmodified lol",
-//     "topic" => "Science",
-//     "documentToUpload" => $fcontent,
-//     "authorRemarks" => "test remarks modified"
-// ];
-// $authorfactory = new AuthorFactory;
-// $author = $authorfactory->getNewUser("A1");
-
-// $author->editDocument($doc_arr);
-// $arr = ["message" => "edit successful"];
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

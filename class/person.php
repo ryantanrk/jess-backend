@@ -153,8 +153,6 @@
             $title = $doc['title']; 
             $topic = $doc['topic']; 
 
-            //$fileTempName = $doc["documentToUpload"];
-            //$fileToUpload = file_get_contents($fileTempName);
             $fileToUpload = $doc["documentToUpload"];
 
             $authorRemarks = $doc['authorRemarks'];
@@ -191,22 +189,20 @@
             $fileToUpload = $doc["documentToUpload"];
 
             $authorRemarks = $doc['authorRemarks'];
-            
-            $dateOfSubmission = date("Y-m-d");
 
-            $documentStatus = 'new';    
+            $documentStatus = 'pending final check';
         
             $sql = "UPDATE `$documentTable` SET
-                    `title` = ?, `topic` = ?, `dateOfSubmission` = ?, `file` = ?, 
+                    `title` = ?, `topic` = ?, `file` = ?, 
                     `authorRemarks` = ?, `documentStatus` = ?
                     WHERE `documentID` = ? AND `authorID` = ?";
             
             $paramVariablesArray = array(
-                $title, $topic, $dateOfSubmission, $fileToUpload, 
+                $title, $topic, $fileToUpload, 
                 $authorRemarks, $documentStatus, $documentID, $authorID
             );
 
-            sqlProcesses($sql, "ssssssss", $paramVariablesArray);                     
+            sqlProcesses($sql, "sssssss", $paramVariablesArray);                     
         }
     }
 ?>

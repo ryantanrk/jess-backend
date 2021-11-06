@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
     $title = $_POST['title'];
     $topicOption = $_POST['topic'];
-    $documentToUpload = $_POST['document']; //file
+    $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
     $authorRemarks = $_POST['authorRemarks'];
 
     $doc = [
@@ -32,22 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $documentMetaData = $author->uploadNewDocument($doc);
     $arr = ["message" => "upload"];
 }
-//testing code
-// $myfile = fopen("testdoc2.pdf", "r") or die("unable to open file");
-// $fcontent = fread($myfile, filesize("testdoc2.pdf"));
-// fclose($myfile);
-
-// $doc_arr = [
-//     "title" => "test289732",
-//     "topic" => "Science",
-//     "documentToUpload" => $fcontent,
-//     "authorRemarks" => "test remarks"
-// ];
-// $authorfactory = new AuthorFactory;
-// $author = $authorfactory->getNewUser("A1");
-
-// $author->uploadNewDocument($doc_arr);
-// $arr = ["message" => "upload successful"];
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
