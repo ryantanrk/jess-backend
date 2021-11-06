@@ -153,8 +153,9 @@
             $title = $doc['title']; 
             $topic = $doc['topic']; 
 
-            $fileTempName = $_FILES["documentToUpload"]["tmp_name"];
-            $fileToUpload = file_get_contents($fileTempName);
+            //$fileTempName = $doc["documentToUpload"];
+            //$fileToUpload = file_get_contents($fileTempName);
+            $fileToUpload = $doc["documentToUpload"];
 
             $authorRemarks = $doc['authorRemarks'];
 
@@ -178,5 +179,34 @@
 
             sqlProcesses($sql, "sssssssss", $paramVariablesArray);                     
         }
-    }    
+
+        public function editDocument($doc)
+        {
+            global $documentTable;
+            $authorID = $this->personID;
+            $documentID = $doc['documentID'];
+            $title = $doc['title']; 
+            $topic = $doc['topic']; 
+
+            $fileToUpload = $doc["documentToUpload"];
+
+            $authorRemarks = $doc['authorRemarks'];
+            
+            $dateOfSubmission = date("Y-m-d");
+
+            $documentStatus = 'new';    
+        
+            $sql = "UPDATE `$documentTable` SET
+                    `title` = ?, `topic` = ?, `dateOfSubmission` = ?, `file` = ?, 
+                    `authorRemarks` = ?, `documentStatus` = ?
+                    WHERE `documentID` = ? AND `authorID` = ?";
+            
+            $paramVariablesArray = array(
+                $title, $topic, $dateOfSubmission, $fileToUpload, 
+                $authorRemarks, $documentStatus, $documentID, $authorID
+            );
+
+            sqlProcesses($sql, "ssssssss", $paramVariablesArray);                     
+        }
+    }
 ?>

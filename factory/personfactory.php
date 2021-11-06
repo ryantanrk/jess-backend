@@ -13,7 +13,7 @@
     }
 
     class EditorFactory extends PersonFactory {
-        public function getNewUser($personID) : Person
+        public function getNewUser($personID) : Editor
         {
             global $personTable;
             $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";
@@ -39,7 +39,7 @@
     }
 
     class AuthorFactory extends PersonFactory {
-        public function getNewUser($personID) : Person
+        public function getNewUser($personID) : Author
         {
             global $personTable;
             $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";
@@ -65,7 +65,7 @@
     }
 
     class ReviewerFactory extends PersonFactory {
-        public function getNewUser($personID) : Person
+        public function getNewUser($personID) : Reviewer
         {
             global $personTable, $reviewerTable;
             $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";

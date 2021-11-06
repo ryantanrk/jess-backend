@@ -35,7 +35,7 @@
     $status = "";
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
-        $conditions[] = " status = '$status' ";
+        $conditions[] = " reviewStatus = '$status' ";
     }
 
     //get list of api keys
