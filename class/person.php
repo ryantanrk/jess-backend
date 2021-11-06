@@ -31,7 +31,7 @@
     class Editor extends Person 
     {
         public $type = 0;
-        protected function __construct() { }
+        public function __construct() { }
 
         public function getDocument($documentID) 
         {
