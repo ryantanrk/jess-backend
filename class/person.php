@@ -153,7 +153,7 @@
             $title = $doc['title']; 
             $topic = $doc['topic']; 
 
-            $fileTempName = $doc["documentToUpload"]["tmp_name"];
+            $fileTempName = $_FILES["documentToUpload"]["tmp_name"];
             $fileToUpload = file_get_contents($fileTempName);
 
             $authorRemarks = $doc['authorRemarks'];
@@ -173,7 +173,7 @@
             
             $paramVariablesArray = array(
                 $documentID, $authorID, $editorID, $title, $topic, 
-                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus        
+                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus
             );
 
             sqlProcesses($sql, "sssssssss", $paramVariablesArray);                     
