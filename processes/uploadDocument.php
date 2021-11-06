@@ -6,31 +6,28 @@ session_start();
 $userArray = $_SESSION["user"]->getPersonData();
 print_r($userArray);
 
+$arr = [1 => "Send a POST request to this url!"];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
-    $authorID = $_POST['personID'];   //<--
-    $title = $_POST['title']; //<--
-    $topicOption = $_POST['topic']; //<--
-    $documentToUpload = $_FILES['document']; //<--
-    $authorRemarks = $_POST['authorRemarks']; //<--
+    $authorID = $_POST['personID'];
+    $title = $_POST['title'];
+    $topicOption = $_POST['topic'];
+    $documentToUpload = $_FILES['document'];
+    $authorRemarks = $_POST['authorRemarks'];
 
     $document = [
-        "personID" => $authorID, 
+        "personID" => $authorID,
         "title" => $title,
         "topicOption" => $topicOption,
         "documentToUpload" => $documentToUpload,
         "authorRemarks" => $authorRemarks
     ];
 
-    // $documentMetaData = new DocumentMetaData([]);
-    // $documentMetaData = $_SESSION["user"]->uploadNewDocument($documentMetaData, $documentUploadManualDataArray);
-
-    // echo "<script>alert('Upload completed');document.location='authorMainPage.php'</script>";
-    // // header("Location: authorMainPage.php");
+    $documentMetaData = new DocumentMetaData([]);
+    $documentMetaData = $_SESSION["user"]->uploadNewDocument($doc);
+    $arr = ["message" => "upload successful"];
 }
 
-if (isset($_POST["cancel"]))
-{
-    header("Location: authorMainPage.php");
-} 
+echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

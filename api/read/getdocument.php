@@ -33,12 +33,12 @@
         $status_condition = "";
         if (count($statusq_array) == 1) {
             //if only 1 status
-            $status_condition = " status = '$docStatus' ";
+            $status_condition = " documentStatus = '$docStatus' ";
         }
         else {
-            $status_condition = " status = '$statusq_array[0]' ";
+            $status_condition = " documentStatus = '$statusq_array[0]' ";
             for ($i = 1; $i < count($statusq_array); $i++) {
-                $status_condition .= " OR status = '$statusq_array[$i]' ";
+                $status_condition .= " OR documentStatus = '$statusq_array[$i]' ";
             }
         }
 
@@ -78,71 +78,9 @@
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //get data
             $documentID = $row['documentID'];
-            $authorID = $row['authorID'];
-            $status = $row['documentStatus'];
+            $document = new Document($documentID);
 
-            //get author username
-            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
-            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
-
-            $authorUsername = "";
-            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
-                $authorUsername = $rowUser['username'];
-            }
-
-            $metadata_arr = [
-                "documentID" => $documentID,
-                "authorID" => $authorID,
-                "authorUsername" => $authorUsername,
-                "editorID" => $row['editorID'],
-                "title" => $row['title'],
-                "topic" => $row['topic'],
-                "dateOfSubmission" => $row['dateOfSubmission'],
-                "authorRemarks" => $row['authorRemarks'],
-                "editorRemarks" => $row['editorRemarks'],
-                "reviewDueDate" => $row['reviewDueDate'],
-                "editDueDate" => $row['editDueDate'],
-                "price" => $row['price'],
-                "documentStatus" => $row['documentStatus']
-            ];
-
-            $documentobj = "";
-            if ($row['documentStatus'] != "Published") {
-                $documentobj = new Document(new ManuscriptState);
-            }
-            else {
-                $documentobj = new Document(new JournalState);
-                $metadata_arr['printDate'] = $row['printDate'];
-                $metadata_arr['journalIssue'] = $row['journalIssue'];
-            }
-
-            //document metadata
-            $metadata = new DocumentMetadata($metadata_arr);
-            $documentobj->setDocumentMetaData($metadata);
-
-            //content
-            $file = $row['file'];
-
-            //content array
-            $content = array(
-                "pdfFile" => $file
-            );
-            
-            //$metares = $documentobj->setDocumentMetaData($row); //set metadata
-            //$contentres = $documentobj->documentState->setDocumentContent($content); //set content
-            //set reviews
-            $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
-            $paramVariablesArray = [$documentID];
-            $resultR = sqlProcesses($query, "s", $paramVariablesArray);
-
-            while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
-                //get review object
-                $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
-                $reviewobj->setReview($rowR['rating'], $rowR['comment'], $rowR['reviewStatus'], $rowR['dateOfReviewCompletion']);
-                $documentobj->setDocumentReviews($reviewobj);
-            }
-
-            array_push($docarray, $documentobj);
+            array_push($docarray, $document);
         }
     }
     else {

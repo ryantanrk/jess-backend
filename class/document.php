@@ -1,6 +1,7 @@
 <?php
 require_once 'person.php';
 require_once 'documentmetadata.php';
+require_once 'review.php';
 
 abstract class AbstractDocument 
 {
@@ -23,9 +24,84 @@ class Document extends AbstractDocument
 
 	//------------------------------------------------------------------ Functions
 	//------------------------------------------------------------------ State functions
-	public function __construct(DocumentState $documentState)
+	public function __construct($documentID)
 	{
-		$this->transitionTo($documentState);
+		global $personTable, $documentTable, $reviewTable;
+		$query = "SELECT * FROM `$documentTable` WHERE documentID = ?";
+
+		$result = sqlProcesses($query, "s", [$documentID]);
+
+		if (mysqli_num_rows($result) == 1) {
+			$row = mysqli_fetch_assoc($result);
+
+			//determine state
+			$status = $row['documentStatus'];
+
+			$authorID = $row['authorID'];
+
+			//get author username
+            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
+            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
+
+            $authorUsername = "";
+            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
+                $authorUsername = $rowUser['username'];
+            }
+
+			$metadata_arr = [
+                "documentID" => $row['documentID'],
+                "authorID" => $authorID,
+                "authorUsername" => $authorUsername,
+                "editorID" => $row['editorID'],
+                "title" => $row['title'],
+                "topic" => $row['topic'],
+                "dateOfSubmission" => $row['dateOfSubmission'],
+                "authorRemarks" => $row['authorRemarks'],
+                "editorRemarks" => $row['editorRemarks'],
+                "reviewDueDate" => $row['reviewDueDate'],
+                "editDueDate" => $row['editDueDate'],
+                "price" => $row['price'],
+                "documentStatus" => $status
+            ];
+
+			//set state
+			if ($status != "Published") {
+				$this->transitionTo(new ManuscriptState);
+			}
+			else {
+				$this->transitionTo(new JournalState);
+				$metadata_arr['printDate'] = $row['printDate'];
+                $metadata_arr['journalIssue'] = $row['journalIssue'];
+			}
+
+			//set metadata
+			$metadata = new DocumentMetadata($metadata_arr);
+			$this->setDocumentMetaData($metadata);
+
+			//set content
+			//content
+            $file = $row['file'];
+
+            //content array
+            $content = array(
+                "pdfFile" => $file
+            );
+
+            //$this->documentState->setDocumentContent($content); //set content
+
+			//set reviews
+			//set reviews
+            $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
+            $paramVariablesArray = [$documentID];
+            $resultR = sqlProcesses($query, "s", $paramVariablesArray);
+
+            while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
+                //get review object
+                $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
+                $reviewobj->setReview($rowR['rating'], $rowR['comment'], $rowR['reviewStatus'], $rowR['dateOfReviewCompletion']);
+                $this->setDocumentReviews($reviewobj);
+            }
+		}
 	}
 
 	public function transitionTo(DocumentState $documentState): void

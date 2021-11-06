@@ -42,14 +42,16 @@
         }
 
         public function uploadNewDocument($doc) {
+            $documentID = getNewID(3);
             $authorID = $doc['personID'];
+
             $title = $doc['title']; 
-            $topicOption = $doc['topicOption']; 
+            $topic = $doc['topic']; 
 
             $documentToUpload = $doc['documentToUpload']["tmp_name"];
             $fileToUpload = file_get_contents($documentToUpload);        
             $authorRemarks = $doc['authorRemarks'];
-            $documentID = getNewID(3);
+            
             $dateOfSubmission = date("Y-m-d");
 
             $documentStatus = 'New';    
@@ -60,11 +62,15 @@
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             
             $paramVariablesArray = array(
-                $documentID, $authorID, $title, $topicOption, 
+                $documentID, $authorID, $title, $topic, 
                 $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus
             );
 
             sqlProcesses($sql, "ssssssss", $paramVariablesArray);
+        }
+
+        public function editDocument($documentID, $doc) {
+            //$doc: doc object
         }
     }
 
