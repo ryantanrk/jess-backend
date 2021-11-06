@@ -147,33 +147,23 @@
             }
         }
 
-        public function uploadNewDocument($documentObject, $value)
+        public function uploadNewDocument($doc)
         {
-            $authorID = $value['personID'];
-            $title = $value['title']; 
-            $topicOption = $value['topicOption']; 
+            $authorID = $doc['personID'];
+            $title = $doc['title']; 
+            $topic = $doc['topic']; 
 
-            $documentToUpload = $value['documentToUpload'];
-            $fileTempName = $value["documentToUpload"]["tmp_name"];
+            $fileTempName = $doc["documentToUpload"]["tmp_name"];
             $fileToUpload = file_get_contents($fileTempName);
 
-            $authorRemarks = $value['authorRemarks'];
+            $authorRemarks = $doc['authorRemarks'];
 
-            $documentID = sqlProcesses("SELECT COUNT(?) AS TOTALDOCS FROM `document`", "s", ['*']);
-            $documentID = mysqli_fetch_assoc($documentID);
-            $documentID = 'D' . ($documentID['TOTALDOCS'] + 1);
+            $documentID = getNewID(3);
             
             $editorID = NULL;
             
             $dateOfSubmission = date("Y-m-d");
-            $printDate = '';
-            
-            $editorRemarks = ''; 
-            $reviewDueDate = '';    
-        
-            $editDueDate = '';
-            $price = '';
-            $journalIssue = '';
+
             $documentStatus = 'new';    
         
             $sql = "INSERT INTO `document`(
@@ -181,8 +171,8 @@
               `dateOfSubmission`, `file`, `authorRemarks`, `documentStatus`) 
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
-              $paramVariablesArray = array(
-                $documentID, $authorID, $editorID, $title, $topicOption, 
+            $paramVariablesArray = array(
+                $documentID, $authorID, $editorID, $title, $topic, 
                 $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus        
             );
 
