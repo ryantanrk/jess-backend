@@ -11,6 +11,7 @@ class DocumentMetaData extends DocumentAttributes
 	//Make it private later. It's an excuse for data hiding
 	public $documentID;
 	public $authorID;
+	public $authorUsername;
 	public $editorID;
 	public $title;
 	public $topic;
@@ -31,6 +32,7 @@ class DocumentMetaData extends DocumentAttributes
 		{
 			$this->documentID = $metaDataArray["documentID"];
 			$this->authorID = $metaDataArray["authorID"];
+			$this->authorUsername = $metaDataArray["authorUsername"];
 			$this->editorID = $metaDataArray["editorID"];
 			$this->title = $metaDataArray["title"];
 			$this->topic = $metaDataArray["topic"];
@@ -49,6 +51,7 @@ class DocumentMetaData extends DocumentAttributes
 	//Update metadata 1 attribute at a time
 	public function setMetaData($attribute, $value)
 	{
+		global $personTable;
 		if($attribute == "documentID")
 			$this->documentID = $value;
 		else if($attribute == "authorID")
@@ -83,9 +86,9 @@ class DocumentMetaData extends DocumentAttributes
 
 	public function getMetaData()
 	{
-		$metaDataArray = array("documentID" => $this->documentID, "authorID" => $this->authorID, "editorID" => $this->editorID, 
-								"title" => $this->title, "topic" => $this->topic, "dateOfSubmission" => $this->dateOfSubmission, 
-								"printDate" => $this->printDate, "authorRemarks" => $this->authorRemarks, 
+		$metaDataArray = array("documentID" => $this->documentID, "authorID" => $this->authorID, "authorUsername" => $this->authorUsername,
+								"editorID" => $this->editorID, "title" => $this->title, "topic" => $this->topic, 
+								"dateOfSubmission" => $this->dateOfSubmission, "printDate" => $this->printDate, "authorRemarks" => $this->authorRemarks, 
 								"editorRemarks" => $this->editorRemarks, "reviewDueDate" => $this->reviewDueDate, 
 								"editDueDate" => $this->editDueDate, "price" => $this->price, "journalIssue" => $this->journalIssue, 
 								"documentStatus" => $this->documentStatus

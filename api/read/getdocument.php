@@ -121,7 +121,12 @@
             //document metadata
             $metadata = new DocumentMetadata($metadata_arr);
             foreach ($metadata as $key => $value) {
-                $documentobj->documentStateObject->setDocumentMetaData($key, $value);
+                if ($key != "authorUsername") {
+                    $documentobj->documentStateObject->setDocumentMetaData($key, $value);
+                }
+                else {
+                    $documentobj->documentMetaDataObject->authorUsername = $authorUsername;
+                }
             }
             
             //set reviews
