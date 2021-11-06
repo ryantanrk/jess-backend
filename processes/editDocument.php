@@ -32,6 +32,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $documentMetaData = $author->editDocument($doc);
     $arr = ["message" => "edit"];
 }
+//testing code
+// $myfile = fopen("timetable.pdf", "r") or die("unable to open file");
+// $fcontent = fread($myfile, filesize("timetable.pdf"));
+// fclose($myfile);
+
+// $doc_arr = [
+//     "documentID" => "D13",
+//     "title" => "testmodified lol",
+//     "topic" => "Science",
+//     "documentToUpload" => $fcontent,
+//     "authorRemarks" => "test remarks modified"
+// ];
+// $authorfactory = new AuthorFactory;
+// $author = $authorfactory->getNewUser("A1");
+
+// $author->editDocument($doc_arr);
+// $arr = ["message" => "edit successful"];
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

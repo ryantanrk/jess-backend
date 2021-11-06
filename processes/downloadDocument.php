@@ -9,13 +9,16 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $documentID = $_POST['documentID'];
 
-        $query = "SELECT file FROM `$documentTable` WHERE documentID = ?";
+        $query = "SELECT title, file FROM `$documentTable` WHERE documentID = ?";
         $result = sqlProcesses($query, "s", [$documentID]);
 
         $file = "";
         while ($row = mysqli_fetch_assoc($result)) {
-            $file = addslashes($row['file']);
+            $file = $row['file'];
         }
         echo $file;
+    }
+    else {
+        echo json_encode([1 => "send post request"], JSON_PRETTY_PRINT);
     }
 ?>

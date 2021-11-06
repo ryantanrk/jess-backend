@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $documentToUpload = $_POST['document']; //file
     $authorRemarks = $_POST['authorRemarks'];
 
-    $document = [
+    $doc = [
         "title" => $title,
         "topic" => $topicOption,
         "documentToUpload" => $documentToUpload,
