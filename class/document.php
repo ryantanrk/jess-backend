@@ -1,221 +1,208 @@
 <?php
 require_once 'person.php';
-require_once 'documentmetadata.php';
-require_once 'review.php';
 
-abstract class AbstractDocument 
+abstract class DocumentAttributes
 {
-	abstract function subscribe(Person $subscriber);
-	abstract function unsubscribe(Person $subscriber);
-	abstract function notify();
+
 }
 
-//Document class
-class Document extends AbstractDocument 
+class DocumentMetaData extends DocumentAttributes
 {
-	public $documentState;
+	//Make it private later. It's an excuse for data hiding
+	public $documentID;
+	public $authorID;
+	public $editorID;
+	public $title;
+	public $topic;
+	public $dateOfSubmission;
+	public $printDate;
+	public $authorRemarks;
+	public $editorRemarks;
+	public $reviewDueDate;
+	public $editDueDate;
+	public $price;
+	public $journalIssue;
+	public $documentStatus;
 
-	public $documentMetaData;
-	public $documentContent;
-	public $DocumentReviews = [];
-
-	//Observer variable
-	private $subscribers = array();
-
-	//------------------------------------------------------------------ Functions
-	//------------------------------------------------------------------ State functions
-	public function __construct($documentID)
+	//Initialize the attributes on creation. Can initialize everything, somethings or nothing
+	function __construct($metaDataArray)
 	{
-		global $personTable, $documentTable, $reviewTable;
-		$query = "SELECT * FROM `$documentTable` WHERE documentID = ?";
-
-		$result = sqlProcesses($query, "s", [$documentID]);
-
-		if (mysqli_num_rows($result) == 1) {
-			$row = mysqli_fetch_assoc($result);
-
-			//determine state
-			$status = $row['documentStatus'];
-
-			$authorID = $row['authorID'];
-
-			//get author username
-            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
-            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
-
-            $authorUsername = "";
-            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
-                $authorUsername = $rowUser['username'];
-            }
-
-			$metadata_arr = [
-                "documentID" => $row['documentID'],
-                "authorID" => $authorID,
-                "authorUsername" => $authorUsername,
-                "editorID" => $row['editorID'],
-                "title" => $row['title'],
-                "topic" => $row['topic'],
-                "dateOfSubmission" => $row['dateOfSubmission'],
-                "authorRemarks" => $row['authorRemarks'],
-                "editorRemarks" => $row['editorRemarks'],
-                "reviewDueDate" => $row['reviewDueDate'],
-                "editDueDate" => $row['editDueDate'],
-                "price" => $row['price'],
-                "documentStatus" => $status
-            ];
-
-			//set state
-			if ($status != "Published") {
-				$this->transitionTo(new ManuscriptState);
-			}
-			else {
-				$this->transitionTo(new JournalState);
-				$metadata_arr['printDate'] = $row['printDate'];
-                $metadata_arr['journalIssue'] = $row['journalIssue'];
-			}
-
-			//set metadata
-			$metadata = new DocumentMetadata($metadata_arr);
-			$this->setDocumentMetaData($metadata);
-
-			//set content
-			//content
-            $file = $row['file'];
-
-            //content array
-            $content = array(
-                "pdfFile" => $file
-            );
-
-            //$this->documentState->setDocumentContent($content); //set content
-
-			//set reviews
-			//set reviews
-            $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
-            $paramVariablesArray = [$documentID];
-            $resultR = sqlProcesses($query, "s", $paramVariablesArray);
-
-            while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
-                //get review object
-                $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
-                $reviewobj->setReview($rowR['rating'], $rowR['comment'], $rowR['reviewStatus'], $rowR['dateOfReviewCompletion']);
-                $this->setDocumentReviews($reviewobj);
-            }
+		if(sizeof($metaDataArray) != 0)
+		{
+			$this->documentID = $metaDataArray["documentID"];
+			$this->authorID = $metaDataArray["authorID"];
+			$this->editorID = $metaDataArray["editorID"];
+			$this->title = $metaDataArray["title"];
+			$this->topic = $metaDataArray["topic"];
+			$this->dateOfSubmission = $metaDataArray["dateOfSubmission"];
+			$this->printDate = $metaDataArray["printDate"];
+			$this->authorRemarks = $metaDataArray["authorRemarks"];
+			$this->editorRemarks = $metaDataArray["editorRemarks"];
+			$this->reviewDueDate = $metaDataArray["reviewDueDate"];
+			$this->editDueDate = $metaDataArray["editDueDate"];
+			$this->price = $metaDataArray["price"];
+			$this->journalIssue = $metaDataArray["journalIssue"];
+			$this->documentStatus = $metaDataArray["documentStatus"];
 		}
 	}
 
-	public function transitionTo(DocumentState $documentState): void
+	//Update metadata 1 attribute at a time
+	public function setMetaData($attribute, $value)
 	{
-		// echo "Document: Transition to " . get_class($documentState) . "<br>";
-		$this->documentState = $documentState;
-		$this->documentState->stateSetDocument($this);
+		if($attribute == "documentID")
+			$this->documentID = $value;
+		else if($attribute == "authorID")
+			$this->authorID = $value;	
+		else if($attribute == "editorID")
+			$this->editorID = $value;				
+		else if($attribute == "title")
+			$this->title = $value;
+		else if($attribute == "topic")
+			$this->topic = $value;	
+		else if($attribute == "dateOfSubmission")
+			$this->dateOfSubmission = $value;	
+		else if($attribute == "printDate")
+			$this->printDate = $value;
+		else if($attribute == "authorRemarks")
+			$this->authorRemarks = $value;
+		else if($attribute == "editorRemarks")
+			$this->editorRemarks = $value;	
+		else if($attribute == "reviewDueDate")
+			$this->reviewDueDate = $value;
+		else if($attribute == "editDueDate")
+			$this->editDueDate = $value;				
+		else if($attribute == "price")
+			$this->price = $value;
+		else if($attribute == "journalIssue")
+			$this->journalIssue = $value;		
+		else if($attribute == "documentStatus")
+			$this->documentStatus = $value;	
+
+		sqlProcesses("UPDATE `document` SET `{$attribute}` = ? WHERE `documentID`= ?", "ss", [$value, $this->documentID]);
 	}
 
-	public function concreteTransform(): void
+	public function getMetaData()
 	{
-		$this->documentState->concreteTransform();
+		$metaDataArray = array("documentID" => $this->documentID, "authorID" => $this->authorID, "editorID" => $this->editorID, 
+								"title" => $this->title, "topic" => $this->topic, "dateOfSubmission" => $this->dateOfSubmission, 
+								"printDate" => $this->printDate, "authorRemarks" => $this->authorRemarks, 
+								"editorRemarks" => $this->editorRemarks, "reviewDueDate" => $this->reviewDueDate, 
+								"editDueDate" => $this->editDueDate, "price" => $this->price, "journalIssue" => $this->journalIssue, 
+								"documentStatus" => $this->documentStatus
+				);
+
+		// print_r($metaDataArray);
+		
+		return $metaDataArray;
+	}
+} 
+
+class DocumentReview extends DocumentAttributes
+{
+	public $documentID;
+	public $reviewerID;
+	public $rating;
+	public $comment;
+	public $reviewStatus;
+	public $dateOfReviewCompletion;
+
+	//Initialize the attributes on creation. Can initialize everything, somethings or nothing
+	function __construct($reviewDataArray)
+	{
+		if(sizeof($reviewDataArray) != 0)
+		{
+			$this->documentID = $reviewDataArray["documentID"];
+			$this->reviewerID = $reviewDataArray["reviewerID"];			
+			$this->rating = $reviewDataArray["rating"];
+			$this->comment = $reviewDataArray["comment"];
+			$this->reviewStatus = $reviewDataArray["reviewStatus"];
+			$this->dateOfReviewCompletion = $reviewDataArray["dateOfReviewCompletion"];
+		}
 	}
 
-	public function setDocumentMetaData($metadata)
+	//Update metadata 1 attribute at a time
+	public function setReviewData($attribute, $value)
 	{
-		$this->documentState->setDocumentMetaData($metadata);
+		if($attribute == "rating") 
+			$this->rating = $value;
+		
+		else if($attribute == "comment") 
+			$this->comment = $value;	
+
+		else if($attribute == "reviewStatus") 
+			$this->reviewStatus = $value;
+		
+		else if($attribute == "dateOfReviewCompletion") 
+			$this->dateOfReviewCompletion = $value;			
+
+		sqlProcesses("UPDATE `review` SET `{$attribute}` = ? WHERE `documentID`= ?", "ss", [$value, $this->documentID]);
 	}
 
-	public function getDocumentMetaData()
+	public function getReviewData()
 	{
-		$this->documentState->getDocumentMetaData();
+		$reviewDataArray = array(
+								"documentID" => $this->documentID,
+								"reviewerID" => $this->reviewerID,
+								"rating" => $this->rating,
+								"comment" => $this->comment, 
+								"reviewStatus" => $this->reviewStatus, 
+								"dateOfReviewCompletion" => $this->dateOfReviewCompletion, 
+							);
+
+		return $reviewDataArray;
+	}
+}
+
+//Document class has a documentStateObject
+class Document
+{
+	public $documentStateObject;
+	public $documentMetaDataObject;
+	public $DocumentReviewsArray = [];
+
+	//------------------------------------------------------------------ State functions
+	//Look at this, most of the operations within these functions are ran by the document state object
+	public function __construct(DocumentState $documentStateObject)
+	{
+		$this->documentStateObject = $documentStateObject;
+		$this->documentStateObject->stateSetDocument($this);
+		$this->documentMetaDataObject = new DocumentMetaData([]);
+		$this->DocumentReviewsArray = [
+			new DocumentReview([]), new DocumentReview([]), new DocumentReview([])
+		];
 	}
 
-	public function setDocumentContent($dcArray)
-	{
-		$this->documentState->setDocumentContent($dcArray);
+	public function setDocumentMetaData($objectMetaData, $attribute, $value) {
+		$this->documentStateObject->setDocumentMetaData($attribute, $value);
 	}
 	
-	public function getDocumentContent()
-	{
-		$this->documentState->getDocumentContent();
+	public function setDocumentReviews($targetReviewObject, $attribute, $value){
+		$this->documentStateObject->setDocumentReviews($targetReviewObject, $attribute, $value);
 	}
 
-	public function setDocumentReviews(Review $review)
-	{
-		$this->documentState->setDocumentReviews($review);
-	}
+	public function getDocumentMetaData($documentID){return $this->documentStateObject->getDocumentMetaData($documentID);}
+	public function getDocumentReviews($reviewerIDArray){return $this->documentStateObject->getDocumentReviews($reviewerIDArray);}
 
-	public function getDocumentReviews($reviewerIDArray)
-	{
-		$this->documentState->getDocumentReviews($reviewerIDArray);
-	}
-
-	public function getDocumentState() : string
-	{
-		return get_class($this->documentState);
-	}
-
-	//------------------------------------------------------------------ Observer functions
-	function subscribe(Person $subscriber) 
-	{
-		array_push($this->subscribers, $subscriber);
-		// print_r($this->subscribers);
-	}
-
-	function unsubscribe(Person $subscriber) 
-	{
-		//$key = array_search($observer_in, $this->subscribers);
-		foreach($this->subscribers as $okey => $oval) 
-		{
-			if ($oval == $observer_in)  
-			unset($this->subscribers[$okey]);
-		}
-	}
-
-	function notify() 
-	{
-		foreach($this->subscribers as $obs) 
-		{
-			$obs->update($this);
-		}
-	}
+	//State function
+	public function getDocumentStateClass() : string {return get_class($this->documentStateObject);}
 }
 
-//DocumentState class
+//DocumentState class has a DocumentObject
 abstract class DocumentState implements JsonSerializable
 {
-	protected $documentContext;
+	protected $documentObject;
 
-	public function stateSetDocument(Document $documentContext)
-	{
-		$this->documentContext = $documentContext;
-
-		if($this->documentContext->getDocumentState() == "JournalState")
-		{
-			// echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
-			
-			$this->documentContext->documentMetaData["printDate"] = "";
-			$this->documentContext->documentMetaData["journalIssue"] = "";
-		}
-		else if($this->documentContext->getDocumentState() == "ManuscriptState")
-		{
-			// echo "Document state is now ". $this->documentContext->getDocumentState() . "<br><br>";
-
-			unset($this->documentContext->documentMetaData["printDate"]);
-			unset($this->documentContext->documentMetaData["journalIssue"]);
-		}
-	}
-
-	public function jsonSerialize()
-	{
+	public function jsonSerialize() {
 		return get_class($this);
 	}
 
-	// abstract public function concreteTransform(): void;
-	abstract public function setDocumentMetaData(DocumentMetadata $metadata);
-	abstract public function getDocumentMetaData();
+	public function stateSetDocument(Document $documentObject){$this->documentObject = $documentObject;}
 
-	abstract public function setDocumentContent($dcArray);
-	abstract public function getDocumentContent();
+	abstract public function setDocumentMetaData($attribute, $value);
+	abstract public function setDocumentReviews($targetReviewObject, $attribute, $value);
 
-	abstract public function setDocumentReviews(Review $drArray);
-	abstract public function getDocumentReviews($reviewerIDArray);	
+	abstract public function getDocumentMetaData($documentID);
+	abstract public function getDocumentReviews($documentID);	
 }
 
 //-------------------------------------------------------------------------------------------------------- "Concrete" documents
@@ -223,96 +210,58 @@ abstract class DocumentState implements JsonSerializable
 //ManuscriptState class
 class ManuscriptState extends DocumentState
 {
-	public function concreteTransform(): void
-	{
-		$this->documentContext->transitionTo(new JournalState());
+	public function setDocumentMetaData($attribute, $value){
+		$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);
 	}
 
-	public function setDocumentMetaData($dmdArray)
+	public function setDocumentReviews($targetReviewObject, $attribute, $value)
 	{
-		// print_r($dmdArray);
-		foreach($dmdArray as $key => $value)
-		{
-			// echo $key . " : ". $value . "<br>";
-			$this->documentContext->documentMetaData[$key] = $value;		
-		}
+		$this->documentObject->DocumentReviewsArray[$targetReviewObject]->setReviewData($attribute, $value);
 	}
 
-	public function getDocumentMetaData()
+	public function getDocumentMetaData($documentID)
 	{
-		foreach($this->documentContext->documentMetaData as $key => $value)
-		{
-			// echo $key . " : ". $value . "<br>";	
-		}		
+		$sql = "SELECT `documentID`, `authorID`, `editorID`, `title`, `topic`, 
+					   `dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, 
+					   `reviewDueDate`, `editDueDate`, `price`, `journalIssue`, `documentStatus` 
+				FROM `document` WHERE `documentID` = ?";
+
+		$results = sqlProcesses($sql, "s", [$documentID]);
+
+		$metaDataArray = [];
+
+		if(mysqli_num_rows($results) > 0)
+			$metaDataArray = mysqli_fetch_assoc($results);
+
+		//Document meta data attribute initialized
+		$this->documentObject->metaDataObject = new DocumentMetaData($metaDataArray);
+
+		$this->documentObject->metaDataObject->getMetaData();
+		//Prepare the meta data information to be manuscript specific
+		$this->documentObject->metaDataObject->setMetaData("printDate", "");
+		$this->documentObject->metaDataObject->setMetaData("journalIssue", "");
+
+		return $this->documentObject->metaDataObject;
 	}
 
-	public function setDocumentContent($dcArray)
+	public function getDocumentReviews($documentID)
 	{
-		foreach($dcArray as $key => $value)
-		{
-			$this->documentContext->documentContent[$key] = $value;		
-			// echo $key . " : ". $value . "<br>";
-		}	
-	}
-	
-	public function getDocumentContent()
-	{
-		foreach($this->documentContext->documentContent as $key => $value)
-		{
-			// echo $key . " : ". $value . "<br>";	
-		}	
-	}
+		$sql = "SELECT * FROM `review` WHERE `documentID` = ?";
 
-	//allow this function to take a reviewer object instead
-	public function setDocumentReviews(Review $drArray)
-	{
-		$similarReviewers = false;
+		$results = sqlProcesses($sql, "s", [$documentID]);
 
-		if(sizeof($this->documentContext->DocumentReviews) > 0)
+		$reviewsObjectArray = [];
+
+		if(mysqli_num_rows($results) > 0)
 		{
-			foreach($this->documentContext->DocumentReviews as $key => $value)
+			while($individualReview = mysqli_fetch_assoc($results))
 			{
-				if($value->reviewerID == $drArray->reviewerID)
-				{
-					$similarReviewers = true;
-					$this->documentContext->DocumentReviews[$key]["rating"]  = $drArray->rating;
-					$this->documentContext->DocumentReviews[$key]["comment"]  = $drArray->comment;
-					break;
-				}
-			}
-
-			if($similarReviewers == false)
-			{
-				array_push($this->documentContext->DocumentReviews, $drArray);
-			}
-		}
-		else
-		{
-			array_push($this->documentContext->DocumentReviews, $drArray);
-		}
-	}
-
-	public function getDocumentReviews($reviewerIDArray)
-	{
-		foreach($reviewerIDArray as $targetReviewer)
-		{
-
-			foreach($this->documentContext->DocumentReviews as $key => $value)
-			{
-				if($targetReviewer == $value["reviewerID"])
-				{
-					// echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
-					// echo "rating : " . $value["rating"] . "<br>"; 
-					// echo "comment : " . $value["comment"] . "<br><br>"; 
-					break;
-				}
-				// else
-				// {
-				// 	echo "Dodging : " . $value["reviewerID"] . "<br><br>";	
-				// }
+				$individualReviewObject = new DocumentReview($individualReview);
+				array_push($reviewsObjectArray, $individualReviewObject);
 			}
 		}
 
+		return $reviewsObjectArray;
 	}
 }
 
@@ -321,48 +270,73 @@ class JournalState extends DocumentState
 {
 	public function concreteTransform(): void
 	{
-		$this->documentContext->transitionTo(new ManuscriptState());
+		echo "JournalState transform to Manuscript via the state's document object's transition function. <br>";
+		$this->documentObject->transitionTo(new ManuscriptState());
 	}
 
-	public function setDocumentMetaData($dmdArray)
-	{
-		//It's a journal, the Non journal metadata should have been finalized
-		//if the dmdArray's keys are not JournalIssue/printDate/Demote...chao from the scene
-		//print_r(array_keys($dmdArray));
-		// foreach($dmdArray as $key => $value)
-		// {
-		// 	if()
-		// }
-	}
+	public function setDocumentMetaData($attribute, $value){$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);}
 
-	public function getDocumentMetaData()
+	public function getDocumentMetaData($documentID)
 	{
-		foreach($this->documentContext->documentMetaData as $key => $value)
-		{
-		}
+		echo "JournalState getDocumentMetaData(). <br>";
+
+		$sql = "SELECT `documentID`, `authorID`, `editorID`, `title`, `topic`, 
+					   `dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, 
+					   `reviewDueDate`, `editDueDate`, `price`, `journalIssue`, `documentStatus` 
+				FROM `document` WHERE `documentID` = ?";
+
+		$results = sqlProcesses($sql, "s", [$documentID]);
+
+		$metaDataArray = [];
+
+		if(mysqli_num_rows($results) > 0)
+			$metaDataArray = mysqli_fetch_assoc($results);
+
+		//Document meta data attribute initialized
+		$this->documentObject->metaDataObject = new DocumentMetaData($metaDataArray);
+
+		//Prepare the meta data information to be Journal specific
+		$this->documentObject->metaDataObject->setMetaData("dateOfSubmission", "");
+		$this->documentObject->metaDataObject->setMetaData("pages", "");
+		$this->documentObject->metaDataObject->setMetaData("authorRemarks", "");
+		$this->documentObject->metaDataObject->setMetaData("editorRemarks", "");
+		$this->documentObject->metaDataObject->setMetaData("reviewDueDate", "");
+		$this->documentObject->metaDataObject->setMetaData("editDueDate", "");
+
+		return $this->documentObject->metaDataObject;		
 	}
 
 	public function setDocumentContent($dcArray)
 	{
 		//It's a journal, the Content should have been finalized
+		echo "JournalState setDocumentContent(). <br>";
 	}
 	
-	public function getDocumentContent()
+	public function getDocumentContent($documentID)
 	{
-		foreach($this->documentContext->documentContent as $key => $value)
+		echo "JournalState getDocumentContent(). <br>";
+
+		foreach($this->documentObject->documentContent as $key => $value)
 		{
+			echo $key . " : ". $value . "<br>";	
 		}		
 	}
 
-	public function setDocumentReviews(Review $drArray)
+	public function setDocumentReviews($targetReviewObject, $attribute, $value)
 	{
 		//It's a journal, the Reviews should have been finalized
+		echo "JournalState setDocumentReviews(). <br>";
 	}
 
-	public function getDocumentReviews($reviewerIDArray)
-	{		
-		foreach($this->documentContext->DocumentReviews as $key => $value)
+	public function getDocumentReviews($documentID)
+	{
+		echo "JournalState getDocumentReviews(). <br>";	
+		
+		foreach($this->documentObject->DocumentReviews as $key => $value)
 		{
+			echo "Reviewer : " . $value["reviewerID"] . "<br>"; 
+			echo "rating : " . $value["rating"] . "<br>"; 
+			echo "comments : " . $value["comments"] . "<br><br>"; 
 		}
 	}
 }

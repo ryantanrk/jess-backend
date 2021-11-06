@@ -1,5 +1,4 @@
 <?php
-
     abstract class PersonFactory {
         //only for getting from database
         abstract public function getNewUser($personID) : Person;
@@ -25,7 +24,8 @@
                 while ($user = mysqli_fetch_assoc($result)) {
                     //create person
                     if ($user['type'] == 0) {
-                        $personobj = new Editor($personID, $user['username'], $user['password'],
+                        $personobj = new Editor();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
                                                 $user['email'], $user['dob']);
                     }
                     else {
@@ -50,7 +50,8 @@
                 while ($user = mysqli_fetch_assoc($result)) {
                     //create person
                     if ($user['type'] == 1) {
-                        $personobj = new Author($personID, $user['username'], $user['password'],
+                        $personobj = new Author();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
                                                 $user['email'], $user['dob']);
                     }
                     else {
@@ -75,8 +76,9 @@
                 while ($user = mysqli_fetch_assoc($result)) {
                     //create person
                     if ($user['type'] == 2) {
-                        $personobj = new Reviewer($personID, $user['username'], $user['password'],
-                                                $user['email'], $user['dob']);
+                        $personobj = new Reviewer();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
+                                                    $user['email'], $user['dob']);
 
                         $rquery = "SELECT * FROM `$reviewerTable` WHERE `personID` = ?";
 

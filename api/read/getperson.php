@@ -102,22 +102,19 @@
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             $personID = $row['personID'];
             if ($row['type'] == 0) {
-                $factoryobj = new EditorFactory;
-                $editorobj = $factoryobj->getNewUser($personID);
-                array_push($personarray, $editorobj);
-                $_SESSION['person'] = $editorobj;
+                // $factoryobj = new EditorFactory;
+                // $editorobj = $factoryobj->getNewUser($personID);
+                // array_push($personarray, $editorobj);
             }
             else if ($row['type'] == 1) {
                 $factoryobj = new AuthorFactory;
                 $authorobj = $factoryobj->getNewUser($personID);
                 array_push($personarray, $authorobj);
-                $_SESSION['person'] = $authorobj;
             }
             else if ($row['type'] == 2) {
                 $factoryobj = new ReviewerFactory;
                 $reviewerobj = $factoryobj->getNewUser($personID);
                 array_push($personarray, $reviewerobj);
-                $_SESSION['person'] = $reviewerobj;
             }
         }
     }

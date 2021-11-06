@@ -78,9 +78,68 @@
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //get data
             $documentID = $row['documentID'];
-            $document = new Document($documentID);
+            $authorID = $row['authorID'];
+            $status = $row['documentStatus'];
 
-            array_push($docarray, $document);
+            //get author username
+            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
+            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
+
+            $authorUsername = "";
+            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
+                $authorUsername = $rowUser['username'];
+            }
+
+            $metadata_arr = [
+                "documentID" => $documentID,
+                "authorID" => $authorID,
+                "authorUsername" => $authorUsername,
+                "editorID" => $row['editorID'],
+                "title" => $row['title'],
+                "topic" => $row['topic'],
+                "dateOfSubmission" => $row['dateOfSubmission'],
+                "authorRemarks" => $row['authorRemarks'],
+                "editorRemarks" => $row['editorRemarks'],
+                "reviewDueDate" => $row['reviewDueDate'],
+                "editDueDate" => $row['editDueDate'],
+                "price" => $row['price'],
+                "documentStatus" => $row['documentStatus'],
+                "printDate" => $row['printDate'],
+                "journalIssue" => $row['journalIssue']
+            ];
+
+            $documentobj = "";
+            if ($row['documentStatus'] != "Published") {
+                $documentobj = new Document(new ManuscriptState);
+                $metadata_arr['printDate'] = "0000-00-00";
+                $metadata_arr['journalIssue'] = "0";
+            }
+            else {
+                $documentobj = new Document(new JournalState);
+            }
+            
+            //document metadata
+            $metadata = new DocumentMetadata($metadata_arr);
+            foreach ($metadata as $key => $value) {
+                $documentobj->documentStateObject->setDocumentMetaData($key, $value);
+            }
+            
+            //set reviews
+            $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
+            $paramVariablesArray = [$documentID];
+            $resultR = sqlProcesses($query, "s", $paramVariablesArray);
+
+            $i = 0;
+            while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
+                //get review object
+                $review = new DocumentReview($rowR);
+                
+                //set review
+                $documentobj->DocumentReviewsArray[$i] = $review;
+                $i++;
+            }
+
+            array_push($docarray, $documentobj);
         }
     }
     else {

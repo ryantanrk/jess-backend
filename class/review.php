@@ -14,14 +14,24 @@ class Review {
         $this->documentID = $documentID;
         $this->rating = -1;
         $this->comment = "";
+        $this->status = "pending";
+        $this->completionDate = "";
     }
 
-    public function setReview($rating, $comment, $status)
+    public function setDocumentRating($rating, $comment)
+    {
+        $this->rating = $rating;
+        $this->comment = $comment;
+        $this->status = "complete";
+        $this->completionDate = date('Y-m-d');
+    }
+
+    public function setReview($rating, $comment, $status, $completionDate)
     {
         $this->rating = $rating;
         $this->comment = $comment;
         $this->status = $status;
-        $this->completionDate = date('Y-m-d');
+        $this->completionDate = $completionDate;
     }
 }
 ?>
