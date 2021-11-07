@@ -201,7 +201,7 @@
         }
 
         public function payDocument($docID) {
-            global $documentTable, $arr, $connection;
+            global $documentTable, $arr;
             $authorID = $this->personID;
 
             $sql = "UPDATE `$documentTable` SET `documentStatus` = 'paid' 
