@@ -419,9 +419,6 @@ class JournalState extends DocumentState
 
 		//Prepare the meta data information to be Journal specific
 		$this->documentObject->metaDataObject->setMetaData("dateOfSubmission", "");
-		$this->documentObject->metaDataObject->setMetaData("pages", "");
-		$this->documentObject->metaDataObject->setMetaData("authorRemarks", "");
-		$this->documentObject->metaDataObject->setMetaData("editorRemarks", "");
 		$this->documentObject->metaDataObject->setMetaData("reviewDueDate", "");
 		$this->documentObject->metaDataObject->setMetaData("editDueDate", "");
 

@@ -226,7 +226,19 @@
 
             sqlProcesses($sql, "ss", [$docID, $authorID]);
 
-            $arr = ["message" => "payment success"];
+            array_push($arr, ["message" => "payment success: " . $docID]);
+        }
+
+        public function cancelPaymentDocument($docID) {
+            global $documentTable, $arr;
+            $authorID = $this->personID;
+
+            $sql = "UPDATE `$documentTable` SET `documentStatus` = 'cancelled' 
+                    WHERE `documentID` = ? AND `authorID` = ?";
+
+            sqlProcesses($sql, "ss", [$docID, $authorID]);
+
+            array_push($arr, ["message" => "payment cancelled: " . $docID]);
         }
     }
 ?>
