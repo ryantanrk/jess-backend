@@ -41,26 +41,4 @@
     else {
         echo json_encode([1 => "send post request"], JSON_PRETTY_PRINT);
     }
-
-        // //get title & file
-        // $query = "SELECT `title`, `file` FROM `$documentTable` WHERE documentID = ?";
-        // $result = sqlProcesses($query, "s", [$documentID]);
-
-        // while ($row = mysqli_fetch_assoc($result)) {
-        //     $title = $row['title'];
-        //     $file = $row['file'];
-        // }
-
-        // header("Content-Type: application/pdf");
-        // header('Content-Disposition: inline; filename="' . $title . '.pdf"');
-        // header("Content-Transfer-Encoding: binary");
-        // header('Accept-Ranges: bytes');
-
-        // $filename = $title . ".pdf";
-
-        // $myfile = fopen("../documents/" . $filename, "w") or die("Unable to open file!");
-        // fwrite($myfile, $file);
-        // fclose($myfile);
-
-        // header('Location: '. "../documents/" . $filename, true, 302);
 ?>

@@ -185,29 +185,31 @@
             $documentID = $doc['documentID'];
             $authorRemarks = $doc['authorRemarks'];
             $documentStatus = 'pending final check';
-
-            $paramVariablesArray = array(
-                $authorRemarks, $documentStatus
-            );
-
-            $paramString = "ssss";
+            
+            $fileToUpload = $doc["documentToUpload"];
         
             $sql = "UPDATE `$documentTable` SET
-                    `authorRemarks` = ?, `documentStatus` = ?";
+                    `authorRemarks` = ?, `documentStatus` = ?, `file` = ? 
+                    WHERE `documentID` = ? AND `authorID` = ?";
 
-            if (isset($doc['documentToUpload'])) {
-                $fileToUpload = $doc["documentToUpload"];
-                $sql .= ", `file` = ?";
-                $paramVariablesArray[] = $fileToUpload;
-                $paramString = "sssss";
-            }
+            $paramVariablesArray = array(
+                $authorRemarks, $documentStatus, $fileToUpload,
+                $documentID, $authorID
+            );
 
-            $sql .= " WHERE `documentID` = ? AND `authorID` = ?";
+            sqlProcesses($sql, "sssss", $paramVariablesArray); 
+        }
 
-            $paramVariablesArray[] = $documentID;
-            $paramVariablesArray[] = $authorID;
+        public function payDocument($docID) {
+            global $documentTable, $arr, $connection;
+            $authorID = $this->personID;
 
-            sqlProcesses($sql, $paramString, $paramVariablesArray); 
+            $sql = "UPDATE `$documentTable` SET `documentStatus` = 'paid' 
+                    WHERE `documentID` = ? AND `authorID` = ?";
+
+            sqlProcesses($sql, "ss", [$docID, $authorID]);
+
+            $arr = ["message" => "payment success"];
         }
     }
 ?>

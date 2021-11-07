@@ -9,8 +9,6 @@ header("Content-Type: application/json");
 
 $arr = ["1" => "Send a POST request to this url!"];
 
-session_start();
-
 function login($email, $p)
 {
 	global $arr;
@@ -29,9 +27,6 @@ function login($email, $p)
 			///get the correct password to compare input with
 			if($pword === $user['password'])
 			{
-				///info to be held on to throughout session is declared here
-				$_SESSION["currentUser"] = $user["personID"];	
-
 				//1st in line, person data
 				$arr = 
 				[
