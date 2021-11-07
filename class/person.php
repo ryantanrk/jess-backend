@@ -35,13 +35,13 @@
 
         public function getDocument($documentID) 
         {
-            $documentObj->setDocumentMetaData($objectMetaData, $attribute, $value);
-            $documentObj->getDocumentReviews();
+            //$documentObj->setDocumentMetaData($objectMetaData, $attribute, $value);
+            //$documentObj->getDocumentReviews();
         }
 
         public function setDocument($documentObject, $targetAttribute, $value) 
         {
-            $documentObj->setDocumentMetaData($dmdArray);
+            //$documentObj->setDocumentMetaData($dmdArray);
         }
     }
 
@@ -91,6 +91,23 @@
         public function setDocument($documentReviewObject, $targetAttribute, $value) 
         {
             $documentReviewObject->setReviewData($targetAttribute, $value);
+        }
+
+        public function rate(DocumentReview $review) {
+            global $reviewTable, $arr;
+            $reviewerID = $this->personID;
+            
+            $sql = "UPDATE `$reviewTable` SET `rating` = ?, `comment` = ?, `reviewStatus` = ?, 
+                    `dateOfReviewCompletion` = ? WHERE `documentID` = ? AND `reviewerID` = ?";
+
+            $paramVariablesArray = [
+                $review->rating, $review->comment, $review->reviewStatus, $review->dateOfReviewCompletion,
+                $review->documentID, $reviewerID
+            ];
+
+            sqlProcesses($sql, "isssss", $paramVariablesArray);
+
+            $arr = ["message" => "rate complete"];
         }
     }
 

@@ -1,7 +1,7 @@
 <?php
     abstract class PersonFactory {
         //only for getting from database
-        abstract public function getNewUser($personID) : Person;
+        abstract public function getNewUser($personID);
 
         public function operation($personID) {
             $person = $this->getNewUser($personID);
