@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $arr = "";
     //get author
     $authorID = $_POST['authorID'];
-    $documentIDs = $_POST['documentIDs']; //array
+    $documentIDs = $_POST['documentID'];
     $choice = $_POST['choice']; //choice: pay/cancel
 
     var_dump($documentIDs);
@@ -22,14 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     //pay for each doc
     if ($choice === "pay") {
-        foreach ($documentIDs as $docID) {
-            $author->payDocument($docID);
-        }
+        $author->payDocument($docID);
     }
     else if ($choice === "cancel") {
-        foreach ($documentIDs as $docID) {
-            $author->cancelPaymentDocument($docID);
-        }
+        $author->cancelPaymentDocument($docID);
     }
 }
 
