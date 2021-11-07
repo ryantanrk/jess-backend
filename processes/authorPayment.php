@@ -13,19 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $arr = "";
     //get author
     $authorID = $_POST['authorID'];
-    $documentIDs = $_POST['documentID'];
+    $documentID = $_POST['documentID'];
     $choice = $_POST['choice']; //choice: pay/cancel
 
-    var_dump($documentIDs);
+    var_dump($documentID);
     $factoryobj = new AuthorFactory;
     $author = $factoryobj->getNewUser($authorID);
 
     //pay for each doc
     if ($choice === "pay") {
-        $author->payDocument($docID);
+        $author->payDocument($documentID);
     }
     else if ($choice === "cancel") {
-        $author->cancelPaymentDocument($docID);
+        $author->cancelPaymentDocument($documentID);
     }
 }
 

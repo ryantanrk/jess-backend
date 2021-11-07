@@ -226,7 +226,7 @@
 
             sqlProcesses($sql, "ss", [$docID, $authorID]);
 
-            array_push($arr, ["message" => "payment success: " . $docID]);
+            $arr = ["message" => "payment success: " . $docID];
         }
 
         public function cancelPaymentDocument($docID) {
@@ -238,7 +238,7 @@
 
             sqlProcesses($sql, "ss", [$docID, $authorID]);
 
-            array_push($arr, ["message" => "payment cancelled: " . $docID]);
+            $arr = ["message" => "payment cancelled: " . $docID];
         }
     }
 ?>
