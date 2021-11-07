@@ -1,10 +1,10 @@
 <?php
-    //require_once '../class/person.php';
     abstract class PersonFactory {
-        abstract public function createNewUser($personID, $username, $password, $email, $dob) : Person;
+        //only for getting from database
+        abstract public function getNewUser($personID) : Person;
 
-        public function operation($personID, $username, $password, $email, $dob) {
-            $person = $this->createNewUser($personID, $username, $password, $email, $dob);
+        public function operation($personID) {
+            $person = $this->getNewUser($personID);
 
             $str = "The person type is " + $person->type;
 
@@ -13,39 +13,86 @@
     }
 
     class EditorFactory extends PersonFactory {
-        public function createNewUser($personID, $username, $password, $email, $dob) : Person
+        public function getNewUser($personID) : Editor
         {
-            //create personID
-            $personobj = new Editor($personID, $username, $password, $email, $dob);
+            global $personTable;
+            $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";
+            $result = sqlProcesses($query, "s", [$personID]);
 
+            $personobj = "";
+            if (mysqli_num_rows($result) == 1) {
+                while ($user = mysqli_fetch_assoc($result)) {
+                    //create person
+                    if ($user['type'] == 0) {
+                        $personobj = new Editor();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
+                                                $user['email'], $user['dob']);
+                    }
+                    else {
+                        $personobj = ["error", "person types don't match"];
+                    }
+                }
+            }
+            
             return $personobj;
         }
     }
 
     class AuthorFactory extends PersonFactory {
-        public function createNewUser($personID, $username, $password, $email, $dob) : Person
+        public function getNewUser($personID) : Author
         {
-            //create personID
-            $personobj = new Author($personID, $username, $password, $email, $dob);
+            global $personTable;
+            $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";
+            $result = sqlProcesses($query, "s", [$personID]);
 
+            $personobj = "";
+            if (mysqli_num_rows($result) == 1) {
+                while ($user = mysqli_fetch_assoc($result)) {
+                    //create person
+                    if ($user['type'] == 1) {
+                        $personobj = new Author();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
+                                                $user['email'], $user['dob']);
+                    }
+                    else {
+                        $personobj = ["error", "person types don't match"];
+                    }
+                }
+            }
+            
             return $personobj;
         }
     }
 
     class ReviewerFactory extends PersonFactory {
-        public function createNewUser($personID, $username, $password, $email, $dob) : Person
+        public function getNewUser($personID) : Reviewer
         {
-            //create personID
-            $personobj = new Reviewer($personID, $username, $password, $email, $dob);
+            global $personTable, $reviewerTable;
+            $query = "SELECT * FROM `$personTable` WHERE `personID` = ?";
+            $result = sqlProcesses($query, "s", [$personID]);
 
+            $personobj = "";
+            if (mysqli_num_rows($result) == 1) {
+                while ($user = mysqli_fetch_assoc($result)) {
+                    //create person
+                    if ($user['type'] == 2) {
+                        $personobj = new Reviewer();
+                        $personobj->updatePersonData($personID, $user['username'], $user['password'],
+                                                    $user['email'], $user['dob']);
 
-            $rquery = "SELECT * FROM `reviewer` WHERE `personID` = ?";
+                        $rquery = "SELECT * FROM `$reviewerTable` WHERE `personID` = ?";
 
-            $result = sqlProcesses($rquery, "s", [$personID]);
-
-            while ($row = mysqli_fetch_assoc($result)) {
-                $personobj->areaOfExpertise = $row['areaOfExpertise'];
-                $personobj->status = $row['status'];
+                        $result = sqlProcesses($rquery, "s", [$personID]);
+            
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $personobj->areaOfExpertise = $row['areaOfExpertise'];
+                            $personobj->status = $row['status'];
+                        }
+                    }
+                    else {
+                        $personobj = ["error" => "person types don't match"];
+                    }
+                }
             }
 
             return $personobj;

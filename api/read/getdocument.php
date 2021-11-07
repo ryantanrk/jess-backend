@@ -33,12 +33,12 @@
         $status_condition = "";
         if (count($statusq_array) == 1) {
             //if only 1 status
-            $status_condition = " status = '$docStatus' ";
+            $status_condition = " documentStatus = '$docStatus' ";
         }
         else {
-            $status_condition = " status = '$statusq_array[0]' ";
+            $status_condition = " documentStatus = '$statusq_array[0]' ";
             for ($i = 1; $i < count($statusq_array); $i++) {
-                $status_condition .= " OR status = '$statusq_array[$i]' ";
+                $status_condition .= " OR documentStatus = '$statusq_array[$i]' ";
             }
         }
 
@@ -79,14 +79,7 @@
             //get data
             $documentID = $row['documentID'];
             $authorID = $row['authorID'];
-            $title = $row['title'];
-            $topic = $row['topic'];
-            $pages = $row['pages'];
-            $dateOfSubmission = $row['dateOfSubmission'];
-            $authorRemarks = $row['authorRemarks'];
-            $editorRemarks = $row['editorRemarks'];
-            $status = $row['status'];
-            $price = $row['price'];
+            $status = $row['documentStatus'];
 
             //get author username
             $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
@@ -97,53 +90,58 @@
                 $authorUsername = $rowUser['username'];
             }
 
-            //metadata array
-            $metadata = [
+            $metadata_arr = [
                 "documentID" => $documentID,
                 "authorID" => $authorID,
-                "username" => $authorUsername,
-                "title" => $title,
-                "topic" => $topic,
-                "pages" => $pages,
-                "dateOfSubmission" => $dateOfSubmission,
-                "authorRemarks" => $authorRemarks,
-                "editorRemarks" => $editorRemarks,
-                "status" => $status,
-                "price" => $price
+                "authorUsername" => $authorUsername,
+                "editorID" => $row['editorID'],
+                "title" => $row['title'],
+                "topic" => $row['topic'],
+                "dateOfSubmission" => $row['dateOfSubmission'],
+                "authorRemarks" => $row['authorRemarks'],
+                "editorRemarks" => $row['editorRemarks'],
+                "reviewDueDate" => $row['reviewDueDate'],
+                "editDueDate" => $row['editDueDate'],
+                "price" => $row['price'],
+                "documentStatus" => $row['documentStatus'],
+                "printDate" => $row['printDate'],
+                "journalIssue" => $row['journalIssue']
             ];
 
-            //content
-            $file = $row['file'];
-
-            //content array
-            $content = array(
-                "pdfFile" => $file
-            );
-
             $documentobj = "";
-
-            //check type
-            if ($status != "Published") {
+            if ($row['documentStatus'] != "Published") {
                 $documentobj = new Document(new ManuscriptState);
+                $metadata_arr['printDate'] = "0000-00-00";
+                $metadata_arr['journalIssue'] = "0";
             }
             else {
                 $documentobj = new Document(new JournalState);
             }
             
-            $metares = $documentobj->setDocumentMetaData($metadata); //set metadata
-            //$contentres = $documentobj->documentState->setDocumentContent($content); //set content
+            //document metadata
+            $metadata = new DocumentMetadata($metadata_arr);
+            foreach ($metadata as $key => $value) {
+                if ($key != "authorUsername") {
+                    $documentobj->documentStateObject->setDocumentMetaData($key, $value);
+                }
+                else {
+                    $documentobj->documentMetaDataObject->authorUsername = $authorUsername;
+                }
+            }
+            
             //set reviews
             $query = "SELECT * FROM `$reviewTable` WHERE `documentID` = ?";
             $paramVariablesArray = [$documentID];
             $resultR = sqlProcesses($query, "s", $paramVariablesArray);
 
+            $i = 0;
             while ($rowR = mysqli_fetch_array($resultR, MYSQLI_ASSOC)) {
                 //get review object
-                $reviewobj = new Review($rowR['reviewerID'], $rowR['documentID']);
-                $reviewobj->setReview($rowR['rating'], $rowR['comment'], $rowR['status'], $rowR['dueDate']);
-                $reviewobj->status = $rowR['status'];
-                $reviewobj->dueDate = $rowR['dueDate'];
-                $documentobj->setDocumentReviews($reviewobj);
+                $review = new DocumentReview($rowR);
+                
+                //set review
+                $documentobj->DocumentReviewsArray[$i] = $review;
+                $i++;
             }
 
             array_push($docarray, $documentobj);

@@ -3,7 +3,7 @@
 //mandatory: ?api_key
 //optional: docID, reviewerID, status
     require_once '../../connection.php';
-    require_once '../../class/review.php';
+    require_once '../../class/document.php';
 
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
@@ -35,7 +35,7 @@
     $status = "";
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
-        $conditions[] = " status = '$status' ";
+        $conditions[] = " reviewStatus = '$status' ";
     }
 
     //get list of api keys
@@ -66,12 +66,17 @@
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            //review object
-            $reviewobj = new Review($row['reviewerID'], $row['documentID']);
+            $review_arr = [
+                "documentID" => $row['documentID'],
+                "reviewerID" => $row['reviewerID'],
+                "rating" => $row['rating'],
+                "comment" => $row['comment'],
+                "reviewStatus" => $row['reviewStatus'],
+                "dateOfReviewCompletion" => $row['dateOfReviewCompletion']
+            ];
 
-            if ($row['rating'] != -1 && $row['comment'] != NULL) {
-                $reviewobj->setReview($row['rating'], $row['comment'], $row['status'], $row['dueDate']);
-            }
+            //review object
+            $reviewobj = new DocumentReview($review_arr);
 
             array_push($reviewarray, $reviewobj);
         }

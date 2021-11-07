@@ -11,5 +11,5 @@
     $documentTable = 'document';
     $personTable = 'person';
     $reviewTable = 'review';
-    $reviewerTable = 'reviewer';
+    $reviewerTable = 'reviewerspecific';
 ?>

@@ -1,5 +1,7 @@
 <?php
 require_once '../connection.php';
+require_once '../class/person.php';
+require_once '../factory/personfactory.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
@@ -25,9 +27,6 @@ function login($email, $p)
 			///get the correct password to compare input with
 			if($pword === $user['password'])
 			{
-				///info to be held on to throughout session is declared here
-				$_SESSION["currentUser"] = $user["personID"];	
-
 				//1st in line, person data
 				$arr = 
 				[
@@ -36,7 +35,23 @@ function login($email, $p)
 					"username" => $user["username"],
 					"email" => $user["email"],
 					"dob" => $user["dob"]
-				];	
+				];
+
+				$personobj = "";
+				if ($arr['type'] == 0) {
+					$factoryobj = new EditorFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+				else if ($arr['type'] == 1) {
+					$factoryobj = new AuthorFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+				else if ($arr['type'] == 2) {
+					$factoryobj = new ReviewerFactory;
+					$personobj = $factoryobj->getNewUser($arr['personID']);
+				}
+
+				$arr = $personobj;
 			}
 			else
 				$arr = ["error" => "Wrong password"];

@@ -1,29 +1,18 @@
 <?php
-    require_once 'editor.php';
-    require_once 'author.php';
-    require_once 'reviewer.php';
     require_once 'document.php';
     
-    abstract class Person {
+    abstract class Person 
+    {
         public $personID;
         public $username;
         public $password;
         public $email;
         public $dob;
+        public $type;
 
-        public function __construct($personID, $username, $password, $email, $dob) {
-            //constructor
-            $this->personID = $personID;
-            $this->username = $username;
-            $this->password = $password;
-            $this->email = $email;
-            $this->dob = $dob;
-        }
+        abstract public function getDocument($documentID);
+        abstract public function setDocument($documentObject, $targetAttribute, $value);
 
-        abstract public function getManuscript(AbstractDocument $documentObj);
-        abstract public function setManuscript(AbstractDocument $documentObj, $someArray);
-        abstract function notify(AbstractDocument $documentObj);
-        
         public function updatePersonData($newID, $newUserName, $newPassword, $newEmail, $newDob) 
         {
             $this->personID = $newID;
@@ -35,35 +24,192 @@
 
         public function getPersonData()
         {
-            return array($this->personID, $this->username, $this->password, $this->email, $this->dob);
+            return array("PersonID" => $this->personID, "Username" => $this->username, "Password" => $this->password, "Email" => $this->email, "DOB" => $this->dob);
         }              
     }
 
-    // //------------------------------------------------------------------------------------------------ Testing zone
-    // $DocumentObject = new Document(new ManuscriptState());
-    // echo "Document object created <br><br>";
+    class Editor extends Person 
+    {
+        public $type = 0;
+        public function __construct() { }
 
-    // //---------------------------------------------------------------------------------------
-    // $dmd = array(
-    //     "documentID" => "doc1", 
-    //     "title" => "docTitle1", 
-    //     "topic" => "docTopic1", 
-    //     "pages" => "docPages1", 
-    //     "dateOfSubmission" => "docDateOfSubmission1", 
-    //     "status" => "docStatus1", 
-    //     "mainAuthor" => "docMainAuthor1", 
-    //     "authorRemarks" => "docAuthorRemarks1", 
-    //     "editorRemarks" => "docEditorRemarks1");
+        public function getDocument($documentID) 
+        {
+            $documentObj->setDocumentMetaData($objectMetaData, $attribute, $value);
+            $documentObj->getDocumentReviews();
+        }
 
-    // $DocumentObject->setDocumentMetaData($dmd);
-    // echo "Document object meta data set <br><br>";
+        public function setDocument($documentObject, $targetAttribute, $value) 
+        {
+            $documentObj->setDocumentMetaData($dmdArray);
+        }
+    }
 
-    // echo "<br><br>". "----------------------------------------------------------------------------------------" ."<br><br>";
+    class Reviewer extends Person 
+    {
+        public $type = 2;
+        //------------------------------------------------------------------------------------ Singleton stuff above
+        private static $instances = [];
+        public function __construct() { }
+        protected function __clone() { }
+    
+        public static function getInstance(): Reviewer
+        {
+            $cls = static::class;
+            if (!isset(self::$instances[$cls])) 
+                self::$instances[$cls] = new static();
+    
+            return self::$instances[$cls];
+        }
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Singleton stuff above
 
-    // $authorObject1 = new Author("AID1", "username", "password", "aid1@gmail.com", "1/1/1");
-    // $authorObject2 = new Editor("EID2", "username1", "password1", "eid2@gmail.com", "2/2/2");
+        public $areaOfExpertise;
+        public $status;
 
-    // $DocumentObject->subscribe($authorObject1);
-    // $DocumentObject->subscribe($authorObject2);
-    // $DocumentObject->notify();    
+        public function getDocument($documentIDReviewerID) 
+        {
+        	$documentObject = new Document(new ManuscriptState);
+
+        	$tempArray = explode("-", $documentIDReviewerID);     	
+
+            $reviewsObjectArray = $documentObject->getDocumentReviews($tempArray[0]);
+
+            writeLine("Reviewer zone");
+            writeLine($documentIDReviewerID);
+
+            foreach($reviewsObjectArray as $reviewObject)
+            {
+            	$reviewerDataArray = $reviewObject->getReviewData();
+
+            	if($reviewerDataArray["reviewerID"] == $tempArray[1])
+	            	return $reviewObject;
+            }
+
+            return new DocumentReview([]);
+        }
+
+        public function setDocument($documentReviewObject, $targetAttribute, $value) 
+        {
+            $documentReviewObject->setReviewData($targetAttribute, $value);
+        }
+    }
+
+    class Author extends Person 
+    {
+        public $type = 1;
+        //------------------------------------------------------------------------------------ Singleton stuff above
+        private static $instances = [];
+        public function __construct() { }
+        protected function __clone() { }
+    
+        public static function getInstance(): Author
+        {
+            $cls = static::class;
+            if (!isset(self::$instances[$cls])) 
+                self::$instances[$cls] = new static();
+    
+            return self::$instances[$cls];
+        }
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Singleton stuff above
+
+        public function getDocument($documentID) 
+        {
+            //Find out if we are dealing with a manuscript or a Journal
+            $result = sqlProcesses("SELECT `documentStatus` FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
+            $unSQLedObject = mysqli_fetch_assoc($result);
+
+            $documentObject = "";
+
+            //discernment
+            if($unSQLedObject['documentStatus'] != "published")
+                $documentObject = new Document(new ManuscriptState);
+            else
+                $documentObject = new Document(new JournalState);
+
+            //State specific data returned
+            $metaDataObject = $documentObject->getDocumentMetaData($documentID);
+
+            return $metaDataObject;
+        }
+
+        public function setDocument($documentMetaDataObject, $targetAttribute, $value) 
+        {
+            if($targetAttribute == "documentStatus" || $targetAttribute == "authorRemarks")
+            {
+                $documentMetaDataObject->setMetaData($targetAttribute, $value);
+            }
+            else if($targetAttribute == "file")
+            {
+                $tempArray = $documentMetaDataObject->getMetaData();
+                $fileTempName = $value;
+                $fileToUpload = file_get_contents($fileTempName);
+                sqlProcesses("UPDATE `document` SET `file`=? WHERE `documentID`=?", "ss",[$fileToUpload, $tempArray["documentID"]]);
+            }
+        }
+
+        public function uploadNewDocument($doc)
+        {
+            $authorID = $this->personID;
+            $title = $doc['title']; 
+            $topic = $doc['topic']; 
+
+            $fileToUpload = $doc["documentToUpload"];
+
+            $authorRemarks = $doc['authorRemarks'];
+
+            $documentID = getNewID(3);
+            
+            $editorID = NULL;
+            
+            $dateOfSubmission = date("Y-m-d");
+
+            $documentStatus = 'new';    
+        
+            $sql = "INSERT INTO `document`(
+              `documentID`, `authorID`, `editorID`, `title`, `topic`, 
+              `dateOfSubmission`, `file`, `authorRemarks`, `documentStatus`) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $paramVariablesArray = array(
+                $documentID, $authorID, $editorID, $title, $topic, 
+                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus
+            );
+
+            sqlProcesses($sql, "sssssssss", $paramVariablesArray);                     
+        }
+
+        public function editDocument($doc)
+        {
+            global $documentTable;
+            $authorID = $this->personID;
+            $documentID = $doc['documentID'];
+            $authorRemarks = $doc['authorRemarks'];
+            $documentStatus = 'pending final check';
+            
+            $fileToUpload = $doc["documentToUpload"];
+        
+            $sql = "UPDATE `$documentTable` SET
+                    `authorRemarks` = ?, `documentStatus` = ?, `file` = ? 
+                    WHERE `documentID` = ? AND `authorID` = ?";
+
+            $paramVariablesArray = array(
+                $authorRemarks, $documentStatus, $fileToUpload,
+                $documentID, $authorID
+            );
+
+            sqlProcesses($sql, "sssss", $paramVariablesArray); 
+        }
+
+        public function payDocument($docID) {
+            global $documentTable, $arr;
+            $authorID = $this->personID;
+
+            $sql = "UPDATE `$documentTable` SET `documentStatus` = 'paid' 
+                    WHERE `documentID` = ? AND `authorID` = ?";
+
+            sqlProcesses($sql, "ss", [$docID, $authorID]);
+
+            $arr = ["message" => "payment success"];
+        }
+    }
 ?>
