@@ -18,18 +18,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $authorfactory = new AuthorFactory;
     $author = $authorfactory->getNewUser($authorID);
 
-    $title = $_POST['title'];
-    $topicOption = $_POST['topic'];
-    $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
     $authorRemarks = $_POST['authorRemarks'];
 
     $doc = [
         "documentID" => $documentID,
-        "title" => $title,
-        "topic" => $topicOption,
-        "documentToUpload" => $documentToUpload,
         "authorRemarks" => $authorRemarks
     ];
+    //file is optional
+    if (is_uploaded_file($_FILES['document']['tmp_name'])) {
+        $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
+        $doc['documentToUpload'] = $documentToUpload;
+    }
 
     $documentMetaData = $author->editDocument($doc);
     $arr = ["message" => "edit"];

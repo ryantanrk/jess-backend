@@ -183,26 +183,31 @@
             global $documentTable;
             $authorID = $this->personID;
             $documentID = $doc['documentID'];
-            $title = $doc['title']; 
-            $topic = $doc['topic']; 
-
-            $fileToUpload = $doc["documentToUpload"];
-
             $authorRemarks = $doc['authorRemarks'];
-
             $documentStatus = 'pending final check';
-        
-            $sql = "UPDATE `$documentTable` SET
-                    `title` = ?, `topic` = ?, `file` = ?, 
-                    `authorRemarks` = ?, `documentStatus` = ?
-                    WHERE `documentID` = ? AND `authorID` = ?";
-            
+
             $paramVariablesArray = array(
-                $title, $topic, $fileToUpload, 
-                $authorRemarks, $documentStatus, $documentID, $authorID
+                $authorRemarks, $documentStatus
             );
 
-            sqlProcesses($sql, "sssssss", $paramVariablesArray);                     
+            $paramString = "ssss";
+        
+            $sql = "UPDATE `$documentTable` SET
+                    `authorRemarks` = ?, `documentStatus` = ?";
+
+            if (isset($doc['documentToUpload'])) {
+                $fileToUpload = $doc["documentToUpload"];
+                $sql .= ", `file` = ?";
+                $paramVariablesArray[] = $fileToUpload;
+                $paramString = "sssss";
+            }
+
+            $sql .= " WHERE `documentID` = ? AND `authorID` = ?";
+
+            $paramVariablesArray[] = $documentID;
+            $paramVariablesArray[] = $authorID;
+
+            sqlProcesses($sql, $paramString, $paramVariablesArray); 
         }
     }
 ?>
