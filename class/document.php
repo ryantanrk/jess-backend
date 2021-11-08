@@ -227,46 +227,9 @@ class ManuscriptState extends DocumentState
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
             //get data
             $documentID = $row['documentID'];
-            $authorID = $row['authorID'];
-            $status = $row['documentStatus'];
 
-            //get author username
-            $queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
-            $resultUser = sqlProcesses($queryUser, "s", [$authorID]);
-
-            $authorUsername = "";
-            while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
-                $authorUsername = $rowUser['username'];
-            }
-
-            $metadata_arr = [
-                "documentID" => $documentID,
-                "authorID" => $authorID,
-                "authorUsername" => $authorUsername,
-                "editorID" => $row['editorID'],
-                "title" => $row['title'],
-                "topic" => $row['topic'],
-                "dateOfSubmission" => $row['dateOfSubmission'],
-                "authorRemarks" => $row['authorRemarks'],
-                "editorRemarks" => $row['editorRemarks'],
-                "reviewDueDate" => $row['reviewDueDate'],
-                "editDueDate" => $row['editDueDate'],
-                "price" => $row['price'],
-                "documentStatus" => $status,
-                "printDate" => "0000-00-00",
-                "journalIssue" => ""
-            ];
-            
-            //document metadata
-            $metadata = new DocumentMetadata($metadata_arr);
-            foreach ($metadata as $key => $value) {
-                if ($key != "authorUsername") {
-                    $this->setDocumentMetaData($key, $value);
-                }
-                else {
-                    $this->documentObject->documentMetaDataObject->authorUsername = $authorUsername;
-                }
-            }
+			//document metadata
+			$this->getDocumentMetaData($documentID);
             
             //set reviews
 			$this->documentObject->DocumentReviewsArray = $this->getDocumentReviews($documentID);
@@ -288,27 +251,26 @@ class ManuscriptState extends DocumentState
 
 	public function getDocumentMetaData($documentID)
 	{
-		$sql = "SELECT `documentID`, `authorID`, `editorID`, `title`, `topic`, 
-					   `dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, 
-					   `reviewDueDate`, `editDueDate`, `price`, `journalIssue`, `documentStatus` 
-				FROM `document` WHERE `documentID` = ?";
+		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
+				`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
+				`editDueDate`, `price`, `journalIssue`, `documentStatus` 
+				FROM `document` D JOIN `person` P ON D.authorID = P.personID WHERE `documentID` = ?";
 
 		$results = sqlProcesses($sql, "s", [$documentID]);
 
 		$metaDataArray = [];
-
 		if(mysqli_num_rows($results) > 0)
 			$metaDataArray = mysqli_fetch_assoc($results);
 
 		//Document meta data attribute initialized
-		$this->documentObject->metaDataObject = new DocumentMetaData($metaDataArray);
+		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
 
-		$this->documentObject->metaDataObject->getMetaData();
+		$this->documentObject->documentMetaDataObject->getMetaData();
 		//Prepare the meta data information to be manuscript specific
-		$this->documentObject->metaDataObject->setMetaData("printDate", "");
-		$this->documentObject->metaDataObject->setMetaData("journalIssue", "");
+		$this->documentObject->documentMetaDataObject->setMetaData("printDate", "");
+		$this->documentObject->documentMetaDataObject->setMetaData("journalIssue", "");
 
-		return $this->documentObject->metaDataObject;
+		return $this->documentObject->documentMetaDataObject;
 	}
 
 	public function getDocumentReviews($documentID)
@@ -350,46 +312,9 @@ class JournalState extends DocumentState
 		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
 			//get data
 			$documentID = $row['documentID'];
-			$authorID = $row['authorID'];
-			$status = $row['documentStatus'];
 
-			//get author username
-			$queryUser = "SELECT username FROM `$personTable` WHERE `personID` = ?";
-			$resultUser = sqlProcesses($queryUser, "s", [$authorID]);
-
-			$authorUsername = "";
-			while ($rowUser = mysqli_fetch_array($resultUser, MYSQLI_ASSOC)) {
-				$authorUsername = $rowUser['username'];
-			}
-
-			$metadata_arr = [
-				"documentID" => $documentID,
-				"authorID" => $authorID,
-				"authorUsername" => $authorUsername,
-				"editorID" => $row['editorID'],
-				"title" => $row['title'],
-				"topic" => $row['topic'],
-				"dateOfSubmission" => $row['dateOfSubmission'],
-				"authorRemarks" => $row['authorRemarks'],
-				"editorRemarks" => $row['editorRemarks'],
-				"reviewDueDate" => $row['reviewDueDate'],
-				"editDueDate" => $row['editDueDate'],
-				"price" => $row['price'],
-				"documentStatus" => $status,
-				"printDate" => $row['printDate'],
-				"journalIssue" => $row['journalIssue']
-			];
-			
 			//document metadata
-			$metadata = new DocumentMetadata($metadata_arr);
-			foreach ($metadata as $key => $value) {
-				if ($key != "authorUsername") {
-					$this->setDocumentMetaData($key, $value);
-				}
-				else {
-					$this->documentObject->documentMetaDataObject->authorUsername = $authorUsername;
-				}
-			}
+			$this->getDocumentMetaData($documentID);
 			
 			//set reviews
 			$this->documentObject->DocumentReviewsArray = $this->getDocumentReviews($documentID);
@@ -400,12 +325,10 @@ class JournalState extends DocumentState
 
 	public function getDocumentMetaData($documentID)
 	{
-		echo "JournalState getDocumentMetaData(). <br>";
-
-		$sql = "SELECT `documentID`, `authorID`, `editorID`, `title`, `topic`, 
-					   `dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, 
-					   `reviewDueDate`, `editDueDate`, `price`, `journalIssue`, `documentStatus` 
-				FROM `document` WHERE `documentID` = ?";
+		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
+		`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
+		`editDueDate`, `price`, `journalIssue`, `documentStatus` 
+		FROM `document` D JOIN `person` P ON D.authorID = P.personID WHERE `documentID` = ?";
 
 		$results = sqlProcesses($sql, "s", [$documentID]);
 
@@ -415,14 +338,13 @@ class JournalState extends DocumentState
 			$metaDataArray = mysqli_fetch_assoc($results);
 
 		//Document meta data attribute initialized
-		$this->documentObject->metaDataObject = new DocumentMetaData($metaDataArray);
+		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
 
 		//Prepare the meta data information to be Journal specific
-		$this->documentObject->metaDataObject->setMetaData("dateOfSubmission", "");
-		$this->documentObject->metaDataObject->setMetaData("reviewDueDate", "");
-		$this->documentObject->metaDataObject->setMetaData("editDueDate", "");
+		$this->documentObject->documentMetaDataObject->setMetaData("reviewDueDate", "");
+		$this->documentObject->documentMetaDataObject->setMetaData("editDueDate", "");
 
-		return $this->documentObject->metaDataObject;		
+		return $this->documentObject->documentMetaDataObject;		
 	}
 
 	public function setDocumentContent($dcArray)
