@@ -45,6 +45,6 @@
         }
     }
     else {
-        echo $arr;
+        echo json_encode($arr, JSON_PRETTY_PRINT);
     }
 ?>
