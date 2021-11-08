@@ -51,37 +51,42 @@ class DocumentMetaData extends DocumentAttributes
 	//Update metadata 1 attribute at a time
 	public function setMetaData($attribute, $value)
 	{
-		global $personTable;
-		if($attribute == "documentID")
+		global $personTable, $documentTable;
+		if($attribute === "documentID")
 			$this->documentID = $value;
-		else if($attribute == "authorID")
-			$this->authorID = $value;	
-		else if($attribute == "editorID")
+		else if($attribute === "authorID") {
+			$this->authorID = $value;
+			$sql = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
+			$results = sqlProcesses($sql, "s", [$this->authorID]);
+			$this->authorUsername = mysqli_fetch_assoc($results)['username'];
+		}
+		else if($attribute === "editorID")
 			$this->editorID = $value;				
-		else if($attribute == "title")
+		else if($attribute === "title")
 			$this->title = $value;
-		else if($attribute == "topic")
+		else if($attribute === "topic")
 			$this->topic = $value;	
-		else if($attribute == "dateOfSubmission")
+		else if($attribute === "dateOfSubmission")
 			$this->dateOfSubmission = $value;	
-		else if($attribute == "printDate")
+		else if($attribute === "printDate")
 			$this->printDate = $value;
-		else if($attribute == "authorRemarks")
+		else if($attribute === "authorRemarks")
 			$this->authorRemarks = $value;
-		else if($attribute == "editorRemarks")
+		else if($attribute === "editorRemarks")
 			$this->editorRemarks = $value;	
-		else if($attribute == "reviewDueDate")
+		else if($attribute === "reviewDueDate")
 			$this->reviewDueDate = $value;
-		else if($attribute == "editDueDate")
+		else if($attribute === "editDueDate")
 			$this->editDueDate = $value;				
-		else if($attribute == "price")
+		else if($attribute === "price")
 			$this->price = $value;
-		else if($attribute == "journalIssue")
+		else if($attribute === "journalIssue")
 			$this->journalIssue = $value;		
-		else if($attribute == "documentStatus")
+		else if($attribute === "documentStatus")
 			$this->documentStatus = $value;	
 
-		sqlProcesses("UPDATE `document` SET `{$attribute}` = ? WHERE `documentID`= ?", "ss", [$value, $this->documentID]);
+		sqlProcesses("UPDATE `$documentTable` SET `{$attribute}` = ? WHERE `documentID`= ?", 
+					"ss", [$value, $this->documentID]);
 	}
 
 	public function getMetaData()
