@@ -216,29 +216,5 @@
 
             sqlProcesses($sql, "sssss", $paramVariablesArray); 
         }
-
-        public function payDocument($docID) {
-            global $documentTable, $arr;
-            $authorID = $this->personID;
-
-            $sql = "UPDATE `$documentTable` SET `documentStatus` = 'paid' 
-                    WHERE `documentID` = ? AND `authorID` = ?";
-
-            sqlProcesses($sql, "ss", [$docID, $authorID]);
-
-            $arr = ["message" => "payment success: " . $docID];
-        }
-
-        public function cancelPaymentDocument($docID) {
-            global $documentTable, $arr;
-            $authorID = $this->personID;
-
-            $sql = "UPDATE `$documentTable` SET `documentStatus` = 'cancelled' 
-                    WHERE `documentID` = ? AND `authorID` = ?";
-
-            sqlProcesses($sql, "ss", [$docID, $authorID]);
-
-            $arr = ["message" => "payment cancelled: " . $docID];
-        }
     }
 ?>
