@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $documentID = $_POST['documentID'];
     $choice = $_POST['choice']; //choice: pay/cancel
 
-    var_dump($documentID);
     $factoryobj = new AuthorFactory;
     $author = $factoryobj->getNewUser($authorID);
 
