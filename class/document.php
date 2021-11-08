@@ -143,7 +143,7 @@ class DocumentReview extends DocumentAttributes
 		else if($attribute == "dateOfReviewCompletion") 
 			$this->dateOfReviewCompletion = $value;			
 
-		sqlProcesses("UPDATE `review` SET `{$attribute}` = ? WHERE `documentID`= ?", "ss", [$value, $this->documentID]);
+		sqlProcesses("UPDATE `review` SET `{$attribute}` = ? WHERE `documentID`= ? AND `reviewerID` = ?", "sss", [$value, $this->documentID, $this->reviewerID]);
 	}
 
 	public function getReviewData()

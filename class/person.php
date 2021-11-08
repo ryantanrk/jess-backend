@@ -92,23 +92,6 @@
         {
             $documentReviewObject->setReviewData($targetAttribute, $value);
         }
-
-        public function rate(DocumentReview $review) {
-            global $reviewTable, $arr;
-            $reviewerID = $this->personID;
-            
-            $sql = "UPDATE `$reviewTable` SET `rating` = ?, `comment` = ?, `reviewStatus` = ?, 
-                    `dateOfReviewCompletion` = ? WHERE `documentID` = ? AND `reviewerID` = ?";
-
-            $paramVariablesArray = [
-                $review->rating, $review->comment, $review->reviewStatus, $review->dateOfReviewCompletion,
-                $review->documentID, $reviewerID
-            ];
-
-            sqlProcesses($sql, "isssss", $paramVariablesArray);
-
-            $arr = ["message" => "rate complete"];
-        }
     }
 
     class Author extends Person 
