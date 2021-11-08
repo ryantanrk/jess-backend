@@ -5,7 +5,6 @@
 //docstatus can be split using (status1),(status2)
     require_once '../../connection.php';
     require_once '../../class/document.php';
-    require_once '../../class/review.php';
 
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json");

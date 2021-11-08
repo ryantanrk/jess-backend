@@ -13,6 +13,7 @@ class DocumentMetaData extends DocumentAttributes
 	public $authorID;
 	public $authorUsername;
 	public $editorID;
+	public $editorUsername;
 	public $title;
 	public $topic;
 	public $dateOfSubmission;
@@ -34,6 +35,7 @@ class DocumentMetaData extends DocumentAttributes
 			$this->authorID = $metaDataArray["authorID"];
 			$this->authorUsername = $metaDataArray["authorUsername"];
 			$this->editorID = $metaDataArray["editorID"];
+			$this->editorUsername = $metaDataArray["editorUsername"];
 			$this->title = $metaDataArray["title"];
 			$this->topic = $metaDataArray["topic"];
 			$this->dateOfSubmission = $metaDataArray["dateOfSubmission"];
@@ -56,12 +58,20 @@ class DocumentMetaData extends DocumentAttributes
 			$this->documentID = $value;
 		else if($attribute === "authorID") {
 			$this->authorID = $value;
+
+			//get author username as well
 			$sql = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
 			$results = sqlProcesses($sql, "s", [$this->authorID]);
 			$this->authorUsername = mysqli_fetch_assoc($results)['username'];
 		}
-		else if($attribute === "editorID")
-			$this->editorID = $value;				
+		else if($attribute === "editorID") {
+			$this->editorID = $value;
+
+			//get editor username as well
+			$sql = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
+			$results = sqlProcesses($sql, "s", [$this->editorID]);
+			$this->editorUsername = mysqli_fetch_assoc($results)['username'];
+		}
 		else if($attribute === "title")
 			$this->title = $value;
 		else if($attribute === "topic")
@@ -91,15 +101,22 @@ class DocumentMetaData extends DocumentAttributes
 
 	public function getMetaData()
 	{
-		$metaDataArray = array("documentID" => $this->documentID, "authorID" => $this->authorID, "authorUsername" => $this->authorUsername,
-								"editorID" => $this->editorID, "title" => $this->title, "topic" => $this->topic, 
-								"dateOfSubmission" => $this->dateOfSubmission, "printDate" => $this->printDate, "authorRemarks" => $this->authorRemarks, 
-								"editorRemarks" => $this->editorRemarks, "reviewDueDate" => $this->reviewDueDate, 
-								"editDueDate" => $this->editDueDate, "price" => $this->price, "journalIssue" => $this->journalIssue, 
-								"documentStatus" => $this->documentStatus
-				);
-
-		// print_r($metaDataArray);
+		$metaDataArray = array(
+			"documentID" => $this->documentID, 
+			"authorID" => $this->authorID, "authorUsername" => $this->authorUsername,
+			"editorID" => $this->editorID, "editorUsername" => $this->editorUsername, 
+			"title" => $this->title, 
+			"topic" => $this->topic, 
+			"dateOfSubmission" => $this->dateOfSubmission, 
+			"printDate" => $this->printDate, 
+			"authorRemarks" => $this->authorRemarks, 
+			"editorRemarks" => $this->editorRemarks, 
+			"reviewDueDate" => $this->reviewDueDate, 
+			"editDueDate" => $this->editDueDate, 
+			"price" => $this->price, 
+			"journalIssue" => $this->journalIssue, 
+			"documentStatus" => $this->documentStatus
+		);
 		
 		return $metaDataArray;
 	}
@@ -256,16 +273,34 @@ class ManuscriptState extends DocumentState
 
 	public function getDocumentMetaData($documentID)
 	{
+		global $documentTable, $personTable;
 		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
 				`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
 				`editDueDate`, `price`, `journalIssue`, `documentStatus` 
-				FROM `document` D JOIN `person` P ON D.authorID = P.personID WHERE `documentID` = ?";
+				FROM `$documentTable` D JOIN `$personTable` P ON D.authorID = P.personID WHERE `documentID` = ?";
 
 		$results = sqlProcesses($sql, "s", [$documentID]);
 
 		$metaDataArray = [];
-		if(mysqli_num_rows($results) > 0)
+		$editorID = "";
+		if(mysqli_num_rows($results) > 0) {
 			$metaDataArray = mysqli_fetch_assoc($results);
+			$metaDataArray['editorUsername'] = null;
+			if (isset($metaDataArray['editorID'])) {
+				$editorID = $metaDataArray["editorID"];
+
+				//get editor username
+				$sqlEditor = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
+				$resultEditor = sqlProcesses($sqlEditor, "s", [$editorID]);
+
+				if (mysqli_num_rows($resultEditor) > 0) {
+					//if result
+					$editorUsername = mysqli_fetch_assoc($resultEditor)['username'];
+					$metaDataArray['editorUsername'] = $editorUsername;
+					
+				}
+			}
+		}
 
 		//Document meta data attribute initialized
 		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
@@ -309,7 +344,7 @@ class JournalState extends DocumentState
 	}
 
 	public function getDocumentById($documentID) {
-		global $documentTable, $personTable;
+		global $documentTable;
 		$query = "SELECT * FROM `$documentTable` WHERE `documentID` = ?";
 
 		$result = sqlProcesses($query, "s", [$documentID]);
@@ -330,17 +365,34 @@ class JournalState extends DocumentState
 
 	public function getDocumentMetaData($documentID)
 	{
+		global $documentTable, $personTable;
 		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
 		`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
 		`editDueDate`, `price`, `journalIssue`, `documentStatus` 
-		FROM `document` D JOIN `person` P ON D.authorID = P.personID WHERE `documentID` = ?";
+		FROM `$documentTable` D JOIN `$personTable` P ON D.authorID = P.personID WHERE `documentID` = ?";
 
 		$results = sqlProcesses($sql, "s", [$documentID]);
 
 		$metaDataArray = [];
-
-		if(mysqli_num_rows($results) > 0)
+		$editorID = "";
+		if(mysqli_num_rows($results) > 0) {
 			$metaDataArray = mysqli_fetch_assoc($results);
+			$metaDataArray['editorUsername'] = null;
+			if (isset($metaDataArray['editorID'])) {
+				$editorID = $metaDataArray["editorID"];
+
+				//get editor username
+				$sqlEditor = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
+				$resultEditor = sqlProcesses($sqlEditor, "s", [$editorID]);
+
+				if (mysqli_num_rows($resultEditor) > 0) {
+					//if result
+					$editorUsername = mysqli_fetch_assoc($results)['username'];
+					$metaDataArray['editorUsername'] = $editorUsername;
+					
+				}
+			}
+		}
 
 		//Document meta data attribute initialized
 		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
