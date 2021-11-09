@@ -37,10 +37,7 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 	{
 		$personID = getNewID($role[0]);
 		$paramVariablesArray = ["*"];
-		// $result = sqlProcesses("SELECT COUNT(?) FROM `person`", "s", $paramVariablesArray);		
-		// $value = mysqli_fetch_assoc($result);
-
-		// $totalUsers = $value['COUNT(?)'];
+		
 		$sqlStatement = "INSERT INTO `person`(`personID`, `type`, `username`, `password`, `email`, `dob`)
 						 VALUES (?,?,?,?,?,?)";
 
@@ -49,16 +46,18 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 		sqlProcesses($sqlStatement, "ssssss", $paramVariablesArray);
 		$message = "Account username " . $userName . " successfully created.";
 
+		$arr = [
+			"success" => $message,
+			"type" => $role[0]
+		];
+
 		if($role[0] == "2")
 		{
 			$paramVariablesArray = [$personID, substr($role, 2), "pending approval"];
 			sqlProcesses("INSERT INTO `reviewerspecific` (`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
 			$message = "Reviewer account username " . $userName . " successfully created.";
+			$arr['areaOfExpertise'] = substr($role, 2);
 		}
-		$arr = [
-			"success" => $message,
-			"type" => $role[0]
-		];
 	}
 }
 
