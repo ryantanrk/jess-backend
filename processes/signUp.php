@@ -52,7 +52,7 @@ function signUp($userName, $password, $emailAddress, $role, $dob)
 		if($role[0] == "2")
 		{
 			$paramVariablesArray = [$personID, substr($role, 2), "pending approval"];
-			sqlProcesses("INSERT INTO `reviewer`(`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
+			sqlProcesses("INSERT INTO `reviewerspecific` (`personID`, `areaOfExpertise`, `status`) VALUES (?,?,?)", "sss", $paramVariablesArray);
 			$message = "Reviewer account username " . $userName . " successfully created.";
 		}
 		$arr = [
