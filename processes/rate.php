@@ -32,8 +32,7 @@
         $ratings = []; //ratings array
 
         //iterate over review array
-        if ($metadataobj->documentStatus === "under review" || 
-            $metadataobj->documentStatus == "pending additional reviewer") {
+        if ($metadataobj->documentStatus === "under review") {
             if (count($documentobj->DocumentReviewsArray) > 0) {
                 foreach ($documentobj->DocumentReviewsArray as $review) {
                     //if reviewer ID matches

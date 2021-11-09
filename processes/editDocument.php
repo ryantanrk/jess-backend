@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
     $authorID = $_POST['personID'];
     $documentID = $_POST['documentID'];
+    
     //create author object
     $authorfactory = new AuthorFactory;
     $author = $authorfactory->getNewUser($authorID);
