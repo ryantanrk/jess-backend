@@ -177,27 +177,5 @@
 
             sqlProcesses($sql, "sssssssss", $paramVariablesArray);                     
         }
-
-        public function editDocument($doc)
-        {
-            global $documentTable;
-            $authorID = $this->personID;
-            $documentID = $doc['documentID'];
-            $authorRemarks = $doc['authorRemarks'];
-            $documentStatus = 'pending final check';
-            
-            $fileToUpload = $doc["documentToUpload"];
-        
-            $sql = "UPDATE `$documentTable` SET
-                    `authorRemarks` = ?, `documentStatus` = ?, `file` = ? 
-                    WHERE `documentID` = ? AND `authorID` = ?";
-
-            $paramVariablesArray = array(
-                $authorRemarks, $documentStatus, $fileToUpload,
-                $documentID, $authorID
-            );
-
-            sqlProcesses($sql, "sssss", $paramVariablesArray); 
-        }
     }
 ?>

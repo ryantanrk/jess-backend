@@ -18,18 +18,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $authorfactory = new AuthorFactory;
     $author = $authorfactory->getNewUser($authorID);
 
+    //create document object
+    $documentobj = new Document(new ManuscriptState);
+    $documentobj->documentStateObject->getDocumentById($documentID);
+
     $authorRemarks = $_POST['authorRemarks'];
-    $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
+    $documentToUpload = $_FILES['document']['tmp_name']; //file
 
     $doc = [
-        "documentID" => $documentID,
         "authorRemarks" => $authorRemarks,
-        "documentToUpload" => $documentToUpload
+        "file" => $documentToUpload,
+        "documentStatus" => "pending final check"
     ];
 
-    $documentMetaData = $author->editDocument($doc);
+    foreach ($doc as $key => $value) {
+        $author->setDocument($documentobj->documentMetaDataObject, $key, $value);
+    }
+
+    // $documentMetaData = $author->editDocument($doc);
     $arr = ["message" => "edit"];
 }
+
+// public function editDocument($doc)
+// {
+//     global $documentTable;
+//     $authorID = $this->personID;
+//     $documentID = $doc['documentID'];
+//     $authorRemarks = $doc['authorRemarks'];
+//     $documentStatus = 'pending final check';
+    
+//     $fileToUpload = $doc["documentToUpload"];
+
+//     $sql = "UPDATE `$documentTable` SET
+//             `authorRemarks` = ?, `documentStatus` = ?, `file` = ? 
+//             WHERE `documentID` = ? AND `authorID` = ?";
+
+//     $paramVariablesArray = array(
+//         $authorRemarks, $documentStatus, $fileToUpload,
+//         $documentID, $authorID
+//     );
+
+//     sqlProcesses($sql, "sssss", $paramVariablesArray); 
+// }
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
