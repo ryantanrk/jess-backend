@@ -63,29 +63,33 @@
 		//get prefix & query
         $prefix = "";
         $query = "";
-        switch ($type) {
-            case 0: //editor
-                $prefix = "E";
-                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '0'";
-                break;
-            case 1: //author
-                $prefix = "A";
-                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '1'";
-                break;
-            case 2: //reviewer
-                $prefix = "R";
-                $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = '2'";
-                break;
-            case 3: //document
-                $prefix = "D";
-                $query = "SELECT COUNT(*) AS total FROM `$documentTable`";
-                break;
-        }
+        $result = "";
 
-        $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
+        if ($type < 3 && $type >= 0) {
+            switch ($type) {
+                case 0: //editor
+                    $prefix = "E";
+                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    break;
+                case 1: //author
+                    $prefix = "A";
+                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    break;
+                case 2: //reviewer
+                    $prefix = "R";
+                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    break;
+            }
+            $result = sqlProcesses($query, "s", [$type]);
+        }
+        else if ($type == 3) {
+            //document
+            $prefix = "D";
+            $query = "SELECT COUNT(?) AS total FROM `$documentTable`";
+            $result = sqlProcesses($query, "s", ["*"]);
+        }
         
-        $chosenID = $prefix . "1";
-        $maxNum = 1;
+        $chosenID = $prefix . "1"; //default
 
         if (mysqli_num_rows($result) != 0) {
             $total = mysqli_fetch_assoc($result);
