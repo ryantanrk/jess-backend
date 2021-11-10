@@ -1,18 +1,22 @@
 <?php
     require_once 'document.php';
+    require_once 'factory.php';
     
     abstract class Person 
     {
         public $personID;
         public $username;
-        public $password;
+        protected $password;
         public $email;
         public $dob;
-        public $type;
 
-        abstract public function getDocument($documentID);
-        abstract public function setDocument($documentObject, $targetAttribute, $value);
+        //Different for each type of person
+        abstract public function getAuthorizedDocumentAttribute($documentID);
+        
+        //Different for each type of person
+        abstract public function setAuthorizedDocumentAttribute($documentObject, $targetAttribute, $value);
 
+        //Want to update this to the array's ALL OR NOTHING technique?
         public function updatePersonData($newID, $newUserName, $newPassword, $newEmail, $newDob) 
         {
             $this->personID = $newID;
@@ -22,160 +26,226 @@
             $this->dob = $newDob;
         }
 
+        //Get personData
         public function getPersonData()
         {
-            return array("PersonID" => $this->personID, "Username" => $this->username, "Password" => $this->password, "Email" => $this->email, "DOB" => $this->dob);
-        }              
+            return array(
+            		"personID" => $this->personID, 
+            		"username" => $this->username, 
+            		"password" => $this->password, 
+            		"email" => $this->email, 
+            		"dob" => $this->dob
+            	);
+        }
     }
 
     class Editor extends Person 
     {
-        public $type = 0;
-        public function __construct() { }
-
-        public function getDocument($documentID) 
+        //Enter document ID, retrieve document's metadata & all reviews
+        public function getAuthorizedDocumentAttribute($documentID) 
         {
-            //$documentObj->setDocumentMetaData($objectMetaData, $attribute, $value);
-            //$documentObj->getDocumentReviews();
+            //Find out if we are dealing with a manuscript or a Journal
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID);
+
+            //Prepare document to contain only authorized and appropriate meta data
+            // $metaDataObject = $documentObject->getDocumentMetaData($documentID);
+            // $reviewsObject = $documentObject->getDocumentReviews($documentID);
+
+            // return [$metaDataObject, $reviewsObject];
+
+            // replace temp with query
+            return [$documentObject->getDocumentMetaData($documentID), $documentObject->getDocumentReviews($documentID)];
         }
 
-        public function setDocument($documentObject, $targetAttribute, $value) 
+		//Editor only edits editor authorized information
+        public function setAuthorizedDocumentAttribute($documentID, $targetAttribute, $value) 
         {
-            //$documentObj->setDocumentMetaData($dmdArray);
+            //Find out if we are dealing with a manuscript or a Journal
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID);
+
+            //decompose conditional
+			if ($this->authorizedAttribute($targetAttribute))
+                $documentObject->setDocumentMetaData($targetAttribute, $value);
+        }
+
+        //decompose conditional, for use in setAuthorizedDocumentAttribute
+        public function authorizedAttribute($targetAttribute)
+        {
+            //targetAttributes will store strings of all the attribute names
+            $targetAttributes = [
+                "documentID", "printDate", "editorRemarks", "reviewDueDate", "editDueDate", 
+                "price", "journalIssue", "documentStatus"
+            ];
+
+            //returns a boolean
+            return in_array($targetAttribute, $targetAttributes);
+        }
+
+        //All good
+        public function setAuthorizedReviewAttribute($documentIDReviewerID, $targetAttribute, $value) 
+        {
+            if($targetAttribute != "createNewReviewRequest")
+            {
+                $tempArray = explode("-",$documentIDReviewerID);
+                
+                //Find out if we are dealing with a manuscript or a Journal
+                $documentObject = retrieveDocumentFromDatabaseInCorrectState($tempArray[0]);           
+
+    			if($targetAttribute == "documentID" || $targetAttribute == "reviewerID" || $targetAttribute == "reviewStatus")
+                {
+                    $totalReviewsArray = $documentObject->getDocumentReviews();
+
+                    foreach($totalReviewsArray as $individualReviewObject)
+                    {
+                        //split temporary variable
+                        $reviewerdata = $individualReviewObject->getReviewData();
+                        $reviewerID = $reviewerdata["reviewerID"];
+
+                        if($reviewerID == $tempArray[1])			    
+                            $individualReviewObject->setReviewData($targetAttribute, $value);
+                    }
+                }
+            }
+			else
+			{
+				$tempArray = explode("-", $value);
+
+				sqlProcesses("INSERT INTO `review`(`documentID`, `reviewerID`, `reviewStatus`) 
+				VALUES (?, ?, ?)", "sss", [$tempArray[0], $tempArray[1], "pending"]);
+			}
+        }
+
+        //notify person using email
+        public function notify($personID, $subject, $message) {
+            //get person object
+            $personobj = getPersonFromID($personID);
+            //email function
+            mail($personobj->email, $subject, $message);
         }
     }
 
+    //Prepare Reviewer to go through a state
     class Reviewer extends Person 
     {
-        public $type = 2;
-        //------------------------------------------------------------------------------------ Singleton stuff above
-        private static $instances = [];
-        public function __construct() { }
-        protected function __clone() { }
-    
-        public static function getInstance(): Reviewer
-        {
-            $cls = static::class;
-            if (!isset(self::$instances[$cls])) 
-                self::$instances[$cls] = new static();
-    
-            return self::$instances[$cls];
-        }
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Singleton stuff above
-
         public $areaOfExpertise;
         public $status;
 
-        public function getDocument($documentIDReviewerID) 
+        //Looking good
+        public function getAuthorizedDocumentAttribute($documentID) 
         {
-        	$documentObject = new Document(new ManuscriptState);
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID);     	
 
-        	$tempArray = explode("-", $documentIDReviewerID);     	
+            $reviewsArray = $documentObject->getDocumentReviews($documentID);
 
-            $reviewsObjectArray = $documentObject->getDocumentReviews($tempArray[0]);
-
-            writeLine("Reviewer zone");
-            writeLine($documentIDReviewerID);
-
-            foreach($reviewsObjectArray as $reviewObject)
+            foreach($reviewsArray as $reviewObject)
             {
-            	$reviewerDataArray = $reviewObject->getReviewData();
+                $reviewerID = $reviewObject->getReviewData();
+                $reviewerID = $reviewerID["reviewerID"];
 
-            	if($reviewerDataArray["reviewerID"] == $tempArray[1])
-	            	return $reviewObject;
+                if($reviewerID == $this->personID)
+                    return $reviewObject;
             }
-
-            return new DocumentReview([]);
         }
 
-        public function setDocument($documentReviewObject, $targetAttribute, $value) 
+        public function setAuthorizedDocumentAttribute($documentID, $targetAttribute, $value)
         {
-            $documentReviewObject->setReviewData($targetAttribute, $value);
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID);
+
+            $documentObject->setDocumentReview($this->personID, $targetAttribute, $value);
+        }
+
+        public function setReviewerStatus($value) {
+            $this->status = $value;
+
+            sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?", 
+                        "ss", [$value, $this->personID]);
         }
     }
 
+    //Prepare Author to go through a state
     class Author extends Person 
     {
-        public $type = 1;
-        //------------------------------------------------------------------------------------ Singleton stuff above
-        private static $instances = [];
-        public function __construct() { }
-        protected function __clone() { }
-    
-        public static function getInstance(): Author
-        {
-            $cls = static::class;
-            if (!isset(self::$instances[$cls])) 
-                self::$instances[$cls] = new static();
-    
-            return self::$instances[$cls];
-        }
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Singleton stuff above
-
-        public function getDocument($documentID) 
+        //Looking good
+        public function getAuthorizedDocumentAttribute($documentID) 
         {
             //Find out if we are dealing with a manuscript or a Journal
-            $result = sqlProcesses("SELECT `documentStatus` FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
-            $unSQLedObject = mysqli_fetch_assoc($result);
-
-            $documentObject = "";
-
-            //discernment
-            if($unSQLedObject['documentStatus'] != "published")
-                $documentObject = new Document(new ManuscriptState);
-            else
-                $documentObject = new Document(new JournalState);
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID);
 
             //State specific data returned
-            $metaDataObject = $documentObject->getDocumentMetaData($documentID);
+            // $metaDataObject = $documentObject->getDocumentMetaData($documentID);
 
-            return $metaDataObject;
+            // return $metaDataObject;
+            // replace temp with query
+            return $documentObject->getDocumentMetaData($documentID);
         }
 
-        public function setDocument($documentMetaDataObject, $targetAttribute, $value) 
+        //Prepare to go through a state
+        public function setAuthorizedDocumentAttribute($documentID, $targetAttribute, $value) 
         {
+            //Find out if we are dealing with a manuscript or a Journal
+            $documentObject = retrieveDocumentFromDatabaseInCorrectState($documentID); 
+
             if($targetAttribute == "documentStatus" || $targetAttribute == "authorRemarks")
             {
-                $documentMetaDataObject->setMetaData($targetAttribute, $value);
+                $documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
             }
             else if($targetAttribute == "file")
             {
-                $tempArray = $documentMetaDataObject->getMetaData();
-                $fileTempName = $value;
-                $fileToUpload = file_get_contents($fileTempName);
-                sqlProcesses("UPDATE `document` SET `file`=? WHERE `documentID`=?", "ss",[$fileToUpload, $tempArray["documentID"]]);
+                // $tempArray = $documentObject->getDocumentMetaData();
+                // $fileTempName = $value;
+                // $fileToUpload = file_get_contents($fileTempName);
+
+                //Inline temp
+                $fileToUpload = file_get_contents($value["documentToUpload"]["tmp_name"]);                  
+                $documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
             }
         }
 
-        public function uploadNewDocument($doc)
+        //Dah puas
+        public function uploadNewDocument($value)
         {
-            $authorID = $this->personID;
-            $title = $doc['title']; 
-            $topic = $doc['topic']; 
+            $authorID = $value['personID'];
+            $title = $value['title']; 
+            $topicOption = $value['topicOption']; 
 
-            $fileToUpload = $doc["documentToUpload"];
+            $documentToUpload = $value['documentToUpload'];
+            $fileTempName = $value["documentToUpload"]["tmp_name"];
+            $fileToUpload = file_get_contents($fileTempName);        
 
-            $authorRemarks = $doc['authorRemarks'];
+            $authorRemarks = $value['authorRemarks'];
 
-            $documentID = getNewID(3);
-            
+            //Split Temporary Variable
+            $documentIDSQLObject = sqlProcesses("SELECT COUNT(?) AS TOTALDOCS FROM `document`", "s", ['*']);
+            $documentIDSQLArray = mysqli_fetch_assoc($documentIDSQLObject);
+            $documentID = 'D' . ($documentIDSQLArray['TOTALDOCS'] + 1);
+
             $editorID = NULL;
-            
-            $dateOfSubmission = date("Y-m-d");
 
+            $dateOfSubmission = date("Y-m-d");
+            $printDate = '';
+            
+            $editorRemarks = ''; 
+            $reviewDueDate = '';    
+        
+            $editDueDate = '';
+            $price = '';
+            $journalIssue = '';
             $documentStatus = 'new';    
         
+
+        	//---------------------------------------------------------------------- The potentially move to document area stuff
             $sql = "INSERT INTO `document`(
               `documentID`, `authorID`, `editorID`, `title`, `topic`, 
               `dateOfSubmission`, `file`, `authorRemarks`, `documentStatus`) 
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
-            $paramVariablesArray = array(
-                $documentID, $authorID, $editorID, $title, $topic, 
-                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus
+              $paramVariablesArray = array(
+                $documentID, $authorID, $editorID, $title, $topicOption, 
+                $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus        
             );
 
-            sqlProcesses($sql, "sssssssss", $paramVariablesArray);                     
+            sqlProcesses($sql, "sssssssss", $paramVariablesArray);   
+            //----------------------------------------------------------------------                  
         }
-    }
+    }    
 ?>

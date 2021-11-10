@@ -74,16 +74,40 @@
         }
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            if ($row['documentStatus'] != "published") {
-                $documentobj = new Document(new ManuscriptState);
-                $documentobj->documentStateObject->getDocumentById($row['documentID']);
+
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                if ($row['documentStatus'] != "published") {
+                    $documentobj = new Document(new ManuscriptState, $row['documentID']);
+                }
+                else {
+                    $documentobj = new Document(new JournalState, $row['documentID']);
+                }
+                //get usernames
+                //author sql
+                $authorUserRes = sqlProcesses("SELECT `username` FROM `person` WHERE `personID` = ?",
+                "s", [$row['authorID']]);
+                $authorUserRow = mysqli_fetch_assoc($authorUserRes);
+
+                //editor sql
+                $editorUserRes = sqlProcesses("SELECT `username` FROM `person` WHERE `personID` = ?",
+                "s", [$row['editorID']]);
+                $editorUserRow = mysqli_fetch_assoc($editorUserRes);
+
+                //set author username
+                $documentobj->documentMetaDataObject->authorUsername = $authorUserRow['username'];
+                
+                //set editor username (can be null)
+                $documentobj->documentMetaDataObject->editorUsername = null;
+                if (isset($editorUserRow['username'])) {
+                    $documentobj->documentMetaDataObject->editorUsername = $editorUserRow['username'];
+                }
+
+                array_push($docarray, $documentobj);
             }
-            else {
-                $documentobj = new Document(new JournalState);
-                $documentobj->documentStateObject->getDocumentById($row['documentID']);
-            }
-            array_push($docarray, $documentobj);
+        }
+        else {
+            $docarray = ["error" => "No documents found."];
         }
     }
     else {

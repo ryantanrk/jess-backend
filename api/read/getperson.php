@@ -5,7 +5,7 @@
 //optional: id, type, search, status, expertise
     require_once '../../connection.php';
     require_once '../../class/person.php';
-    require_once '../../factory/personfactory.php';
+    require_once '../../class/factory.php';
 
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
@@ -99,23 +99,25 @@
 
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            $personID = $row['personID'];
-            if ($row['type'] == 0) {
-                // $factoryobj = new EditorFactory;
-                // $editorobj = $factoryobj->getNewUser($personID);
-                // array_push($personarray, $editorobj);
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                $personID = $row['personID'];
+                if ($row['type'] == 0) {
+                    // $editorobj = getPersonFromID($personID);
+                    // array_push($personarray, $editorobj);
+                }
+                else if ($row['type'] == 1) {
+                    $authorobj = getPersonFromID($personID);
+                    array_push($personarray, $authorobj);
+                }
+                else if ($row['type'] == 2) {
+                    $reviewerobj = getPersonFromID($personID);
+                    array_push($personarray, $reviewerobj);
+                }
             }
-            else if ($row['type'] == 1) {
-                $factoryobj = new AuthorFactory;
-                $authorobj = $factoryobj->getNewUser($personID);
-                array_push($personarray, $authorobj);
-            }
-            else if ($row['type'] == 2) {
-                $factoryobj = new ReviewerFactory;
-                $reviewerobj = $factoryobj->getNewUser($personID);
-                array_push($personarray, $reviewerobj);
-            }
+        }
+        else {
+            $personarray = ["error" => "No person found."];
         }
     }
     else {

@@ -1,5 +1,6 @@
 <?php
     require_once 'config.php';
+    
     //document is only called when user is logged in
     $GLOBALS['conn'] = mysqli_connect($server, $connectUser, $connectPass, $database);
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -19,17 +20,27 @@
 		die("Database selection failed: " . mysqli_error($connection));
 	}
 
-    function isLoggedIn()
+    //Extraction method
+    function retrieveDocumentFromDatabaseInCorrectState($documentID)
     {
-        if (isset($_SESSION['currentUser'])) 
-            return true;
+        $result = sqlProcesses("SELECT `documentStatus` FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
+        $sqlArray = mysqli_fetch_assoc($result);
+
+        $documentObject;
+
+        //discernment
+        if($sqlArray['documentStatus'] != "published")
+            $documentObject = new Document(new ManuscriptState, $documentID);
         else
-            return false;
+            $documentObject = new Document(new JournalState, $documentID);
+
+        return $documentObject;
     }
 
+    //Extraction method
     function sqlProcesses($sqlStatement, $paramString, $paramVariablesArray)
     {
-        require_once 'connection.php';
+        global $connection;
         $paramVariablesArrayProcessed = array();
 
         $paramVariablesArrayProcessed[] = & $paramString;
@@ -49,11 +60,6 @@
         $result = $stmt->get_result();
 
         return $result;
-    }
-
-    function writeLine($input)
-    {
-        echo $input . "<br>";
     }
 
 	//function to get a new ID (for any table)
