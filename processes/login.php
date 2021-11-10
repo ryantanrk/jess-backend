@@ -1,7 +1,6 @@
 <?php
 require_once '../connection.php';
 require_once '../class/person.php';
-require_once '../factory/personfactory.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
@@ -14,11 +13,11 @@ function login($email, $p)
 	global $arr;
 
 	$email = $email;
-	$pword = $p;
+	$pword = md5($p);
 
 	$paramVariablesArray = [$email];
 
-	$result = sqlProcesses("SELECT * FROM `person` WHERE `email` = ?", "s", $paramVariablesArray);
+	$result = sqlProcesses("SELECT `personID`, `type`, `password` FROM `person` WHERE `email` = ?", "s", $paramVariablesArray);
 
 	if(mysqli_num_rows($result) > 0)
 	{
@@ -31,25 +30,11 @@ function login($email, $p)
 				$arr = 
 				[
 					"personID" => $user["personID"], 
-					"type" => $user["type"], 
-					"username" => $user["username"],
-					"email" => $user["email"],
-					"dob" => $user["dob"]
+					"type" => $user["type"]
 				];
 
-				$personobj = "";
-				if ($arr['type'] == 0) {
-					$factoryobj = new EditorFactory;
-					$personobj = $factoryobj->getNewUser($arr['personID']);
-				}
-				else if ($arr['type'] == 1) {
-					$factoryobj = new AuthorFactory;
-					$personobj = $factoryobj->getNewUser($arr['personID']);
-				}
-				else if ($arr['type'] == 2) {
-					$factoryobj = new ReviewerFactory;
-					$personobj = $factoryobj->getNewUser($arr['personID']);
-				}
+				$personobj = getPersonFromID($arr['personID']);
+				$personobj->type = $arr['type'];
 
 				$arr = $personobj;
 			}
@@ -65,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$email = $_POST['email'];
 	$password = $_POST['password'];
 
-	login($email, md5($password));
+	login($email, $password);
 }
 
 echo json_encode($arr, JSON_PRETTY_PRINT);

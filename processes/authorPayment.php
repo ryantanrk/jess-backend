@@ -1,7 +1,7 @@
 <?php
 require_once '../connection.php';
 require_once '../class/person.php';
-require_once '../factory/personfactory.php';
+require_once '../class/factory.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: *");
@@ -11,8 +11,7 @@ $arr = ["1" => "Send a POST request to this url!"];
 
 function payDocument($authorID, $documentID, $choice) {
     global $documentTable, $arr;
-    $factoryobj = new AuthorFactory;
-    $author = $factoryobj->getNewUser($authorID);
+    $author = getPersonFromID($authorID);
 
     $sql = "SELECT `documentStatus` FROM `$documentTable` WHERE `documentID` = ? AND `authorID` = ?";
 
@@ -23,14 +22,12 @@ function payDocument($authorID, $documentID, $choice) {
         $status = $row['documentStatus'];
         //create document object
         if ($status === "pending payment") {
-            $documentobj = new Document(new ManuscriptState);
-            $documentobj->documentStateObject->getDocumentById($documentID);
             if ($choice === "pay") {
-                $author->setDocument($documentobj->documentMetaDataObject, "documentStatus", "paid");
+                $author->setAuthorizedDocumentAttribute($documentID, "documentStatus", "paid");
                 $arr = ["message" => "payment success: " . $documentID];
             }
             else if ($choice === "cancel") {
-                $author->setDocument($documentobj->documentMetaDataObject, "documentStatus", "cancelled");
+                $author->setAuthorizedDocumentAttribute($documentID, "documentStatus", "cancelled");
                 $arr = ["message" => "payment cancelled: " . $documentID];
             }
             else {
@@ -50,6 +47,9 @@ function payDocument($authorID, $documentID, $choice) {
         else {
             $arr = ["error" => "please ensure document status is correct and try again"];
         }
+    }
+    else {
+        $arr = ["error" => "no result, please ensure that you're paying for the right document"];
     }
 }
 

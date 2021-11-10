@@ -8,26 +8,25 @@
 
     $arr = [1 => "Send a POST request to this url!"];
 
+    function changePassword($email, $newPassword) {
+        global $arr;
+        
+        //check email for existing account
+        $query = "UPDATE `person` SET `password` = ? WHERE `email` = ?";
+
+        sqlProcesses($query, "ss", [md5($newPassword), $email]);
+
+        $arr = [
+            "condition" => "success change password for: " . $email
+        ];
+    }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //get email
         $email = $_POST['emailAddress'];
         //get new password
-        $newPassword = md5($_POST['newPassword']);
-
-        //check email for existing account
-        $query = "UPDATE `$personTable` SET `password` = '$newPassword' WHERE `email` = '$email'";
-
-        if ($connection->query($query) === TRUE) {
-            //if email is valid
-            $arr = [
-                "condition" => "success"
-            ];
-        }
-        else {
-            $arr = [
-                "error" => $connection->error
-            ];
-        }
+        $newPassword = $_POST['newPassword'];
+        changePassword($email, $newPassword);
     }
     echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

@@ -1,7 +1,6 @@
 <?php
 require_once '../connection.php';
 require_once '../class/person.php';
-require_once '../factory/personfactory.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
@@ -10,34 +9,42 @@ header("Content-Type: application/json");
 
 $arr = [1 => "Send a POST request to this url!"];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST")
-{
-    $authorID = $_POST['personID'];
-    $documentID = $_POST['documentID'];
-    
+//not tested, prob need fixing
+//AUTHOR DOCUMENT MODIFICATION
+function editDocument($authorID, $documentID, $authorRemarks, $document) {
+    global $arr;
     //create author object
-    $authorfactory = new AuthorFactory;
-    $author = $authorfactory->getNewUser($authorID);
+    $author = getPersonFromID($authorID);
 
     //create document object
-    $documentobj = new Document(new ManuscriptState);
-    $documentobj->documentStateObject->getDocumentById($documentID);
+    //$documentobj = new Document(new ManuscriptState, $documentID);
 
-    $authorRemarks = $_POST['authorRemarks'];
-    $documentToUpload = $_FILES['document']['tmp_name']; //file
+    // $authorRemarks = $_POST['authorRemarks'];
+    // $documentToUpload = $_FILES['document']['tmp_name']; //file
 
     $doc = [
         "authorRemarks" => $authorRemarks,
-        "file" => $documentToUpload,
+        "file" => $document,
         "documentStatus" => "pending final check"
     ];
 
     foreach ($doc as $key => $value) {
-        $author->setDocument($documentobj->documentMetaDataObject, $key, $value);
+        $author->setAuthorizedDocumentAttribute($documentID, $key, $value);
+        //$author->setDocument($documentobj->documentMetaDataObject, $key, $value);
     }
 
     // $documentMetaData = $author->editDocument($doc);
     $arr = ["message" => "edit"];
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST")
+{
+    $authorID = $_POST['personID'];
+    $documentID = $_POST['documentID'];
+    $authorRemarks = $_POST['authorRemarks'];
+    $documentToUpload = $_FILES['document']['tmp_name']; //file
+    
+    editDocument($authorID, $documentID, $authorRemarks, $documentToUpload);
 }
 
 // public function editDocument($doc)

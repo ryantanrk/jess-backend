@@ -10,11 +10,12 @@
     $documentID = "";
     $title = "";
     $file = "";
-    $arr = [1 => "send a POST request to this url!"];
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $documentID = $_POST['documentID'];
+    $arr = [1 => "Send a POST request to this url!"];
+
+    function downloadDocument($documentID) {
+        global $arr;
         //get title & file
-        $query = "SELECT `title`, `file` FROM `$documentTable` WHERE documentID = ?";
+        $query = "SELECT `title`, `file` FROM `document` WHERE documentID = ?";
         $result = sqlProcesses($query, "s", [$documentID]);
 
         //if result found
@@ -43,6 +44,11 @@
         else {
             $arr = ["error" => "document not found"];
         }
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $documentID = $_POST['documentID'];
+        downloadDocument($documentID);
     }
     else {
         echo json_encode($arr, JSON_PRETTY_PRINT);

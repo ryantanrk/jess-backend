@@ -1,33 +1,55 @@
 <?php
-require_once '../document.php';
-require_once '../person.php';
+require_once '../connection.php';
+require_once '../class/person.php';
 
-function sqlProcesses($sqlStatement, $paramString, $paramVariablesArray)
-{
-	require_once '../connection.php';
-	$paramVariablesArrayProcessed = array();
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: *");
+header("Content-Type: application/json");
 
-	$paramVariablesArrayProcessed[] = & $paramString;
+$arr = [1 => "Send a POST request to this url!"];
 
-	for($i = 0; $i < strlen($paramString); $i++)
-		$paramVariablesArrayProcessed[] = & $paramVariablesArray[$i];
+function publishDocument($editorID, $documentID, $printDate, $journalIssue) {
+	global $arr;
+	$editor = getPersonFromID($editorID);
 
-	/* Prepare statement */
-	$stmt = $GLOBALS['conn']->prepare($sqlStatement);
-	if($stmt === false)
-		trigger_error('Wrong SQL: ' . $sql . ' Error: ' . $conn->errno . ' ' . $conn->error, E_USER_ERROR);
+	$sql = "SELECT `documentStatus` FROM `document` WHERE `documentID` = ?";
+	$result = sqlProcesses($sql, "s", [$documentID]);
 
-	call_user_func_array(array($stmt, 'bind_param'), $paramVariablesArrayProcessed);
-	$stmt->execute();
+	if (mysqli_num_rows($result) > 0) {
+		$row = mysqli_fetch_assoc($result);
+		if ($row['documentStatus'] === "paid") {
+			$docAttributes = [
+				"documentStatus" => "published",
+				"printDate" => $printDate,
+				"journalIssue" => $journalIssue
+			];
 
-	$result = $stmt->get_result();
-
-	return $result;
+			foreach ($docAttributes as $key => $value) {
+				$editor->setAuthorizedDocumentAttribute($documentID, $key, $value);
+			}
+			$arr = ["message" => "published document: " . $documentID];
+		}
+		else if ($row['documentStatus'] === "published") {
+			$arr = ["error" => "document is already published"];
+		}
+		else {
+			$arr = ["error" => "document is not in a state to be published"];
+		}
+	}
+	else {
+		$arr = ["error" => "no such document found"];
+	}
 }
 
-$DocumentToPublish = "D0001";
-$sqlStatement = "UPDATE `document` SET `type`=?, `printDate`=?, `journalIssue`=?, `status`=? WHERE `documentID`= ?";
-$paramVariablesArray = ["1", date("Y-m-d"), "journalIssueX", "Published", $DocumentToPublish];
-sqlProcesses($sqlStatement, "sssss", $paramVariablesArray);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	$editorID = $_POST['editorID'];
+	$documentID = $_POST['documentID'];
+	$printDate = date('Y-m-d');
+	$journalIssue = $_POST['journalIssue'];
 
+	publishDocument($editorID, $documentID, $printDate, $journalIssue);
+}
+
+echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
