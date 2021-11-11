@@ -155,10 +155,20 @@
         }
 
         public function setReviewerStatus($value) {
+            global $arr;
             $this->status = $value;
 
-            sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?", 
+            $allowedValues = ["available", "on leave", "occupied"];
+
+            if (in_array($value, $allowedValues)) {
+                sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?", 
                         "ss", [$value, $this->personID]);
+
+                $arr = ["message" => "change success: " . $this->personID];
+            }
+            else {
+                $arr = ["error" => "unable to change status to: " . $value];
+            }
         }
     }
 

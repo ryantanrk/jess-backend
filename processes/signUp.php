@@ -72,5 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	signUp($username, $password, $email, $role, $dob);
 }
 
+signUp("ryan", "password", "j18026290@student.newinti.edu.my", "2-Maths", "2001-11-21");
+
 echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>
