@@ -126,10 +126,15 @@
 
         //notify person using email
         public function notify($personID, $subject, $message) {
+            global $email;
             //get person object
             $personobj = getPersonFromID($personID);
+
+            $headers = "From: JESS <" . $email . ">" . PHP_EOL;
+            $headers .= "MIME-Version: 1.0" . PHP_EOL;
+            $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
             //email function
-            mail($personobj->email, $subject, $message);
+            mail($personobj->email, $subject, $message, $headers);
         }
     }
 
@@ -216,7 +221,8 @@
 
                 //Inline temp
                 $fileToUpload = file_get_contents($value["documentToUpload"]["tmp_name"]);                  
-                $documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
+                //$documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
+                sqlProcesses("UPDATE `document` SET `file`=? WHERE `documentID`=?", "ss",[$fileToUpload, $documentID]);
             }
         }
 

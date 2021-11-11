@@ -12,4 +12,6 @@
     $personTable = 'person';
     $reviewTable = 'review';
     $reviewerTable = 'reviewerspecific';
+
+    $email = "survxyzburner@gmail.com";
 ?>

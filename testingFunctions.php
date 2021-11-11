@@ -82,9 +82,25 @@
 	// $_SESSION["user"]->setAuthorizedReviewAttribute("D1-R1", "reviewStatus", "Accepted");
 
 	//mail test
-    // mail("j18026290@student.newinti.edu.my", "test", "ass", "From: survxyzburner@gmail.com");
+    //notify author
+	$message = "Hello " . "username" . ",<br/>";
+	$message .= "Your uploaded document: " . "document title" . ", has been determined to be within scope.<br/><br/>";
+	$message .= "<b>JESS</b><br/>";
+	$message .= "<i>This is an automatically generated email.</i>";
+
+	$headers = "From: JESS <" . $email . ">" . PHP_EOL;
+	$headers .= "MIME-Version: 1.0" . PHP_EOL;
+    $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
+    //email function
+    mail("j18026290@student.newinti.edu.my", "Approval of Document: document title", $message, $headers);
+
+	//notify function works
+	// $editor = getPersonFromID("E1");
+	// $author = getPersonFromID("R5");
+	// $editor->notify($author->personID, "Approval of Document: document", $message);
+
 
 	//getPersonFromID
-	$reviewerobj = getPersonFromID("A1");
-	echo json_encode($reviewerobj, JSON_PRETTY_PRINT);
+	//$reviewerobj = getPersonFromID("A1");
+	//echo json_encode($reviewerobj, JSON_PRETTY_PRINT);
 ?>

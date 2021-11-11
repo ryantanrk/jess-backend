@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     $authorID = $_POST['personID'];
     $documentID = $_POST['documentID'];
     $authorRemarks = $_POST['authorRemarks'];
-    $documentToUpload = $_FILES['document']['tmp_name']; //file
+    $documentToUpload = $_FILES; //file
     
     editDocument($authorID, $documentID, $authorRemarks, $documentToUpload);
 }

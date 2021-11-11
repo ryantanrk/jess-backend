@@ -89,6 +89,7 @@
         }
         else {
             print_r("Unable to get " . $personID);
+            return false;
         }
     }
 ?>
