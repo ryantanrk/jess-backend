@@ -4,11 +4,11 @@
     
     abstract class Person 
     {
-        public $personID;
-        public $username;
+        protected $personID;
+        protected $username;
         protected $password;
-        public $email;
-        public $dob;
+        protected $email;
+        protected $dob;
 
         //Different for each type of person
         abstract public function getAuthorizedDocumentAttribute($documentID);
@@ -73,7 +73,7 @@
         {
             //targetAttributes will store strings of all the attribute names
             $targetAttributes = [
-                "documentID", "printDate", "editorRemarks", "reviewDueDate", "editDueDate", 
+                "documentID", "editorID", "printDate", "editorRemarks", "reviewDueDate", "editDueDate", 
                 "price", "journalIssue", "documentStatus"
             ];
 
@@ -112,6 +112,28 @@
 
 				sqlProcesses("INSERT INTO `review`(`documentID`, `reviewerID`, `reviewStatus`) 
 				VALUES (?, ?, ?)", "sss", [$tempArray[0], $tempArray[1], "pending"]);
+
+                //set review due date
+                $this->setAuthorizedDocumentAttribute($tempArray[0], "reviewDueDate", date("Y-m-d") + 30);
+
+                //notify reviewer
+                //get reviewer data
+                $reviewer = getPersonFromID($tempArray[1]);
+                $reviewerdata = $reviewer->getPersonData();
+
+                //get document data
+                $document = retrieveDocumentFromDatabaseInCorrectState($tempArray[0]);
+                $metadata = $document->getDocumentMetaData();
+
+                //set message
+                $message = "Hello " . $reviewerdata['username'] . ",<br/><br/>";
+                $message .= "You have been assigned to review document \"" . $metadata->title . "\".<br/>";
+                $message .= "Please do so within 30 days.<br/><br/>";
+                $message .= "<b>JESS</b><br/>";
+                $message .= "<i>This is an automatically generated email.</i>";
+
+                //send email to reviewer
+                $this->notify($reviewerdata['email'], "Pending Review: " . $metadata->title, $message);
 			}
         }
 
@@ -183,6 +205,19 @@
             else {
                 $arr = ["error" => "unable to change status to: " . $value];
             }
+        }
+
+        public function getPersonData()
+        {
+            return array(
+            		"personID" => $this->personID, 
+            		"username" => $this->username, 
+            		"password" => $this->password, 
+            		"email" => $this->email, 
+            		"dob" => $this->dob,
+                    "areaOfExpertise" => $this->areaOfExpertise,
+                    "status" => $this->status
+            	);
         }
     }
 

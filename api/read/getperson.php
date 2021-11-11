@@ -108,11 +108,13 @@
                 }
                 else if ($row['type'] == 1) {
                     $authorobj = getPersonFromID($personID);
-                    array_push($personarray, $authorobj);
+                    $person_arr = $authorobj->getPersonData();
+                    array_push($personarray, $person_arr);
                 }
                 else if ($row['type'] == 2) {
                     $reviewerobj = getPersonFromID($personID);
-                    array_push($personarray, $reviewerobj);
+                    $person_arr = $reviewerobj->getPersonData();
+                    array_push($personarray, $person_arr);
                 }
             }
         }

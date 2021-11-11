@@ -23,9 +23,9 @@
         ];
 
         //get document
-        $documentobj = new Document(new ManuscriptState, $documentID);
+        $documentobj = retrieveDocumentFromDatabaseInCorrectState($documentID);
         //get metadata object
-        $metadataobj = $documentobj->documentMetaDataObject;
+        $metadataobj = $documentobj->getDocumentMetaData();
 
         $ratings = []; //ratings array
 

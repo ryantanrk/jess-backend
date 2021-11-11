@@ -157,11 +157,7 @@ class DocumentReview extends DocumentAttributes
 //Document class has a documentStateObject
 class Document
 {
-	public $documentStateObject;
-
-	public $documentMetaDataObject;
-
-	public $documentReviewsArray = array();
+	protected $documentStateObject;
 
 	//------------------------------------------------------------------ State functions
 
@@ -177,6 +173,7 @@ class Document
 			$metaDataResults = sqlProcesses("SELECT * FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
 			$metaDataResults = mysqli_fetch_assoc($metaDataResults);
 			$this->documentMetaDataObject = new DocumentMetaData($metaDataResults);
+			$this->documentReviewsArray = [];
 
 			$allReviews = sqlProcesses("SELECT * FROM `review` WHERE `documentID` = ?", "s", [$documentID]);
 
@@ -185,8 +182,10 @@ class Document
 				while($individualReview = mysqli_fetch_assoc($allReviews))
 				{
 					$individualReviewObject = new DocumentReview($individualReview);
-					array_push($this->documentReviewsArray, $individualReviewObject);
+					$reviews = $this->getDocumentReviews();
+					array_push($reviews, $individualReviewObject);
 				}
+				$this->documentReviewsArray = $reviews;
 			}
 		}
 	}
@@ -201,12 +200,48 @@ class Document
 	
 	//Get methods are according to their states
 	public function getDocumentReviews(){return $this->documentStateObject->getDocumentReviews();}
+
+	public function getDocumentContent() {
+        global $arr;
+        //get title & file
+        $query = "SELECT `title`, `file` FROM `document` WHERE documentID = ?";
+        $result = sqlProcesses($query, "s", [$this->getDocumentMetaData()->documentID]);
+
+        //if result found
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $title = $row['title'];
+                $file = $row['file'];
+            }
+            //set headers
+            header("Content-Type: application/pdf");
+            header('Content-Disposition: inline; filename="' . $title . '.pdf"');
+            header("Content-Transfer-Encoding: binary");
+            header('Accept-Ranges: bytes');
+
+            //determine filename
+            $filename = $title . ".pdf";
+
+            //create file and write to it
+            $myfile = fopen("../documents/" . $filename, "w") or die("Unable to open file!");
+            fwrite($myfile, $file);
+            fclose($myfile);
+
+            //go to file
+            header('Location: ' . "../documents/" . $filename, true, 302);
+        }
+        else {
+            $arr = ["error" => "document not found"];
+        }
+    }
 }
 
 //DocumentState class has a DocumentObject
 abstract class DocumentState implements JsonSerializable
 {
 	protected $documentObject;
+	protected $documentMetaDataObject;
+	protected $documentReviewsArray = array();
 
 	public function stateSetDocument(Document $documentObject){$this->documentObject = $documentObject;}
 
@@ -236,13 +271,13 @@ class ManuscriptState extends DocumentState
 	public function setDocumentMetaData($attribute, $value)
 	{
 		if($attribute != "printDate" || $attribute != "journalIssue")
-			$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);
+			$this->documentMetaDataObject->setMetaData($attribute, $value);
 	}
 
 	//Reviews can be set when a document is a manuscript
 	public function setDocumentReview($reviewerID, $attribute, $value)
 	{
-		foreach($this->documentObject->documentReviewsArray as $individualReviewObject)
+		foreach($this->documentReviewsArray as $individualReviewObject)
 		{
 			$individualReviewArray = $individualReviewObject->getReviewData();
 
@@ -254,13 +289,13 @@ class ManuscriptState extends DocumentState
 	//Return only manuscript related metadata
 	public function getDocumentMetaData()
 	{
-		return $this->documentObject->documentMetaDataObject;
+		return $this->documentMetaDataObject;
 	}
 
 	//Return all reviews as review objects
 	public function getDocumentReviews()
 	{
-		return $this->documentObject->documentReviewsArray;
+		return $this->documentReviewsArray;
 	}
 }
 
@@ -271,29 +306,27 @@ class JournalState extends DocumentState
 	public function setDocumentMetaData($attribute, $value)
 	{
 		if($attribute == "journalIssue" || $attribute == "printDate")
-			$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);
+			$this->documentMetaDataObject->setMetaData($attribute, $value);
 	}
 
 	//Reviews cannot be set when a document is a journal
 	public function setDocumentReview($reviewerID, $attribute, $value){}
 
-	//Return only manuscript related metadata
+	//Return only journal related metadata
 	public function getDocumentMetaData()
 	{
-		$this->documentMetaDataObject->dateOfSubmission = "";
-		$this->documentMetaDataObject->pages = "";
 		$this->documentMetaDataObject->authorRemarks = "";
 		$this->documentMetaDataObject->editorRemarks = "";
 		$this->documentMetaDataObject->reviewDueDate = "";
 		$this->documentMetaDataObject->editDueDate = "";
 
-		return $this->documentObject->documentMetaDataObject;
+		return $this->documentMetaDataObject;
 	}
 
 	//Return all reviews as review objects
 	public function getDocumentReviews()
 	{
-		return $this->documentObject->documentReviewsArray;
+		return $this->documentReviewsArray;
 	}
 }
 ?>

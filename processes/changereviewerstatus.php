@@ -13,6 +13,7 @@
         global $arr;
         $reviewer = getPersonFromID($reviewerID);
         $reviewer->setReviewerStatus($status);
+        $arr = ["message" => "status changed: " . $status];
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -21,8 +22,6 @@
 
         changeReviewerStatus($reviewerID, $status);
     }
-
-    changeReviewerStatus("R1", "available");
 
     echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

@@ -77,12 +77,7 @@
 
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                if ($row['documentStatus'] != "published") {
-                    $documentobj = new Document(new ManuscriptState, $row['documentID']);
-                }
-                else {
-                    $documentobj = new Document(new JournalState, $row['documentID']);
-                }
+                $documentobj = retrieveDocumentFromDatabaseInCorrectState($row['documentID']);
                 //get usernames
                 //author sql
                 $authorUserRes = sqlProcesses("SELECT `username` FROM `person` WHERE `personID` = ?",

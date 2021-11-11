@@ -25,6 +25,7 @@ function modifyDocument($editorID, $documentID, $newDocumentID, $editorRemarks) 
 
     $doc = [
         "documentID" => $newDocumentID,
+        "editorID" => $editorID,
         "editorRemarks" => $editorRemarks,
         "documentStatus" => "pending review"
     ];
@@ -38,12 +39,12 @@ function modifyDocument($editorID, $documentID, $newDocumentID, $editorRemarks) 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
-    $authorID = $_POST['personID'];
+    $editor = $_POST['personID'];
     $documentID = $_POST['documentID'];
     $newDocumentID = $_POST['newDocumentID'];
     $editorRemarks = $_POST['editorRemarks'];
     
-    modifyDocument($authorID, $documentID, $newDocumentID, $editorRemarks);
+    modifyDocument($editorID, $documentID, $newDocumentID, $editorRemarks);
 }
 
 // public function editDocument($doc)
