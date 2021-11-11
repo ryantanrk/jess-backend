@@ -115,6 +115,15 @@
 			}
         }
 
+        //approve reviewer
+        public function approveReviewer($reviewerID) {
+            global $arr;
+            sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
+                "ss", ["available", $reviewerID]);
+
+            $arr = ["message" => "successfully approved " . $reviewerID];
+        }
+
         //notify person using email
         public function notify($personID, $subject, $message) {
             //get person object

@@ -10,6 +10,7 @@ header("Content-Type: application/json");
 
 $arr = [1 => "Send a POST request to this url!"];
 
+//not yet tested
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
     $authorID = $_POST['personID'];
