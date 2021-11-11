@@ -12,8 +12,17 @@
     function changeReviewerStatus($reviewerID, $status) {
         global $arr;
         $reviewer = getPersonFromID($reviewerID);
-        $reviewer->setReviewerStatus($status);
-        $arr = ["message" => "status changed: " . $status];
+        $reviewerdata = $reviewer->getPersonData();
+
+        if ($reviewerdata['status'] != $status) {
+            //if doesn't match status
+            $reviewer->setReviewerStatus($status);
+            $arr = ["message" => "reviewer " . $reviewerID . " status changed to " . $status];
+        }
+        else {
+            //if match status
+            $arr = ["error" => "reviewer status is already the same"];
+        }
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
