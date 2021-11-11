@@ -66,6 +66,11 @@ function rejectDocument($editorID, $documentID) {
     }
 }
 
+//assign single reviewer
+function assignReviewer($documentID, $reviewerID) {
+
+}
+
 //all editor functions
 //function is MANDATORY
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -83,37 +88,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             break;
         case "assignreviewers":
             break;
+        case "compile":
+            break;
+        case "finalcheck":
+            break;
+        case "setprice":
+            break;
+        case "publish":
+            break;
     }
-}
-
-if($request[0] == "mainPage")
-{
-
-}
-
-if($request[0] == "assignReviewers")
-{
-
-}
-
-if($request[0] == "finalCheck")
-{
-
-}
-
-if($request[0] == "publish")
-{
-
-}
-
-if($request[0] == "updateManuscriptInfo")
-{
-
-}
-
-if($request[0] == "manageLatePeople")
-{
-
 }
 
 echo json_encode($arr, JSON_PRETTY_PRINT);
