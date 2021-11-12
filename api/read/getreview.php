@@ -66,19 +66,8 @@
         $result = mysqli_query($connection, $query) or die(mysqli_error($connection));
 
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            $review_arr = [
-                "documentID" => $row['documentID'],
-                "reviewerID" => $row['reviewerID'],
-                "rating" => $row['rating'],
-                "comment" => $row['comment'],
-                "reviewStatus" => $row['reviewStatus'],
-                "dateOfReviewCompletion" => $row['dateOfReviewCompletion']
-            ];
-
-            //review object
-            $reviewobj = new DocumentReview($review_arr);
-
-            array_push($reviewarray, $reviewobj);
+            $review = new DocumentReview($row);
+            array_push($reviewarray, $review);
         }
     }
     else {

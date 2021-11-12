@@ -78,6 +78,9 @@
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
                 $documentobj = retrieveDocumentFromDatabaseInCorrectState($row['documentID']);
+                //set metadata and reviews in public key
+                $documentobj->documentMetaDataObject = $documentobj->getDocumentMetaData();
+                $documentobj->documentReviewsArray = $documentobj->getDocumentReviews();
                 //get usernames
                 //author sql
                 $authorUserRes = sqlProcesses("SELECT `username` FROM `person` WHERE `personID` = ?",

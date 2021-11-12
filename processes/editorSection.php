@@ -26,7 +26,7 @@ function approveReviewer($editorID, $reviewerID) {
     }
 }
 
-function approveDocument($editorID, $documentID) {
+function approveDocument($editorID, $documentID, $editorRemarks) {
     global $arr;
     $editor = getPersonFromID($editorID);
     
@@ -37,6 +37,8 @@ function approveDocument($editorID, $documentID) {
     
     //check status
     if ($metadata->documentStatus === "new") {
+        //add editor remarks
+        $editor->setAuthorizedDocumentAttribute($documentID, "editorRemarks", $editorRemarks);
         //change status to pending review
         $editor->setAuthorizedDocumentAttribute($documentID, "documentStatus", "pending review");
         //notify author
@@ -261,7 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             break;
         case "determinescope":
             if ($_POST['scope'] === "Within Scope") {
-                approveDocument($_POST['editorID'], $_POST['documentID']);
+                approveDocument($_POST['editorID'], $_POST['documentID'], $_POST['editorRemarks']);
             }
             else if ($_POST['scope'] === "Out of scope") {
                 rejectDocument($_POST['editorID'], $_POST['documentID']);

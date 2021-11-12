@@ -63,19 +63,19 @@
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 	//Editor + manuscript specific stuff
-	//$editorobj = clientCode(new EditorFactory(), "E1", "editor1", md5("password"), "editor1@x.com", "2020-12-02");
+	$editorobj = clientCode(new EditorFactory(), "E1", "editor1", md5("password"), "editor1@x.com", "2020-12-02");
 
-	// $userGet = $_SESSION["user"]->getAuthorizedDocumentAttribute("D1");
-	// print_r($userGet[0]);
-	// echo "<br><br>";
-	// print_r($userGet[1]);
-	// echo "<br><br>";
+	$userGet = $editorobj->getAuthorizedDocumentAttribute("D1");
+	print_r($userGet[0]);
+	echo "<br><br>";
+	print_r($userGet[1]);
+	echo "<br><br>";
 
 	// $editorobj->setAuthorizedDocumentAttribute("D1", "documentStatus", "published");
 	// $editorobj->setAuthorizedDocumentAttribute("D1", "printDate", "09-11-2021");
 	//$editorobj->setAuthorizedDocumentAttribute("D1", "journalIssue", "xyzy");
+	$editorobj->setAuthorizedDocumentAttribute("D1", "journalIssue", "DEYH, IT'S A JOURNAL LAH!!!");
 
-	// $_SESSION["user"]->setAuthorizedDocumentAttribute("D1", "price", "100");
 	// $_SESSION["user"]->setAuthorizedDocumentAttribute("D1", "documentStatus", "pending payment");
 	// $_SESSION["user"]->setAuthorizedReviewAttribute("", "createNewReviewRequest", "D1-R1");
 	// $_SESSION["user"]->setAuthorizedReviewAttribute("", "createNewReviewRequest", "D1-R2");
@@ -83,16 +83,16 @@
 
 	//mail test
     //notify author
-	$message = "Hello " . "username" . ",<br/>";
-	$message .= "Your uploaded document: " . "document title" . ", has been determined to be within scope.<br/><br/>";
-	$message .= "<b>JESS</b><br/>";
-	$message .= "<i>This is an automatically generated email.</i>";
+	// $message = "Hello " . "username" . ",<br/>";
+	// $message .= "Your uploaded document: " . "document title" . ", has been determined to be within scope.<br/><br/>";
+	// $message .= "<b>JESS</b><br/>";
+	// $message .= "<i>This is an automatically generated email.</i>";
 
-	$headers = "From: JESS <" . $email . ">" . PHP_EOL;
-	$headers .= "MIME-Version: 1.0" . PHP_EOL;
-    $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
+	// $headers = "From: JESS <" . $email . ">" . PHP_EOL;
+	// $headers .= "MIME-Version: 1.0" . PHP_EOL;
+ //    $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
     //email function
-    mail("j18026290@student.newinti.edu.my", "Approval of Document: document title", $message, $headers);
+    // mail("j18026290@student.newinti.edu.my", "Approval of Document: document title", $message, $headers);
 
 	//notify function works
 	// $editor = getPersonFromID("E1");
@@ -103,4 +103,7 @@
 	//getPersonFromID
 	//$reviewerobj = getPersonFromID("A1");
 	//echo json_encode($reviewerobj, JSON_PRETTY_PRINT);
+
+	//testing new document state stuff
+	// print_r(retrieveDocumentFromDatabaseInCorrectState("D1"));
 ?>

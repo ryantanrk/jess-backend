@@ -30,9 +30,9 @@
 
         //discernment
         if($sqlArray['documentStatus'] != "published")
-            $documentObject = new Document(new ManuscriptState, $documentID);
+            $documentObject = new Document(new ManuscriptState($documentID));
         else
-            $documentObject = new Document(new JournalState, $documentID);
+            $documentObject = new Document(new JournalState($documentID));
 
         return $documentObject;
     }

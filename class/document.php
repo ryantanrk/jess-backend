@@ -162,11 +162,45 @@ class Document
 	//------------------------------------------------------------------ State functions
 
 	//Documents are initialized as their respective states but EMPTY
-	public function __construct(DocumentState $documentStateObject, $documentID)
-	{
+	public function __construct(DocumentState $documentStateObject){
 		$this->documentStateObject = $documentStateObject;
 		$this->documentStateObject->stateSetDocument($this);
+	}
 
+	//Set methods are according to their states
+	public function setDocumentMetaData($attribute, $value){
+		$this->documentStateObject->setDocumentMetaData($attribute, $value);
+	}
+	
+	//Set methods are according to their states
+	public function setDocumentReview($reviewerID, $attribute, $value){
+		$this->documentStateObject->setDocumentReview($reviewerID, $attribute, $value);
+	}
+
+	//Get methods are according to their states
+	public function getDocumentMetaData(){
+		return $this->documentStateObject->getDocumentMetaData();
+	}
+	
+	//Get methods are according to their states
+	public function getDocumentReviews(){
+		return $this->documentStateObject->getDocumentReviews();
+	}
+
+	public function getDocumentContent(){
+		return $this->documentStateObject->getDocumentContent();
+	}
+}
+
+//DocumentState class has a DocumentObject
+abstract class DocumentState implements JsonSerializable
+{
+	protected $documentObject;
+	protected $documentMetaDataObject;
+	protected $documentReviewsArray = array();
+
+	public function __construct($documentID)
+	{
 		//initialize document attributes
 		if($documentID != "")
 		{
@@ -190,16 +224,15 @@ class Document
 		}
 	}
 
+	public function stateSetDocument(Document $documentObject){$this->documentObject = $documentObject;}
+
 	//Set methods are according to their states
-	public function setDocumentMetaData($attribute, $value){$this->documentStateObject->setDocumentMetaData($attribute, $value);}
-	//Set methods are according to their states
-	public function setDocumentReview($reviewerID, $attribute, $value){$this->documentStateObject->setDocumentReview($reviewerID, $attribute, $value);}
+	abstract public function setDocumentMetaData($attribute, $value);
+	abstract public function setDocumentReview($reviewerID, $attribute, $value);
 
 	//Get methods are according to their states
-	public function getDocumentMetaData(){return $this->documentStateObject->getDocumentMetaData();}
-	
-	//Get methods are according to their states
-	public function getDocumentReviews(){return $this->documentStateObject->getDocumentReviews();}
+	abstract public function getDocumentMetaData();
+	abstract public function getDocumentReviews();
 
 	public function getDocumentContent() {
         global $arr;
@@ -234,24 +267,6 @@ class Document
             $arr = ["error" => "document not found"];
         }
     }
-}
-
-//DocumentState class has a DocumentObject
-abstract class DocumentState implements JsonSerializable
-{
-	protected $documentObject;
-	protected $documentMetaDataObject;
-	protected $documentReviewsArray = array();
-
-	public function stateSetDocument(Document $documentObject){$this->documentObject = $documentObject;}
-
-	//Set methods are according to their states
-	abstract public function setDocumentMetaData($attribute, $value);
-	abstract public function setDocumentReview($reviewerID, $attribute, $value);
-
-	//Get methods are according to their states
-	abstract public function getDocumentMetaData();
-	abstract public function getDocumentReviews();
 
 	//allow state to be output
 	public function jsonSerialize()
