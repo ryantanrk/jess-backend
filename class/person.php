@@ -270,13 +270,12 @@
         //Dah puas
         public function uploadNewDocument($value)
         {
-            $authorID = $value['personID'];
+            global $arr;
+            $authorID = $value['authorID'];
             $title = $value['title']; 
-            $topicOption = $value['topicOption']; 
+            $topicOption = $value['topic']; 
 
-            $documentToUpload = $value['documentToUpload'];
-            $fileTempName = $value["documentToUpload"]["tmp_name"];
-            $fileToUpload = file_get_contents($fileTempName);        
+            $fileToUpload = file_get_contents($value['documentToUpload']);
 
             $authorRemarks = $value['authorRemarks'];
 
@@ -288,16 +287,8 @@
             $editorID = NULL;
 
             $dateOfSubmission = date("Y-m-d");
-            $printDate = '';
-            
-            $editorRemarks = ''; 
-            $reviewDueDate = '';    
-        
-            $editDueDate = '';
-            $price = '';
-            $journalIssue = '';
-            $documentStatus = 'new';    
-        
+
+            $documentStatus = 'new';
 
         	//---------------------------------------------------------------------- The potentially move to document area stuff
             $sql = "INSERT INTO `document`(
@@ -310,7 +301,8 @@
                 $dateOfSubmission, $fileToUpload, $authorRemarks, $documentStatus        
             );
 
-            sqlProcesses($sql, "sssssssss", $paramVariablesArray);   
+            sqlProcesses($sql, "sssssssss", $paramVariablesArray);
+            $arr = ["message" => "document upload successfully"];
             //----------------------------------------------------------------------                  
         }
     }    
