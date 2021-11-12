@@ -115,6 +115,9 @@ function assignReviewer($editorID, $documentID, $reviewerID) {
         //add to review table
         $editor->setAuthorizedReviewAttribute("", "createNewReviewRequest", $documentIDreviewerID);
         $arr = ["message" => "reviewer " . $reviewerID . " is assigned to review document " . $documentID];
+
+        //set document status
+        $editor->setAuthorizedDocumentAttribute($documentID, "documentStatus", "under review");
     }
     else {
         $arr = ["error" => "reviewer " . $reviewerID . " is not available"];

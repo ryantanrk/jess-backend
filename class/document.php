@@ -213,12 +213,13 @@ abstract class DocumentState implements JsonSerializable
 
 			if(mysqli_num_rows($allReviews) > 0)
 			{
+				$reviews = [];
 				while($individualReview = mysqli_fetch_assoc($allReviews))
 				{
 					$individualReviewObject = new DocumentReview($individualReview);
-					$reviews = $this->getDocumentReviews();
 					array_push($reviews, $individualReviewObject);
 				}
+				
 				$this->documentReviewsArray = $reviews;
 			}
 		}

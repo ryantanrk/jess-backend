@@ -114,7 +114,7 @@
 				VALUES (?, ?, ?)", "sss", [$tempArray[0], $tempArray[1], "pending"]);
 
                 //set review due date
-                $this->setAuthorizedDocumentAttribute($tempArray[0], "reviewDueDate", date("Y-m-d") + 30);
+                $this->setAuthorizedDocumentAttribute($tempArray[0], "reviewDueDate", date("Y-m-d", strtotime("+30 days")));
 
                 //notify reviewer
                 //get reviewer data
@@ -133,7 +133,7 @@
                 $message .= "<i>This is an automatically generated email.</i>";
 
                 //send email to reviewer
-                $this->notify($reviewerdata['email'], "Pending Review: " . $metadata->title, $message);
+                $this->notify($reviewerdata['personID'], "Pending Review: " . $metadata->title, $message);
 			}
         }
 

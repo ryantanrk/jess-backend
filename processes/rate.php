@@ -112,9 +112,7 @@
             }
         }
         else {
-            $arr = [
-                "error" => "document is not under review"
-            ];
+            $arr = ["error" => "document is not under review"];
         }
     }
 
