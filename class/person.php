@@ -148,8 +148,7 @@
 
         //notify person using email
         public function notify($personID, $subject, $message) {
-            global $email;
-            global $arr;
+            global $email, $arr;
             //get person object
             $personobj = getPersonFromID($personID);
             $persondata = $personobj->getPersonData();
@@ -158,7 +157,12 @@
             $headers .= "MIME-Version: 1.0" . PHP_EOL;
             $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
             //email function
-            mail($persondata['email'], $subject, $message, $headers);
+            if (mail($persondata['email'], $subject, $message, $headers)) {
+                $arr['email'] = "email sent to " . $persondata['email'];
+            }
+            else {
+                $arr['email'] = "email not sent to " . $persondata['email'];
+            }
         }
     }
 

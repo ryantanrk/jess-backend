@@ -53,12 +53,14 @@ function approveDocument($editorID, $documentID, $editorRemarks) {
         $author = getPersonFromID($metadata->authorID);
         $authordata = $author->getPersonData();
         $message = "Hello " . $authordata['username'] . ",<br/><br/>";
-        $message .= "Your uploaded document: " . $metadata->title . ", has been determined to be within scope.<br/><br/>";
+        $message .= "Your uploaded document: " . $metadata->title . ", has been determined to be within scope.<br/>";
+        $message .= "Please wait for reviewers to review the document.<br/><br/>";
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
-
-        $editor->notify($authordata['email'], "Approval of Document: " . $metadata->title, $message);
         $arr = ["message" => "document approved: " . $metadata->documentID];
+
+        $editor->notify($authordata['personID'], "Approval of Document: " . $metadata->title, $message);
+        
     }
     else {
         $arr = ["error" => "document is not in a state to be approved"];
@@ -88,7 +90,7 @@ function rejectDocument($editorID, $documentID) {
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
 
-        $editor->notify($authordata['email'], "Rejection of Document: " . $metadata->title, $message);
+        $editor->notify($authordata['personID'], "Rejection of Document: " . $metadata->title, $message);
         $arr = ["message" => "document rejected: " . $metadata->documentID];
     }
     else {
@@ -148,7 +150,7 @@ function compile($editorID, $documentID, $editorRemarks) {
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
     
-        $editor->notify($authordata['email'], "Pending modify: " . $metadata->title, $message);
+        $editor->notify($authordata['personID'], "Pending modify: " . $metadata->title, $message);
         $arr = ["message" => "document " . $documentID . " compiled"];
     }
     else {
@@ -190,7 +192,7 @@ function finalCheck($editorID, $documentID, $satisfied) {
             $message .= "<b>JESS</b><br/>";
             $message .= "<i>This is an automatically generated email.</i>";
     
-            $editor->notify($authordata['email'], "Document Rejected: " . $metadata->title, $message);
+            $editor->notify($authordata['personID'], "Document Rejected: " . $metadata->title, $message);
     
             $arr = ["message" => "rejected document " . $documentID];
         }
@@ -227,7 +229,7 @@ function setPrice($editorID, $documentID, $price) {
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
 
-        $editor->notify($authordata['email'], "Document Approved: " . $metadata->title, $message);
+        $editor->notify($authordata['personID'], "Document Approved: " . $metadata->title, $message);
 
         $arr = ["message" => "price of " . $price . " has been set for document " . $documentID];
     }
