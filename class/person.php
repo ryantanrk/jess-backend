@@ -149,14 +149,16 @@
         //notify person using email
         public function notify($personID, $subject, $message) {
             global $email;
+            global $arr;
             //get person object
             $personobj = getPersonFromID($personID);
+            $persondata = $personobj->getPersonData();
 
             $headers = "From: JESS <" . $email . ">" . PHP_EOL;
             $headers .= "MIME-Version: 1.0" . PHP_EOL;
             $headers .= "Content-Type: text/html; charset=UTF-8" . PHP_EOL;
             //email function
-            mail($personobj->email, $subject, $message, $headers);
+            mail($persondata['email'], $subject, $message, $headers);
         }
     }
 

@@ -37,10 +37,18 @@ function approveDocument($editorID, $documentID, $editorRemarks) {
     
     //check status
     if ($metadata->documentStatus === "new") {
-        //add editor remarks
-        $editor->setAuthorizedDocumentAttribute($documentID, "editorRemarks", $editorRemarks);
-        //change status to pending review
-        $editor->setAuthorizedDocumentAttribute($documentID, "documentStatus", "pending review");
+        //edit attribute array
+        $attribute_arr = [
+            "editorID" => $editorID,
+            "editorRemarks" => $editorRemarks,
+            "documentStatus" => "pending review"
+        ];
+
+        //add editor remarks, set editor ID, change status to pending review
+        foreach ($attribute_arr as $key => $value) {
+            $editor->setAuthorizedDocumentAttribute($documentID, $key, $value);
+        }
+        
         //notify author
         $author = getPersonFromID($metadata->authorID);
         $authordata = $author->getPersonData();
