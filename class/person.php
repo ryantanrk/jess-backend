@@ -148,12 +148,31 @@
                 if ($choice === "approved") {
                     sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
                         "ss", ["available", $reviewerID]);
+
+                    $message = "Hello " . $reviewerdata['username'] . ",<br/><br/>";
+                    $message .= "This email has been sent to inform you that you have been approved to review incoming manuscripts.<br/><br/>";
+                    $message .= "<b>JESS</b><br/>";
+                    $message .= "<i>This is an automatically generated email.</i>";
+
+                    $this->notify($reviewerdata['personID'], "Reviewer sign up: Approved", $message);
+
                     $arr = ["message" => "successfully approved " . $reviewerID];
                 }
                 else if ($choice === "rejected") {
                     sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
                         "ss", ["rejected", $reviewerID]);
+
+                    $message = "Hello " . $reviewerdata['username'] . ",<br/><br/>";
+                    $message .= "This email has been sent to inform you that you have unfortunately been rejected to review incoming manuscripts.<br/><br/>";
+                    $message .= "<b>JESS</b><br/>";
+                    $message .= "<i>This is an automatically generated email.</i>";
+
+                    $this->notify($reviewerdata['personID'], "Reviewer sign up: Rejected", $message);
+
                     $arr = ["message" => "successfully rejected " . $reviewerID];
+                }
+                else {
+                    $arr = ["error" => "invalid choice"];
                 }
             }
             else {
