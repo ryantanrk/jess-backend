@@ -12,18 +12,13 @@ header("Content-Type: application/json");
 $arr = ["1" => "Send a POST request to this url!"];
 
 function approveReviewer($editorID, $reviewerID) {
-    global $arr;
     $editor = getPersonFromID($editorID);
-    $reviewer = getPersonFromID($reviewerID);
-    $reviewerdata = $reviewer->getPersonData();
+    $editor->approveRejectReviewer($reviewerID, "approved");
+}
 
-    if ($reviewerdata['status'] === "pending approval") {
-        $editor->approveReviewer($reviewerID);
-        $arr = ["message" => "reviewer " . $reviewerID . " approved"];
-    }
-    else {
-        $arr = ["error" => "reviewer is not under pending approval state"];
-    }
+function rejectReviewer($editorID, $reviewerID) {
+    $editor = getPersonFromID($editorID);
+    $editor->approveRejectReviewer($reviewerID, "rejected");
 }
 
 function approveDocument($editorID, $documentID, $editorRemarks) {
@@ -276,6 +271,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     switch ($_POST['function']) {
         case "approvereviewer":
             approveReviewer($_POST['editorID'], $_POST['reviewerID']);
+            break;
+        case "rejectreviewer":
+            rejectReviewer($_POST['editorID'], $_POST['reviewerID']);
             break;
         case "determinescope":
             if ($_POST['scope'] === "Within Scope") {

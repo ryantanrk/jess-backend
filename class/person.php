@@ -137,13 +137,28 @@
 			}
         }
 
-        //approve reviewer
-        public function approveReviewer($reviewerID) {
+        //approve/reject reviewer
+        public function approveRejectReviewer($reviewerID, $choice) {
             global $arr;
-            sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
-                "ss", ["available", $reviewerID]);
 
-            $arr = ["message" => "successfully approved " . $reviewerID];
+            $reviewer = getPersonFromID($reviewerID);
+            $reviewerdata = $reviewer->getPersonData();
+
+            if ($reviewerdata['status'] === "pending approval") {
+                if ($choice === "approved") {
+                    sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
+                        "ss", ["available", $reviewerID]);
+                    $arr = ["message" => "successfully approved " . $reviewerID];
+                }
+                else if ($choice === "rejected") {
+                    sqlProcesses("UPDATE `reviewerspecific` SET `status` = ? WHERE `personID` = ?",
+                        "ss", ["rejected", $reviewerID]);
+                    $arr = ["message" => "successfully rejected " . $reviewerID];
+                }
+            }
+            else {
+                $arr = ["error" => "reviewer is not under pending approval state"];
+            }
         }
 
         //notify person using email
