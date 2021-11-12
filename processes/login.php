@@ -34,9 +34,10 @@ function login($email, $p)
 				];
 
 				$personobj = getPersonFromID($arr['personID']);
-				$personobj->type = $arr['type'];
+				$person_arr = $personobj->getPersonData();
+				$person_arr['type'] = $arr['type'];
 
-				$arr = $personobj;
+				$arr = $person_arr;
 			}
 			else
 				$arr = ["error" => "Wrong password"];
