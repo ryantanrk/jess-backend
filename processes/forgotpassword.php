@@ -7,14 +7,13 @@
     header("Content-Type: application/json");
 
     $arr = [1 => "i forgor :skull:"];
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        //get email
-        $email = $_POST['email'];
+    
+    function forgotPassword($email) {
+        global $arr;
         $paramVariablesArray = [$email];
 
         //check email for existing account
-        $query = "SELECT * FROM `$personTable` WHERE `email` = ?";
+        $query = "SELECT * FROM `person` WHERE `email` = ?";
         $result = sqlProcesses($query, "s", $paramVariablesArray);
 
         if (mysqli_num_rows($result) == 1) {
@@ -30,6 +29,12 @@
                 "condition" => "failed"
             ];
         }
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        //get email
+        $email = $_POST['email'];
+        forgotPassword($email);
     }
     echo json_encode($arr, JSON_PRETTY_PRINT);
 ?>

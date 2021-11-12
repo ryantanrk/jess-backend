@@ -1,7 +1,7 @@
 <?php
     require_once '../connection.php';
-    require_once '../factory/personfactory.php';
     require_once '../class/person.php';
+    require_once '../class/factory.php';
 
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Methods: POST");
@@ -12,8 +12,7 @@
 
     function rate($documentID, $reviewerID, $rating, $comment) {
         global $arr;
-        $revfactory = new ReviewerFactory;
-        $reviewerobj = $revfactory->getNewUser($reviewerID);
+        $reviewer = getPersonFromID($reviewerID);
 
         //for updating review
         $review_arr = [
@@ -24,22 +23,23 @@
         ];
 
         //get document
-        $documentobj = new Document(new ManuscriptState);
-        $documentobj->documentStateObject->getDocumentById($documentID);
+        $documentobj = retrieveDocumentFromDatabaseInCorrectState($documentID);
         //get metadata object
-        $metadataobj = $documentobj->documentMetaDataObject;
+        $metadataobj = $documentobj->getDocumentMetaData();
+        //get rating array
+        $documentreviews = $documentobj->getDocumentReviews();
 
         $ratings = []; //ratings array
 
         //iterate over review array
         if ($metadataobj->documentStatus === "under review") {
-            if (count($documentobj->DocumentReviewsArray) > 0) {
-                foreach ($documentobj->DocumentReviewsArray as $review) {
+            if (count($documentreviews) > 0) {
+                foreach ($documentreviews as $review) {
                     //if reviewer ID matches
                     if ($review->reviewerID === $reviewerID && $review->reviewStatus === "pending") {
                         //set review attributes
                         foreach ($review_arr as $key => $value) {
-                            $reviewerobj->setDocument($review, $key, $value);
+                            $reviewer->setAuthorizedDocumentAttribute($documentID, $key, $value);
                             if ($key === "rating") {
                                 $ratings[] = $value; //add rating to ratings
                             }
@@ -47,8 +47,9 @@
                         //feedback array
                         $arr = [
                             "message" => "rate complete: " . $review->documentID . ", from " . $review->reviewerID,
-                            "rating" => $review->rating,
-                            "comment" => $review->comment
+                            "rating" => $review_arr['rating'],
+                            "comment" => $review_arr['comment'],
+                            "dateOfReviewCompletion" => $review_arr['dateOfReviewCompletion']
                         ];
                     }
                     else if ($review->reviewerID === $reviewerID && $review->reviewStatus === "complete") {
@@ -106,14 +107,12 @@
             else {
                 //error when no existing review
                 $arr = [
-                    "error" => "no such review object exists"
+                    "error" => "Reviewer " . $reviewerID . " is not authorized to review " . $documentID
                 ];
             }
         }
         else {
-            $arr = [
-                "error" => "document is not under review"
-            ];
+            $arr = ["error" => "document is not under review"];
         }
     }
 

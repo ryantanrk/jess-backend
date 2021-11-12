@@ -1,7 +1,6 @@
 <?php
 require_once '../connection.php';
 require_once '../class/person.php';
-require_once '../factory/personfactory.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
@@ -10,25 +9,21 @@ header("Content-Type: application/json");
 
 $arr = [1 => "Send a POST request to this url!"];
 
+//not yet tested
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
     $authorID = $_POST['personID'];
     //create author object
-    $authorfactory = new AuthorFactory;
-    $author = $authorfactory->getNewUser($authorID);
-
-    $title = $_POST['title'];
-    $topicOption = $_POST['topic'];
-    $documentToUpload = file_get_contents($_FILES['document']['tmp_name']); //file
-    $authorRemarks = $_POST['authorRemarks'];
+    $author = getPersonFromID($authorID);
 
     $doc = [
-        "title" => $title,
-        "topic" => $topicOption,
-        "documentToUpload" => $documentToUpload,
-        "authorRemarks" => $authorRemarks
+        "authorID" => $authorID,
+        "title" => $_POST['title'],
+        "topic" => $_POST['topic'],
+        "documentToUpload" => $_FILES['document']['tmp_name'],
+        "authorRemarks" => $_POST['authorRemarks']
     ];
-
+    
     $documentMetaData = $author->uploadNewDocument($doc);
     $arr = ["message" => "upload"];
 }

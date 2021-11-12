@@ -1,19 +1,13 @@
 <?php
 require_once 'person.php';
 
-abstract class DocumentAttributes
-{
-
-}
+abstract class DocumentAttributes{}
 
 class DocumentMetaData extends DocumentAttributes
 {
-	//Make it private later. It's an excuse for data hiding
 	public $documentID;
 	public $authorID;
-	public $authorUsername;
 	public $editorID;
-	public $editorUsername;
 	public $title;
 	public $topic;
 	public $dateOfSubmission;
@@ -26,16 +20,14 @@ class DocumentMetaData extends DocumentAttributes
 	public $journalIssue;
 	public $documentStatus;
 
-	//Initialize the attributes on creation. Can initialize everything, somethings or nothing
+	//Initialize the attributes on creation. Can initialize [everything or somethings(all keys must be there)] or [nothing(empty array)]
 	function __construct($metaDataArray)
 	{
 		if(sizeof($metaDataArray) != 0)
 		{
 			$this->documentID = $metaDataArray["documentID"];
 			$this->authorID = $metaDataArray["authorID"];
-			$this->authorUsername = $metaDataArray["authorUsername"];
 			$this->editorID = $metaDataArray["editorID"];
-			$this->editorUsername = $metaDataArray["editorUsername"];
 			$this->title = $metaDataArray["title"];
 			$this->topic = $metaDataArray["topic"];
 			$this->dateOfSubmission = $metaDataArray["dateOfSubmission"];
@@ -53,71 +45,48 @@ class DocumentMetaData extends DocumentAttributes
 	//Update metadata 1 attribute at a time
 	public function setMetaData($attribute, $value)
 	{
-		global $personTable, $documentTable;
-		if($attribute === "documentID")
+		sqlProcesses("UPDATE `document` SET `{$attribute}` = ? WHERE `documentID`= ?", "ss", [$value, $this->documentID]);
+		
+		if($attribute == "documentID")
 			$this->documentID = $value;
-		else if($attribute === "authorID") {
-			$this->authorID = $value;
-
-			//get author username as well
-			$sql = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
-			$results = sqlProcesses($sql, "s", [$this->authorID]);
-			$this->authorUsername = mysqli_fetch_assoc($results)['username'];
-		}
-		else if($attribute === "editorID") {
-			$this->editorID = $value;
-
-			//get editor username as well
-			$sql = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
-			$results = sqlProcesses($sql, "s", [$this->editorID]);
-			$this->editorUsername = mysqli_fetch_assoc($results)['username'];
-		}
-		else if($attribute === "title")
+		else if($attribute == "authorID")
+			$this->authorID = $value;	
+		else if($attribute == "editorID")
+			$this->editorID = $value;				
+		else if($attribute == "title")
 			$this->title = $value;
-		else if($attribute === "topic")
+		else if($attribute == "topic")
 			$this->topic = $value;	
-		else if($attribute === "dateOfSubmission")
+		else if($attribute == "dateOfSubmission")
 			$this->dateOfSubmission = $value;	
-		else if($attribute === "printDate")
+		else if($attribute == "printDate")
 			$this->printDate = $value;
-		else if($attribute === "authorRemarks")
+		else if($attribute == "authorRemarks")
 			$this->authorRemarks = $value;
-		else if($attribute === "editorRemarks")
+		else if($attribute == "editorRemarks")
 			$this->editorRemarks = $value;	
-		else if($attribute === "reviewDueDate")
+		else if($attribute == "reviewDueDate")
 			$this->reviewDueDate = $value;
-		else if($attribute === "editDueDate")
+		else if($attribute == "editDueDate")
 			$this->editDueDate = $value;				
-		else if($attribute === "price")
+		else if($attribute == "price")
 			$this->price = $value;
-		else if($attribute === "journalIssue")
+		else if($attribute == "journalIssue")
 			$this->journalIssue = $value;		
-		else if($attribute === "documentStatus")
+		else if($attribute == "documentStatus")
 			$this->documentStatus = $value;	
-
-		sqlProcesses("UPDATE `$documentTable` SET `{$attribute}` = ? WHERE `documentID`= ?", 
-					"ss", [$value, $this->documentID]);
 	}
 
 	public function getMetaData()
 	{
-		$metaDataArray = array(
-			"documentID" => $this->documentID, 
-			"authorID" => $this->authorID, "authorUsername" => $this->authorUsername,
-			"editorID" => $this->editorID, "editorUsername" => $this->editorUsername, 
-			"title" => $this->title, 
-			"topic" => $this->topic, 
-			"dateOfSubmission" => $this->dateOfSubmission, 
-			"printDate" => $this->printDate, 
-			"authorRemarks" => $this->authorRemarks, 
-			"editorRemarks" => $this->editorRemarks, 
-			"reviewDueDate" => $this->reviewDueDate, 
-			"editDueDate" => $this->editDueDate, 
-			"price" => $this->price, 
-			"journalIssue" => $this->journalIssue, 
-			"documentStatus" => $this->documentStatus
-		);
-		
+		$metaDataArray = array("documentID" => $this->documentID, "authorID" => $this->authorID, "editorID" => $this->editorID, 
+								"title" => $this->title, "topic" => $this->topic, "dateOfSubmission" => $this->dateOfSubmission, 
+								"printDate" => $this->printDate, "authorRemarks" => $this->authorRemarks, 
+								"editorRemarks" => $this->editorRemarks, "reviewDueDate" => $this->reviewDueDate, 
+								"editDueDate" => $this->editDueDate, "price" => $this->price, "journalIssue" => $this->journalIssue, 
+								"documentStatus" => $this->documentStatus
+				);
+
 		return $metaDataArray;
 	}
 } 
@@ -131,7 +100,7 @@ class DocumentReview extends DocumentAttributes
 	public $reviewStatus;
 	public $dateOfReviewCompletion;
 
-	//Initialize the attributes on creation. Can initialize everything, somethings or nothing
+	//Initialize the attributes on creation. Can initialize [everything or somethings(all keys must be there)] or [nothing(empty array)]
 	function __construct($reviewDataArray)
 	{
 		if(sizeof($reviewDataArray) != 0)
@@ -148,7 +117,16 @@ class DocumentReview extends DocumentAttributes
 	//Update metadata 1 attribute at a time
 	public function setReviewData($attribute, $value)
 	{
-		if($attribute == "rating") 
+		sqlProcesses("UPDATE `review` SET `{$attribute}` = ? WHERE `documentID`= ? AND `reviewerID` = ?", "sss", 
+					[$value, $this->documentID, $this->reviewerID]);
+
+		if($attribute == "documentID") 
+			$this->documentID = $value;
+		
+		else if($attribute == "reviewerID") 
+			$this->reviewerID = $value;	
+
+		else if($attribute == "rating") 
 			$this->rating = $value;
 		
 		else if($attribute == "comment") 
@@ -158,9 +136,7 @@ class DocumentReview extends DocumentAttributes
 			$this->reviewStatus = $value;
 		
 		else if($attribute == "dateOfReviewCompletion") 
-			$this->dateOfReviewCompletion = $value;			
-
-		sqlProcesses("UPDATE `review` SET `{$attribute}` = ? WHERE `documentID`= ? AND `reviewerID` = ?", "sss", [$value, $this->documentID, $this->reviewerID]);
+			$this->dateOfReviewCompletion = $value;
 	}
 
 	public function getReviewData()
@@ -181,273 +157,186 @@ class DocumentReview extends DocumentAttributes
 //Document class has a documentStateObject
 class Document
 {
-	public $documentStateObject;
-	public $documentMetaDataObject;
-	public $DocumentReviewsArray = [];
+	protected $documentStateObject;
 
 	//------------------------------------------------------------------ State functions
-	//Look at this, most of the operations within these functions are ran by the document state object
-	public function __construct(DocumentState $documentStateObject)
-	{
+
+	//Documents are initialized as their respective states but EMPTY
+	public function __construct(DocumentState $documentStateObject){
 		$this->documentStateObject = $documentStateObject;
 		$this->documentStateObject->stateSetDocument($this);
-		$this->documentMetaDataObject = new DocumentMetaData([]);
-		$this->DocumentReviewsArray = [];
 	}
 
-	public function setDocumentMetaData($objectMetaData, $attribute, $value) {
+	//Set methods are according to their states
+	public function setDocumentMetaData($attribute, $value){
 		$this->documentStateObject->setDocumentMetaData($attribute, $value);
 	}
 	
-	public function setDocumentReviews($targetReviewObject, $attribute, $value){
-		$this->documentStateObject->setDocumentReviews($targetReviewObject, $attribute, $value);
+	//Set methods are according to their states
+	public function setDocumentReview($reviewerID, $attribute, $value){
+		$this->documentStateObject->setDocumentReview($reviewerID, $attribute, $value);
 	}
 
-	public function addDocumentReview(DocumentReview $targetReviewObject) {
-		$this->documentStateObject->addDocumentReview($targetReviewObject);
+	//Get methods are according to their states
+	public function getDocumentMetaData(){
+		return $this->documentStateObject->getDocumentMetaData();
+	}
+	
+	//Get methods are according to their states
+	public function getDocumentReviews(){
+		return $this->documentStateObject->getDocumentReviews();
 	}
 
-	public function getDocumentMetaData($documentID){return $this->documentStateObject->getDocumentMetaData($documentID);}
-	public function getDocumentReviews($reviewerIDArray){return $this->documentStateObject->getDocumentReviews($reviewerIDArray);}
-
-	//State function
-	public function getDocumentStateClass() : string {return get_class($this->documentStateObject);}
+	public function getDocumentContent(){
+		return $this->documentStateObject->getDocumentContent();
+	}
 }
 
 //DocumentState class has a DocumentObject
-abstract class DocumentState implements JsonSerializable
+abstract class DocumentState
 {
 	protected $documentObject;
+	protected $documentMetaDataObject;
+	protected $documentReviewsArray = array();
 
-	public function jsonSerialize() {
-		return get_class($this);
+	public function __construct($documentID)
+	{
+		//initialize document attributes
+		if($documentID != "")
+		{
+			$metaDataResults = sqlProcesses("SELECT * FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
+			$metaDataResults = mysqli_fetch_assoc($metaDataResults);
+			$this->documentMetaDataObject = new DocumentMetaData($metaDataResults);
+			$this->documentReviewsArray = [];
+
+			$allReviews = sqlProcesses("SELECT * FROM `review` WHERE `documentID` = ?", "s", [$documentID]);
+
+			if(mysqli_num_rows($allReviews) > 0)
+			{
+				$reviews = [];
+				while($individualReview = mysqli_fetch_assoc($allReviews))
+				{
+					$individualReviewObject = new DocumentReview($individualReview);
+					array_push($reviews, $individualReviewObject);
+				}
+				
+				$this->documentReviewsArray = $reviews;
+			}
+		}
 	}
 
 	public function stateSetDocument(Document $documentObject){$this->documentObject = $documentObject;}
 
-	abstract public function getDocumentById($documentID);
-
+	//Set methods are according to their states
 	abstract public function setDocumentMetaData($attribute, $value);
-	abstract public function setDocumentReviews($targetReviewObject, $attribute, $value);
-	abstract public function addDocumentReview(DocumentReview $review);
+	abstract public function setDocumentReview($reviewerID, $attribute, $value);
 
-	abstract public function getDocumentMetaData($documentID);
-	abstract public function getDocumentReviews($documentID);	
+	//Get methods are according to their states
+	abstract public function getDocumentMetaData();
+	abstract public function getDocumentReviews();
+
+	public function getDocumentContent() {
+        global $arr;
+        //get title & file
+        $query = "SELECT `title`, `file` FROM `document` WHERE documentID = ?";
+        $result = sqlProcesses($query, "s", [$this->getDocumentMetaData()->documentID]);
+
+        //if result found
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $title = $row['title'];
+                $file = $row['file'];
+            }
+            //set headers
+            header("Content-Type: application/pdf");
+            header('Content-Disposition: inline; filename="' . $title . '.pdf"');
+            header("Content-Transfer-Encoding: binary");
+            header('Accept-Ranges: bytes');
+
+            //determine filename
+            $filename = $title . ".pdf";
+
+            //create file and write to it
+            $myfile = fopen("../documents/" . $filename, "w") or die("Unable to open file!");
+            fwrite($myfile, $file);
+            fclose($myfile);
+
+            //go to file
+            header('Location: ' . "../documents/" . $filename, true, 302);
+        }
+        else {
+            $arr = ["error" => "document not found"];
+        }
+    }
 }
 
 //-------------------------------------------------------------------------------------------------------- "Concrete" documents
 
 //ManuscriptState class
+//Get methods good
+//Prepare set methods 
 class ManuscriptState extends DocumentState
 {
-	public function getDocumentById($documentID) {
-		global $documentTable, $personTable, $reviewTable;
-		$query = "SELECT * FROM `$documentTable` WHERE `documentID` = ?";
-
-		$result = sqlProcesses($query, "s", [$documentID]);
-
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-            //get data
-            $documentID = $row['documentID'];
-
-			//document metadata
-			$this->getDocumentMetaData($documentID);
-            
-            //set reviews
-			$this->documentObject->DocumentReviewsArray = $this->getDocumentReviews($documentID);
-		}
-	}
-
-	public function setDocumentMetaData($attribute, $value){
-		$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);
-	}
-
-	public function setDocumentReviews($targetReviewObject, $attribute, $value)
+	//Journal related information should not be set here
+	public function setDocumentMetaData($attribute, $value)
 	{
-		$this->documentObject->DocumentReviewsArray[$targetReviewObject]->setReviewData($attribute, $value);
+		if($attribute != "printDate" || $attribute != "journalIssue")
+			$this->documentMetaDataObject->setMetaData($attribute, $value);
 	}
 
-	public function addDocumentReview(DocumentReview $review) {
-		array_push($this->documentObject->DocumentReviewsArray, $review);
-	}
-
-	public function getDocumentMetaData($documentID)
+	//Reviews can be set when a document is a manuscript
+	public function setDocumentReview($reviewerID, $attribute, $value)
 	{
-		global $documentTable, $personTable;
-		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
-				`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
-				`editDueDate`, `price`, `journalIssue`, `documentStatus` 
-				FROM `$documentTable` D JOIN `$personTable` P ON D.authorID = P.personID WHERE `documentID` = ?";
-
-		$results = sqlProcesses($sql, "s", [$documentID]);
-
-		$metaDataArray = [];
-		$editorID = "";
-		if(mysqli_num_rows($results) > 0) {
-			$metaDataArray = mysqli_fetch_assoc($results);
-			$metaDataArray['editorUsername'] = null;
-			if (isset($metaDataArray['editorID'])) {
-				$editorID = $metaDataArray["editorID"];
-
-				//get editor username
-				$sqlEditor = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
-				$resultEditor = sqlProcesses($sqlEditor, "s", [$editorID]);
-
-				if (mysqli_num_rows($resultEditor) > 0) {
-					//if result
-					$editorUsername = mysqli_fetch_assoc($resultEditor)['username'];
-					$metaDataArray['editorUsername'] = $editorUsername;
-					
-				}
-			}
-		}
-
-		//Document meta data attribute initialized
-		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
-
-		$this->documentObject->documentMetaDataObject->getMetaData();
-		//Prepare the meta data information to be manuscript specific
-		$this->documentObject->documentMetaDataObject->setMetaData("printDate", "");
-		$this->documentObject->documentMetaDataObject->setMetaData("journalIssue", "");
-
-		return $this->documentObject->documentMetaDataObject;
-	}
-
-	public function getDocumentReviews($documentID)
-	{
-		$sql = "SELECT * FROM `review` WHERE `documentID` = ?";
-
-		$results = sqlProcesses($sql, "s", [$documentID]);
-
-		$reviewsObjectArray = [];
-
-		if(mysqli_num_rows($results) > 0)
+		foreach($this->documentReviewsArray as $individualReviewObject)
 		{
-			while($individualReview = mysqli_fetch_assoc($results))
-			{
-				$individualReviewObject = new DocumentReview($individualReview);
-				array_push($reviewsObjectArray, $individualReviewObject);
-			}
-		}
+			$individualReviewArray = $individualReviewObject->getReviewData();
 
-		return $reviewsObjectArray;
+			if($individualReviewArray["reviewerID"] == $reviewerID)
+				$individualReviewObject->setReviewData($attribute, $value);
+		}
+	}
+
+	//Return only manuscript related metadata
+	public function getDocumentMetaData()
+	{
+		return $this->documentMetaDataObject;
+	}
+
+	//Return all reviews as review objects
+	public function getDocumentReviews()
+	{
+		return $this->documentReviewsArray;
 	}
 }
 
-////JournalState class
+//JournalState class
 class JournalState extends DocumentState
 {
-	public function concreteTransform(): void
+	//Only Journal related information can be set here
+	public function setDocumentMetaData($attribute, $value)
 	{
-		echo "JournalState transform to Manuscript via the state's document object's transition function. <br>";
-		$this->documentObject->transitionTo(new ManuscriptState());
+		if($attribute == "journalIssue" || $attribute == "printDate")
+			$this->documentMetaDataObject->setMetaData($attribute, $value);
 	}
 
-	public function getDocumentById($documentID) {
-		global $documentTable;
-		$query = "SELECT * FROM `$documentTable` WHERE `documentID` = ?";
+	//Reviews cannot be set when a document is a journal
+	public function setDocumentReview($reviewerID, $attribute, $value){}
 
-		$result = sqlProcesses($query, "s", [$documentID]);
-
-		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-			//get data
-			$documentID = $row['documentID'];
-
-			//document metadata
-			$this->getDocumentMetaData($documentID);
-			
-			//set reviews
-			$this->documentObject->DocumentReviewsArray = $this->getDocumentReviews($documentID);
-		}
-	}
-
-	public function setDocumentMetaData($attribute, $value){$this->documentObject->documentMetaDataObject->setMetaData($attribute, $value);}
-
-	public function getDocumentMetaData($documentID)
+	//Return only journal related metadata
+	public function getDocumentMetaData()
 	{
-		global $documentTable, $personTable;
-		$sql = "SELECT `documentID`, `authorID`, `username` AS `authorUsername`, `editorID`, `title`, `topic`, 
-		`dateOfSubmission`, `printDate`, `authorRemarks`, `editorRemarks`, `reviewDueDate`, 
-		`editDueDate`, `price`, `journalIssue`, `documentStatus` 
-		FROM `$documentTable` D JOIN `$personTable` P ON D.authorID = P.personID WHERE `documentID` = ?";
+		$this->documentMetaDataObject->authorRemarks = "";
+		$this->documentMetaDataObject->editorRemarks = "";
+		$this->documentMetaDataObject->reviewDueDate = "";
+		$this->documentMetaDataObject->editDueDate = "";
 
-		$results = sqlProcesses($sql, "s", [$documentID]);
-
-		$metaDataArray = [];
-		$editorID = "";
-		if(mysqli_num_rows($results) > 0) {
-			$metaDataArray = mysqli_fetch_assoc($results);
-			$metaDataArray['editorUsername'] = null;
-			if (isset($metaDataArray['editorID'])) {
-				$editorID = $metaDataArray["editorID"];
-
-				//get editor username
-				$sqlEditor = "SELECT `username` FROM `$personTable` WHERE `personID` = ?";
-				$resultEditor = sqlProcesses($sqlEditor, "s", [$editorID]);
-
-				if (mysqli_num_rows($resultEditor) > 0) {
-					//if result
-					$editorUsername = mysqli_fetch_assoc($results)['username'];
-					$metaDataArray['editorUsername'] = $editorUsername;
-					
-				}
-			}
-		}
-
-		//Document meta data attribute initialized
-		$this->documentObject->documentMetaDataObject = new DocumentMetaData($metaDataArray);
-
-		//Prepare the meta data information to be Journal specific
-		$this->documentObject->documentMetaDataObject->setMetaData("reviewDueDate", "");
-		$this->documentObject->documentMetaDataObject->setMetaData("editDueDate", "");
-
-		return $this->documentObject->documentMetaDataObject;		
+		return $this->documentMetaDataObject;
 	}
 
-	public function setDocumentContent($dcArray)
+	//Return all reviews as review objects
+	public function getDocumentReviews()
 	{
-		//It's a journal, the Content should have been finalized
-		echo "JournalState setDocumentContent(). <br>";
-	}
-	
-	public function getDocumentContent($documentID)
-	{
-		echo "JournalState getDocumentContent(). <br>";
-
-		foreach($this->documentObject->documentContent as $key => $value)
-		{
-			echo $key . " : ". $value . "<br>";	
-		}		
-	}
-
-	public function setDocumentReviews($targetReviewObject, $attribute, $value)
-	{
-		//It's a journal, the Reviews should have been finalized
-	}
-
-	public function getDocumentReviews($documentID)
-	{
-		$sql = "SELECT * FROM `review` WHERE `documentID` = ?";
-
-		$results = sqlProcesses($sql, "s", [$documentID]);
-
-		$reviewsObjectArray = [];
-
-		if(mysqli_num_rows($results) > 0)
-		{
-			while($individualReview = mysqli_fetch_assoc($results))
-			{
-				$individualReviewObject = new DocumentReview($individualReview);
-				array_push($reviewsObjectArray, $individualReviewObject);
-			}
-		}
-
-		return $reviewsObjectArray;
-	}
-
-	public function addDocumentReview(DocumentReview $review) {
-		//empty
+		return $this->documentReviewsArray;
 	}
 }
-
 ?>
