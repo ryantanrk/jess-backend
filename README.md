@@ -12,6 +12,8 @@ CSCI334 Group Project
 
 Using Object-Oriented PHP
 
+Note: please create a new folder called "documents" in the root directory to be able to download documents.
+
 Design patterns: State (Behavioral), Factory Method (Creational)
 
 Pairs with frontend: [Link](https://github.com/ryantanrk/jess-frontend)
