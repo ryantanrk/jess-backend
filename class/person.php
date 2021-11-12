@@ -252,17 +252,12 @@
 
             if($targetAttribute == "documentStatus" || $targetAttribute == "authorRemarks")
             {
-                $documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
+                $documentObject->getDocumentMetaData()->setMetaData($targetAttribute, $value);
             }
             else if($targetAttribute == "file")
             {
-                // $tempArray = $documentObject->getDocumentMetaData();
-                // $fileTempName = $value;
-                // $fileToUpload = file_get_contents($fileTempName);
-
                 //Inline temp
-                $fileToUpload = file_get_contents($value["documentToUpload"]["tmp_name"]);                  
-                //$documentObject->documentMetaDataObject->setMetaData($targetAttribute, $value);
+                $fileToUpload = file_get_contents($value);                  
                 sqlProcesses("UPDATE `document` SET `file`=? WHERE `documentID`=?", "ss",[$fileToUpload, $documentID]);
             }
         }

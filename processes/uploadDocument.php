@@ -16,18 +16,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     //create author object
     $author = getPersonFromID($authorID);
 
-    $title = $_POST['title'];
-    $topicOption = $_POST['topic'];
-    $documentToUpload = $_FILES['document']['tmp_name']; //file
-    $authorRemarks = $_POST['authorRemarks'];
-
     $doc = [
         "authorID" => $authorID,
-        "title" => $title,
-        "topic" => $topicOption,
-        "documentToUpload" => $documentToUpload,
-        "authorRemarks" => $authorRemarks
+        "title" => $_POST['title'],
+        "topic" => $_POST['topic'],
+        "documentToUpload" => $_FILES['document']['tmp_name'],
+        "authorRemarks" => $_POST['authorRemarks']
     ];
+    
     $documentMetaData = $author->uploadNewDocument($doc);
     $arr = ["message" => "upload"];
 }
