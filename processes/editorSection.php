@@ -43,12 +43,13 @@ function approveDocument($editorID, $documentID, $editorRemarks) {
         $editor->setAuthorizedDocumentAttribute($documentID, "documentStatus", "pending review");
         //notify author
         $author = getPersonFromID($metadata->authorID);
-        $message = "Hello " . $author->username . ",<br/><br/>";
+        $authordata = $author->getPersonData();
+        $message = "Hello " . $authordata['username'] . ",<br/><br/>";
         $message .= "Your uploaded document: " . $metadata->title . ", has been determined to be within scope.<br/><br/>";
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
 
-        $editor->notify($author->email, "Approval of Document: " . $metadata->title, $message);
+        $editor->notify($authordata['email'], "Approval of Document: " . $metadata->title, $message);
         $arr = ["message" => "document approved: " . $metadata->documentID];
     }
     else {
