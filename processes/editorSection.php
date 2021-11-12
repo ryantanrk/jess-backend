@@ -80,6 +80,8 @@ function rejectDocument($editorID, $documentID) {
     if ($metadata->documentStatus === "new") {
         //change status to pending review
         $editor->setAuthorizedDocumentAttribute($documentID, "documentStatus", "rejected");
+        //add editorID
+        $editor->setAuthorizedDocumentAttribute($documentID, "editorID", $editorID);
 
         //notify author
         $author = getPersonFromID($metadata->authorID);
