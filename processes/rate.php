@@ -26,13 +26,15 @@
         $documentobj = retrieveDocumentFromDatabaseInCorrectState($documentID);
         //get metadata object
         $metadataobj = $documentobj->getDocumentMetaData();
+        //get rating array
+        $documentreviews = $documentobj->getDocumentReviews();
 
         $ratings = []; //ratings array
 
         //iterate over review array
         if ($metadataobj->documentStatus === "under review") {
-            if (count($documentobj->documentReviewsArray) > 0) {
-                foreach ($documentobj->documentReviewsArray as $review) {
+            if (count($documentreviews) > 0) {
+                foreach ($documentreviews as $review) {
                     //if reviewer ID matches
                     if ($review->reviewerID === $reviewerID && $review->reviewStatus === "pending") {
                         //set review attributes
