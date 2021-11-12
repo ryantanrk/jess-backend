@@ -3,13 +3,12 @@ Repo for JESS backend
 
 CSCI334 Group Project
 
-# Group 5
+## Group 5 Members
 - Ryan Tan Rui Kit
 - Lye Tian-Yong
 - Mohammed Azizul Hoque Sheikh
 - Sun Chao
 - Wu Fuyun
-
 
 Using Object-Oriented PHP
 
