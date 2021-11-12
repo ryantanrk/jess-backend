@@ -193,7 +193,7 @@ class Document
 }
 
 //DocumentState class has a DocumentObject
-abstract class DocumentState implements JsonSerializable
+abstract class DocumentState
 {
 	protected $documentObject;
 	protected $documentMetaDataObject;
@@ -268,12 +268,6 @@ abstract class DocumentState implements JsonSerializable
             $arr = ["error" => "document not found"];
         }
     }
-
-	//allow state to be output
-	public function jsonSerialize()
-	{
-		return get_class($this);
-	}
 }
 
 //-------------------------------------------------------------------------------------------------------- "Concrete" documents
