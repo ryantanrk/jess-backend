@@ -131,10 +131,10 @@ function compile($editorID, $documentID, $newDocumentID, $editorRemarks) {
 
     if ($metadata->documentStatus === "pending compile") {  
         $document_arr = [
-            "documentID" => $newDocumentID,
             "editorRemarks" => $editorRemarks,
             "documentStatus" => "pending modify",
-            "editDueDate" => date("Y-m-d", strtotime("+30 days"))
+            "editDueDate" => date("Y-m-d", strtotime("+30 days")),
+            "documentID" => $newDocumentID
         ];
     
         foreach ($document_arr as $key => $value) {

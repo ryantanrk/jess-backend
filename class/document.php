@@ -205,8 +205,8 @@ abstract class DocumentState
 		if($documentID != "")
 		{
 			$metaDataResults = sqlProcesses("SELECT * FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
-			$metaDataResults = mysqli_fetch_assoc($metaDataResults);
-			$this->documentMetaDataObject = new DocumentMetaData($metaDataResults);
+			$metaDataRow = mysqli_fetch_assoc($metaDataResults);
+			$this->documentMetaDataObject = new DocumentMetaData($metaDataRow);
 			$this->documentReviewsArray = [];
 
 			$allReviews = sqlProcesses("SELECT * FROM `review` WHERE `documentID` = ?", "s", [$documentID]);
