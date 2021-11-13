@@ -34,10 +34,10 @@ function approveDocument($editorID, $documentID, $newDocumentID, $editorRemarks)
     if ($metadata->documentStatus === "new") {
         //edit attribute array
         $attribute_arr = [
-            "documentID" => $newDocumentID,
             "editorID" => $editorID,
             "editorRemarks" => $editorRemarks,
-            "documentStatus" => "pending review"
+            "documentStatus" => "pending review",
+            "documentID" => $newDocumentID
         ];
 
         //add editor remarks, set editor ID, change status to pending review
