@@ -56,7 +56,7 @@
 
     if ($access == 1) {
         //if access granted
-        $query = "SELECT * FROM `$reviewTable`"; //query
+        $query = "SELECT * FROM `review`"; //query
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';

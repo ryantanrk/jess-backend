@@ -65,7 +65,7 @@
 	//function to get a new ID (for any table)
     function getNewID($type) : string 
     {
-        global $personTable, $documentTable, $connection;
+        global $connection;
 		//get prefix & query
         $prefix = "";
         $query = "";
@@ -75,15 +75,15 @@
             switch ($type) {
                 case 0: //editor
                     $prefix = "E";
-                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    $query = "SELECT COUNT(*) AS total FROM `person` WHERE `type` = ?";
                     break;
                 case 1: //author
                     $prefix = "A";
-                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    $query = "SELECT COUNT(*) AS total FROM `person` WHERE `type` = ?";
                     break;
                 case 2: //reviewer
                     $prefix = "R";
-                    $query = "SELECT COUNT(*) AS total FROM `$personTable` WHERE `type` = ?";
+                    $query = "SELECT COUNT(*) AS total FROM `person` WHERE `type` = ?";
                     break;
             }
             $result = sqlProcesses($query, "s", [$type]);
@@ -91,7 +91,7 @@
         else if ($type == 3) {
             //document
             $prefix = "D";
-            $query = "SELECT COUNT(?) AS total FROM `$documentTable`";
+            $query = "SELECT COUNT(?) AS total FROM `document`";
             $result = sqlProcesses($query, "s", ["*"]);
         }
         

@@ -89,8 +89,8 @@
     if ($access == 1) {
         //if access granted
         //query
-        $query = "SELECT P.personID, type FROM `$personTable` AS P
-        LEFT OUTER JOIN `$reviewerTable` AS R ON P.personID = R.personID ";
+        $query = "SELECT P.personID, type FROM `person` AS P
+        LEFT OUTER JOIN `reviewerspecific` AS R ON P.personID = R.personID ";
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';

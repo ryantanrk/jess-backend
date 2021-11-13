@@ -66,7 +66,7 @@
 
     $docarray = [];
     if ($access == 1) {
-        $query = "SELECT * FROM `$documentTable` ";
+        $query = "SELECT * FROM `document` ";
 
         if (!empty($conditions)) {
             $query .= ' WHERE ';
