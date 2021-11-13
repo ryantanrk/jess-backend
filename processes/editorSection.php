@@ -132,7 +132,7 @@ function compile($editorID, $documentID, $editorRemarks) {
         $document_arr = [
             "editorRemarks" => $editorRemarks,
             "documentStatus" => "pending modify",
-            "editDueDate" => date("Y-m-d") + 30
+            "editDueDate" => date("Y-m-d", strtotime("+30 days"))
         ];
     
         foreach ($document_arr as $key => $value) {
