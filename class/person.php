@@ -305,18 +305,10 @@
             $topicOption = $value['topic']; 
 
             $fileToUpload = file_get_contents($value['documentToUpload']);
-
             $authorRemarks = $value['authorRemarks'];
-
-            //Split Temporary Variable
-            $documentIDSQLObject = sqlProcesses("SELECT COUNT(?) AS TOTALDOCS FROM `document`", "s", ['*']);
-            $documentIDSQLArray = mysqli_fetch_assoc($documentIDSQLObject);
-            $documentID = 'D' . ($documentIDSQLArray['TOTALDOCS'] + 1);
-
+            $documentID = getNewID(3);
             $editorID = NULL;
-
             $dateOfSubmission = date("Y-m-d");
-
             $documentStatus = 'new';
 
         	//---------------------------------------------------------------------- The potentially move to document area stuff

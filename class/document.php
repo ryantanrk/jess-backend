@@ -204,6 +204,7 @@ abstract class DocumentState
 		//initialize document attributes
 		if($documentID != "")
 		{
+			//split temp variable
 			$metaDataResults = sqlProcesses("SELECT * FROM `document` WHERE `documentID` = ?", "s", [$documentID]);
 			$metaDataRow = mysqli_fetch_assoc($metaDataResults);
 			$this->documentMetaDataObject = new DocumentMetaData($metaDataRow);
