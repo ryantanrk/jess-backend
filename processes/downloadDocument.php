@@ -12,14 +12,11 @@
     $title = "";
     $file = "";
     $arr = [1 => "Send a POST request to this url!"];
-    //get document content
 
     function downloadDocument($documentID) {
         $document = retrieveDocumentFromDatabaseInCorrectState($documentID);
         $document->getDocumentContent();
     }
-
-    downloadDocument("D1");
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $documentID = $_POST['documentID'];
