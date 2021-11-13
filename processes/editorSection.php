@@ -21,7 +21,7 @@ function rejectReviewer($editorID, $reviewerID) {
     $editor->approveRejectReviewer($reviewerID, "rejected");
 }
 
-function approveDocument($editorID, $documentID, $editorRemarks) {
+function approveDocument($editorID, $documentID, $newDocumentID, $editorRemarks) {
     global $arr;
     $editor = getPersonFromID($editorID);
     
@@ -34,6 +34,7 @@ function approveDocument($editorID, $documentID, $editorRemarks) {
     if ($metadata->documentStatus === "new") {
         //edit attribute array
         $attribute_arr = [
+            "documentID" => $newDocumentID,
             "editorID" => $editorID,
             "editorRemarks" => $editorRemarks,
             "documentStatus" => "pending review"
@@ -52,7 +53,7 @@ function approveDocument($editorID, $documentID, $editorRemarks) {
         $message .= "Please wait for reviewers to review the document.<br/><br/>";
         $message .= "<b>JESS</b><br/>";
         $message .= "<i>This is an automatically generated email.</i>";
-        $arr = ["message" => "document approved: " . $metadata->documentID];
+        $arr = ["message" => "document approved: " . $newDocumentID];
 
         $editor->notify($authordata['personID'], "Approval of Document: " . $metadata->title, $message);
         
@@ -278,7 +279,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             break;
         case "determinescope":
             if ($_POST['scope'] === "Within Scope") {
-                approveDocument($_POST['editorID'], $_POST['documentID'], $_POST['editorRemarks']);
+                approveDocument($_POST['editorID'], $_POST['documentID'], $_POST['newDocumentID'], $_POST['editorRemarks']);
             }
             else if ($_POST['scope'] === "Out of scope") {
                 rejectDocument($_POST['editorID'], $_POST['documentID']);
