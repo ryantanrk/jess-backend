@@ -119,7 +119,7 @@ function assignReviewer($editorID, $documentID, $reviewerID) {
     }
 }
 
-function compile($editorID, $documentID, $editorRemarks) {
+function compile($editorID, $documentID, $newDocumentID, $editorRemarks) {
     global $arr;
     //change editor remarks and document status
     //get editor
@@ -130,6 +130,7 @@ function compile($editorID, $documentID, $editorRemarks) {
 
     if ($metadata->documentStatus === "pending compile") {  
         $document_arr = [
+            "documentID" => $newDocumentID,
             "editorRemarks" => $editorRemarks,
             "documentStatus" => "pending modify",
             "editDueDate" => date("Y-m-d", strtotime("+30 days"))
@@ -151,7 +152,7 @@ function compile($editorID, $documentID, $editorRemarks) {
         $message .= "<i>This is an automatically generated email.</i>";
     
         $editor->notify($authordata['personID'], "Pending modify: " . $metadata->title, $message);
-        $arr = ["message" => "document " . $documentID . " compiled"];
+        $arr = ["message" => "document " . $newDocumentID . " compiled"];
     }
     else {
         $arr = ["error" => "document is not in a state to be compiled"];
@@ -287,7 +288,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             assignReviewer($_POST['editorID'], $_POST['documentID'], $_POST['reviewerID']);
             break;
         case "compile":
-            compile($_POST['editorID'], $_POST['documentID'], $_POST['editorRemarks']);
+            compile($_POST['editorID'], $_POST['documentID'], $_POST['newDocumentID'], $_POST['editorRemarks']);
             break;
         case "finalcheck":
             finalCheck($_POST['editorID'], $_POST['documentID'], $_POST['satisfied']);
