@@ -109,17 +109,35 @@
                 else if ($row['type'] == 1) {
                     $authorobj = getPersonFromID($personID);
                     $person_arr = $authorobj->getPersonData();
+
+                    //get late edits
+                    $sqlauthor = "SELECT COUNT(?) AS countlate
+                    FROM `document` D 
+                    JOIN `person` P ON D.authorID = P.personID 
+                    WHERE D.authorID = ? AND DATE(NOW()) > DATE(D.editDueDate)";
+                    $resultLateEdit = sqlProcesses($sqlauthor, "ss", ["*", $personID]);
+                    $rowLateEdit = mysqli_fetch_assoc($resultLateEdit);
+                    $person_arr['lateEdits'] = $rowLateEdit['countlate'];
+                    
                     array_push($personarray, $person_arr);
                 }
                 else if ($row['type'] == 2) {
                     $reviewerobj = getPersonFromID($personID);
                     $person_arr = $reviewerobj->getPersonData();
+
+                    //get late reviews
+                    $sqlreview = "SELECT COUNT(?) AS countlate
+                    FROM `review` R 
+                    JOIN `person` P ON R.reviewerID = P.personID
+                    JOIN `document` D ON R.documentID = D.documentID
+                    WHERE R.reviewerID = ? AND DATE(R.dateOfReviewCompletion) > DATE(D.reviewDueDate)";
+                    $resultLateReview = sqlProcesses($sqlreview, "ss", ["*", $personID]);
+                    $rowLateReview = mysqli_fetch_assoc($resultLateReview);
+                    $person_arr['lateReviews'] = $rowLateReview['countlate'];
+                    
                     array_push($personarray, $person_arr);
                 }
             }
-        }
-        else {
-            $personarray = ["error" => "No person found."];
         }
     }
     else {

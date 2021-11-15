@@ -104,9 +104,6 @@
                 array_push($docarray, $documentobj);
             }
         }
-        else {
-            $docarray = ["error" => "No documents found."];
-        }
     }
     else {
         array_push($docarray, "Access denied.");
