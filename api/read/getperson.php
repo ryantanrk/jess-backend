@@ -102,11 +102,8 @@
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
                 $personID = $row['personID'];
-                if ($row['type'] == 0) {
-                    // $editorobj = getPersonFromID($personID);
-                    // array_push($personarray, $editorobj);
-                }
-                else if ($row['type'] == 1) {
+
+                if ($row['type'] == 1) {
                     $authorobj = getPersonFromID($personID);
                     $person_arr = $authorobj->getPersonData();
 
