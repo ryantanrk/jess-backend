@@ -17,7 +17,6 @@
         if ($reviewerdata['status'] != $status) {
             //if doesn't match status
             $reviewer->setReviewerStatus($status);
-            $arr = ["message" => "reviewer " . $reviewerID . " status changed to " . $status];
         }
         else {
             //if match status
