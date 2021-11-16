@@ -9,11 +9,12 @@ header("Content-Type: application/json");
 
 $arr = ["1" => "Send a POST request to this url!"];
 
+payDocument("A1", "D1", "pay");
 function payDocument($authorID, $documentID, $choice) {
-    global $documentTable, $arr;
+    global $arr;
     $author = getPersonFromID($authorID);
 
-    $sql = "SELECT `documentStatus` FROM `$documentTable` WHERE `documentID` = ? AND `authorID` = ?";
+    $sql = "SELECT `documentStatus` FROM `document` WHERE `documentID` = ? AND `authorID` = ?";
 
     $result = sqlProcesses($sql, "ss", [$documentID, $authorID]);
 
