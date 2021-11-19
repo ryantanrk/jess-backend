@@ -326,8 +326,6 @@ class JournalState extends DocumentState
 	//Return only journal related metadata
 	public function getDocumentMetaData()
 	{
-		$this->documentMetaDataObject->authorRemarks = "";
-		$this->documentMetaDataObject->editorRemarks = "";
 		$this->documentMetaDataObject->reviewDueDate = "";
 		$this->documentMetaDataObject->editDueDate = "";
 
